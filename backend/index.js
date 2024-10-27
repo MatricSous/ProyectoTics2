@@ -27,6 +27,7 @@ const users = [
 
 secret = "sous1234";
 
+
 app.get("/", (req, res) => {
     return res.json("proobando el backend");
   });
@@ -116,6 +117,98 @@ const verifyToken = (req, res, next) => {
 // Endpoint protegido
 app.get('/protected', verifyToken, (req, res) => {
     res.json({ message: 'Acceso concedido', user: req.user });
+});
+
+// Materiales
+app.post('/materiales/crearMaterial', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+    console.log(req)
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear un producto' });
+        }
+
+        // Aquí iría el código para crear el producto si el rol es 0
+        const q2 = "INSERT INTO materiales (codigo_material, nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo) VALUES (?, ?, ?, ?, ?, ?,?,?,?)";
+        const codigo_material = req.body.material.codigo_material;
+        const nombre_material = req.body.material.nombre_material;
+        const descripcion_material = req.body.material.descripcion_material;
+        const tipo_material = req.body.material.tipo_material;
+        const precio_material = req.body.material.precio_material;
+        const foto_material = req.body.material.foto_material;
+        const modificar_precio = req.body.material.modificar_precio;
+        const valor_iva = req.body.material.valor_iva;
+        const descuento_maximo = req.body.material.descuento_maximo;
+        db.query(q2,[codigo_material, nombre_material,descripcion_material,tipo_material,precio_material,foto_material,modificar_precio,valor_iva,descuento_maximo], (err,data) =>{
+            if (err){
+                console.log(err)
+                return res.status(500).json({message: 'Hubo un error ingresando el material'});
+            }
+            return res.json({message:'Material Ingresado Exitosamente', material: req.material});
+
+        });
+        
+    });
+});
+
+
+app.post('/materiales/eliminarMaterial', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para eliminar un material' });
+        }
+
+        // Código para eliminar el material si el rol es 0
+        const codigo_material = req.body.codigo_material;
+        const q2 = "DELETE FROM materiales WHERE codigo_material = ?";
+
+        db.query(q2, [codigo_material], (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Hubo un error al eliminar el material' });
+            }
+
+            // Verificar si algún material fue eliminado
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: 'Material no encontrado' });
+            }
+
+            return res.json({ message: 'Material eliminado exitosamente' });
+        });
+    });
 });
 
   
