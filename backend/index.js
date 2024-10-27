@@ -170,6 +170,117 @@ app.post('/materiales/crearMaterial', verifyToken, (req, res) => {
     });
 });
 
+// Ruta para obtener todos los materiales con sus 9 características
+app.get('/materiales/verMateriales', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para ver materiales
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para ver los materiales' });
+        }
+
+        // Consulta para obtener todos los materiales con sus 9 características
+        const q3 = `
+            SELECT 
+                codigo_material, 
+                nombre_material, 
+                descripcion_material, 
+                tipo_material, 
+                precio_material, 
+                foto_material, 
+                modificar_precio, 
+                valor_iva, 
+                descuento_maximo 
+            FROM materiales
+        `;
+        
+        db.query(q3, (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Error al obtener materiales', error: err });
+            }
+
+            // Retornar los materiales en la respuesta
+            return res.json({ message: 'Materiales obtenidos exitosamente', materiales: data });
+        });
+    });
+});
+
+// Ruta para obtener un solo material por codigo_material con sus 9 características
+app.get('/materiales/verMaterial/:codigo_material', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para ver materiales
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para ver el material' });
+        }
+
+        // Consulta para obtener el material por su codigo_material
+        const q4 = `
+            SELECT 
+                codigo_material, 
+                nombre_material, 
+                descripcion_material, 
+                tipo_material, 
+                precio_material, 
+                foto_material, 
+                modificar_precio, 
+                valor_iva, 
+                descuento_maximo 
+            FROM materiales 
+            WHERE codigo_material = ?
+        `;
+
+        const codigo_material = req.params.codigo_material;
+
+        db.query(q4, [codigo_material], (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Error al obtener el material', error: err });
+            }
+
+            // Verificar si el material existe
+            if (data.length === 0) {
+                return res.status(404).json({ message: 'Material no encontrado' });
+            }
+
+            // Retornar el material encontrado en la respuesta
+            return res.json({ message: 'Material obtenido exitosamente', material: data[0] });
+        });
+    });
+});
+
+
 
 app.post('/materiales/crearMateriales', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
