@@ -8,8 +8,7 @@ import LandingCompras from './pages/LandingCompras';
 import index from './pages/index';
 import './App.css';
 import { createTheme } from '@mui/material/styles';
-import { useTheme, ThemeProvider } from '@mui/material/styles';
-import { colors } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
@@ -29,7 +28,7 @@ const theme = createTheme({
     amarillo: {
       light: '#2b2b2b',
       main: '#daa520',
-      dark: '#3a7ca5',
+      dark: '#b98917',
       contrastText: '#2b2b2b',
     },
 

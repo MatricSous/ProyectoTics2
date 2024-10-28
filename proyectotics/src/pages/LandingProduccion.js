@@ -1,13 +1,8 @@
 import React from 'react';
 //import Axios from 'axios';
-import { useState } from 'react';
 import { Container, Grid, Button } from '@mui/material';
 import '../index.css';
 import SettingsIcon from '@mui/icons-material/Settings';
-import StoreIcon from '@mui/icons-material/Store';
-import ConstructionIcon from '@mui/icons-material/Construction';
-import LocalMallIcon from '@mui/icons-material/LocalMall';
-import PlumbingIcon from '@mui/icons-material/Plumbing';
 import CategoryIcon from '@mui/icons-material/Category';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InventoryIcon from '@mui/icons-material/Inventory';
