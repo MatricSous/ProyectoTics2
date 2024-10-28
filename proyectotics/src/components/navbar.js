@@ -40,18 +40,24 @@ function Navbar() {
             <Typography variant="h6" align="center"></Typography>
           </Grid>
 
-          {/* Botones alineados a la derecha */}
-          <Grid item xs={4} style={{ textAlign: 'right' }}>
-            <Button variant="text" color='amarillo' style={{ marginRight: '20px' }} startIcon={<AccountCircleIcon />}>
-              ADMINISTRADOR
-            </Button>
-            <Button variant="contained" color='amarillo'>
-              Cerrar sesión 
-            </Button>
-          </Grid>
-        </Grid>
-      </CustomToolbar>
-    </AppBar>
+              {/* Botones alineados a la derecha */}
+              <Grid item xs={4} style={{ textAlign: 'right' }}>
+              {!hidenButton && (
+                <Button variant="text" color='amarillo' style={{ marginRight: '20px' }} startIcon={<AccountCircleIcon />}>
+                  ADMINISTRADOR
+                </Button>
+              )}
+              {!hidenButton && (
+                <Button variant="contained" color='amarillo' >
+                  Cerrar sesión 
+                </Button>
+              )}
+              </Grid>
+            </Grid>
+          </CustomToolbar>
+        </AppBar>
+      //)}
+    //</>  
   );
 }
 
