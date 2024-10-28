@@ -61,7 +61,11 @@ function Navbar() {
                 </Button>
               )}
               {!hidenButton && (
+<<<<<<< HEAD
                 <Button variant="contained" color='amarillo' onClick={() => navigate('/')}>
+=======
+                <Button variant="contained" color='amarillo' >
+>>>>>>> 7f83e09 (cambio navbar)
                   Cerrar sesión 
                 </Button>
               )}
