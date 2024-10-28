@@ -20,3 +20,9 @@ code {
   width: 200px;
   height: 60px;
 }
+
+.Raya{
+  width: 100%; /* Ocupa todo el ancho del modal */
+  border-top: 2px solid black; /* Cambia el color y el grosor según lo necesites */
+  margin: 20px 0; /* Espacio superior e inferior */
+}
