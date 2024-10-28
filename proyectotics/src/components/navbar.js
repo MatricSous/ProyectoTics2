@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid, AppBar, Toolbar, Typography, Button, styled, Box } from '@mui/material';
 import logo from '../images/LOGOrial.png'; // Ajusta la ruta de tu logo
 import { useNavigate, useLocation } from 'react-router-dom'; // Importa useNavigate
