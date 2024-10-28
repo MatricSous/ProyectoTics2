@@ -1,8 +1,10 @@
 import React from 'react';
-import { Grid, AppBar, Toolbar, Typography, Button, styled } from '@mui/material';
+import { Grid, AppBar, Toolbar, Typography, Button, styled, Box } from '@mui/material';
 import logo from '../images/LOGOrial.png'; // Ajusta la ruta de tu logo
-import { createTheme } from '@mui/material/styles';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import RedoIcon from '@mui/icons-material/Redo';
 
 const CustomToolbar = styled(Toolbar)(({ theme }) => ({
   backgroundColor: '#093D77',
@@ -10,19 +12,27 @@ const CustomToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '0 16px',
 }));
 
-
-
 function Navbar() {
-    const theme = useTheme();
+  const theme = useTheme();
+  const navigate = useNavigate(); // Crea una instancia de navigate
+
   return (
-    
-    <AppBar position="static">
+    <AppBar position="fixed">
       <CustomToolbar>
         <Grid container alignItems="center" justifyContent="space-between">
-          
           {/* Logo alineado a la izquierda */}
           <Grid item xs={4}>
-            <img src={logo} alt="Logo" className='LOGO' style={{ width: '60px', height: '50px' }} />
+            <Box display="flex" alignItems="center">
+              <img src={logo} alt="Logo" className='LOGO' style={{ width: '60px', height: '50px', paddingRight: '25px' }} />
+              <Button 
+                variant="text" 
+                color='amarillo' 
+                startIcon={<RedoIcon style={{ fontSize: '30px', transform: 'scaleX(-1)' }} />} 
+                onClick={() => navigate(-1)} // Regresa a la página anterior
+              >
+                Volver
+              </Button>
+            </Box>
           </Grid>
 
           {/* Enlaces de navegación o secciones en el centro */}
@@ -32,14 +42,13 @@ function Navbar() {
 
           {/* Botones alineados a la derecha */}
           <Grid item xs={4} style={{ textAlign: 'right' }}>
-            <Button  variant="text" color='negro' style={{ marginRight: '20px' }}>
+            <Button variant="text" color='amarillo' style={{ marginRight: '20px' }} startIcon={<AccountCircleIcon />}>
               ADMINISTRADOR
             </Button>
-            <Button variant="contained" color='negro'  >
-              Botón 2
+            <Button variant="contained" color='amarillo'>
+              Cerrar sesión 
             </Button>
           </Grid>
-
         </Grid>
       </CustomToolbar>
     </AppBar>

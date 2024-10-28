@@ -7,10 +7,10 @@ export default function index() {
     return (
         <div>
          <h1>
-         HOLAAA
+         Login michamo
          </h1>
  
-             HOLAAA
+             Login michamo
          </div>
  
          

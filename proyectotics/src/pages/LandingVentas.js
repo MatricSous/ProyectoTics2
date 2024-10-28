@@ -7,13 +7,17 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import StoreIcon from '@mui/icons-material/Store';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import LocalMallIcon from '@mui/icons-material/LocalMall';
-import { useHref } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import PlumbingIcon from '@mui/icons-material/Plumbing';
+import CategoryIcon from '@mui/icons-material/Category';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 
-export default function Landing() {
-    const navigate = useNavigate(); // Crea una instancia de navigate
+export default function LandingProduccion() {
 
-        
+
     return (
         <div 
         style={{backgroundColor: '#e5e5e5' , }}>
@@ -23,7 +27,9 @@ export default function Landing() {
           
           {/* Botón superior */}
           <Grid item xs={12} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}>
-            <Button onClick={() => navigate('/LandingProduccion')} className='botonGrande'  variant="contained" startIcon={<ConstructionIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px' , fontSize:'30px' }} color="amarillohoverblanco">Producción</Button>
+            <Button className='botonGrande'  variant="contained" startIcon={<PointOfSaleIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px' , fontSize:'30px' }} color="amarillohoverblanco">
+            Ventas
+            </Button>
           </Grid>
             
           {/* Botón inferior */}
@@ -33,14 +39,13 @@ export default function Landing() {
   
           {/* Botón izquierdo */}
           <Grid item xs={12}  style={{ position: 'absolute', top: '50%', left: '-90%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
-            <Button onClick={() => navigate('/LandingVentas')} variant="contained" color="amarillohoverblanco" startIcon={<StoreIcon style={{ fontSize: '35px' }} />} sx={{ width: '300px', height: '75px', fontSize:'30px', display: 'flex'}}
-                  >Ventas </Button>
+            <Button variant="contained" color="amarillohoverblanco" startIcon={<GroupAddIcon style={{ fontSize: '35px' }} />} sx={{ width: '300px', height: '75px', fontSize:'30px', display: 'flex'}}
+                  >Clientes </Button>
           </Grid>
   
           {/* Botón derecho */}
           <Grid item xs={12} style={{ position: 'absolute', top: '50%', right: '-90%', transform: 'translateY(-50%)' }}>
-            <Button onClick={() => navigate('/LandingCompras')} variant="contained" color="amarillohoverblanco" startIcon={<LocalMallIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px', fontSize:'30px'  }}>
-                Compras</Button>
+            <Button variant="contained" color="amarillohoverblanco" startIcon={<RequestQuoteIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px', fontSize:'30px'  }}>Cotización</Button>
           </Grid>
           
         </Grid>

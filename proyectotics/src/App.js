@@ -2,6 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar';
 import Landing from './pages/Landing';
+import LandingProduccion from './pages/LandingProduccion';
+import LandingVentas from './pages/LandingVentas';
+import LandingCompras from './pages/LandingCompras';
 import index from './pages/index';
 import './App.css';
 import { createTheme } from '@mui/material/styles';
@@ -14,7 +17,7 @@ const theme = createTheme({
       light: '#f8f9sa',
       main: '#093d77',
       dark: '#2b2b2b',
-      contrastText: '#00000',
+      contrastText: '#f8f9fa',
     },
     celeste: {
       light: '#fff',
@@ -24,11 +27,20 @@ const theme = createTheme({
     },
     
     amarillo: {
-      light: '#fff',
+      light: '#2b2b2b',
       main: '#daa520',
-      dark: '#fff',
-      contrastText: '#fff',
+      dark: '#3a7ca5',
+      contrastText: '#2b2b2b',
     },
+
+    amarillohoverblanco: {
+      light: '#f8f9fa',
+      main: '#daa520',
+      dark: '#093d77',
+      contrastText: '#f8f9fa',
+      Text: 'f8f9fa',
+    },
+
     blanco: {
       light: '#fff',
       main: '#f8f9fa',
@@ -39,7 +51,7 @@ const theme = createTheme({
       light: '#fff',
       main: '#2b2b2b',
       dark: '#daa520',
-      contrastText: '#093d77',
+      contrastText: '#f8f9fa',
     },
   },
 });
@@ -56,6 +68,9 @@ function App() {
           <Routes>
             <Route path= '/' exact Component={index} />
             <Route path= '/Landing' exact Component={Landing} />
+            <Route path= '/LandingProduccion' exact Component={LandingProduccion} />
+            <Route path= '/LandingVentas' exact Component={LandingVentas} />
+            <Route path= '/LandingCompras' exact Component={LandingCompras} />
           </Routes>  
       </Router>
       </ThemeProvider>

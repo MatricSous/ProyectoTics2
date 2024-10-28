@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.iconoGrande {
+  font-size: 500px; /* Cambia el tamaño según necesites */
+}
+
+.botonGrande {
+  width: 200px;
+  height: 60px;
+}
