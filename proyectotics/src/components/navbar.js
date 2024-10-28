@@ -61,7 +61,7 @@ function Navbar() {
                 </Button>
               )}
               {!hidenButton && (
-                <Button variant="contained" color='amarillo'>
+                <Button variant="contained" color='amarillo' >
                   Cerrar sesión 
                 </Button>
               )}
