@@ -322,6 +322,141 @@ app.post('/materiales/eliminarMaterial', verifyToken, (req, res) => {
     });
 });
 
+// Ruta para crear una nueva bodega
+app.post('/bodegas/crearBodega', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para crear una bodega
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear una bodega' });
+        }
+
+        // Consulta para insertar una nueva bodega
+        const q5 = "INSERT INTO bodegas (id_bodega, nombre_bodega) VALUES (?, ?)";
+
+        const { id_bodega, nombre_bodega } = req.body;
+
+        db.query(q5, [id_bodega, nombre_bodega], (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Error al crear la bodega', error: err });
+            }
+
+            // Retornar éxito si la bodega se ha creado correctamente
+            return res.json({ message: 'Bodega creada exitosamente', bodega: { id_bodega, nombre_bodega } });
+        });
+    });
+});
+
+// Ruta para eliminar una bodega por id_bodega
+app.delete('/bodegas/eliminarBodega/:id_bodega', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para eliminar una bodega
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para eliminar una bodega' });
+        }
+
+        // Consulta para eliminar una bodega por su id_bodega
+        const q6 = "DELETE FROM bodegas WHERE id_bodega = ?";
+
+        const id_bodega = req.params.id_bodega;
+
+        db.query(q6, [id_bodega], (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Error al eliminar la bodega', error: err });
+            }
+
+            // Verificar si alguna fila fue afectada (es decir, si la bodega existía)
+            if (data.affectedRows === 0) {
+                return res.status(404).json({ message: 'Bodega no encontrada' });
+            }
+
+            // Retornar éxito si la bodega se ha eliminado correctamente
+            return res.json({ message: 'Bodega eliminada exitosamente', id_bodega });
+        });
+    });
+});
+
+// Ruta para actualizar el nombre de una bodega por id_bodega
+app.put('/bodegas/actualizarNombre/:id_bodega', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para actualizar el nombre de la bodega
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para actualizar el nombre de la bodega' });
+        }
+
+        // Consulta para actualizar el nombre de una bodega
+        const q7 = "UPDATE bodegas SET nombre_bodega = ? WHERE id_bodega = ?";
+
+        const { nombre_bodega } = req.body;
+        const id_bodega = req.params.id_bodega;
+
+        db.query(q7, [nombre_bodega, id_bodega], (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Error al actualizar el nombre de la bodega', error: err });
+            }
+
+            // Verificar si alguna fila fue afectada (es decir, si la bodega existía)
+            if (data.affectedRows === 0) {
+                return res.status(404).json({ message: 'Bodega no encontrada' });
+            }
+
+            // Retornar éxito si el nombre de la bodega se ha actualizado correctamente
+            return res.json({ message: 'Nombre de la bodega actualizado exitosamente', id_bodega, nombre_bodega });
+        });
+    });
+});
+
+
   
   
 
