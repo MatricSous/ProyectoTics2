@@ -137,35 +137,61 @@ function CustomButton() {
 
 export default function Index() {
     return (
-        // preview-start
-        <Box sx={{
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'center', 
-            justifyContent: 'center',
-            height: '100vh', // Para ocupar toda la altura de la ventana
-            backgroundColor: '#e5e5e5', // Color de fondo cuando no se carga la imagen
-            backgroundSize: 'cover', // Para cubrir toda el área
-            backgroundPosition: 'center', // Centrar la imagen
-            
-        }}>
-            <Box component="form" 
-            onSubmit={signIn}
+        <Box 
             sx={{
                 display: 'flex', 
                 flexDirection: 'column',
                 alignItems: 'center', 
                 justifyContent: 'center',
-                p: 4,
-                borderRadius: 3,
-                boxShadow: 4,
-                width: '28%',
-                height: '50%'
-            }}>
-                <Avatar sx={{bgcolor:'#093d77', m: 1}}>
-                    <LockOutlinedIcon fontSize="small"/>
+                height: '100vh',
+                position: 'relative'
+            }}
+        >
+            {/* Contenedor para la imagen de fondo con overlay */}
+            <Box 
+                sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: 'url("https://comercialrebolledo.cl/wp-content/uploads/2022/04/cropped-2.jpg")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Overlay oscuro
+                    }
+                }}
+            />
+
+            {/* Formulario, que estará por encima de la imagen y overlay */}
+            <Box 
+                component="form" 
+                onSubmit={signIn}
+                sx={{
+                    backgroundColor: '#e5e5e5',
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    p: 4,
+                    borderRadius: 3,
+                    boxShadow: 4,
+                    width: '20%',
+                    height: '45%',
+                    zIndex: 1, // Asegura que el formulario esté encima del overlay
+                }}
+            >
+                <Avatar sx={{ bgcolor: '#093d77', m: 1 }}>
+                    <LockOutlinedIcon fontSize="small" />
                 </Avatar>
-                <Typography component="h1" variant="h5" gutterBottom >
+                <Typography component="h1" variant="h5" gutterBottom>
                     Iniciar Sesión
                 </Typography>
                 <CustomEmailField />
