@@ -19,6 +19,14 @@ const theme = createTheme({
       dark: '#2b2b2b',
       contrastText: '#f8f9fa',
     },
+
+    azulamarillo: {
+      light: '#f8f9sa',
+      main: '#093d77',
+      dark: '#daa520',
+      contrastText: '#f8f9fa',
+    },
+
     celeste: {
       light: '#fff',
       main: '#3a7ca5',
@@ -51,6 +59,12 @@ const theme = createTheme({
       light: '#fff',
       main: '#2b2b2b',
       dark: '#daa520',
+      contrastText: '#f8f9fa',
+    },
+    negroazul: {
+      light: '#fff',
+      main: '#2b2b2b',
+      dark: '#093d77',
       contrastText: '#f8f9fa',
     },
   },
