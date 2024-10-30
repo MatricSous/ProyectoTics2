@@ -66,6 +66,9 @@ app.post("/usuarios", (req, res) => {
 
   app.post('/login', (req, res) => {
     const { correo, clave } = req.body;
+    console.log(req)
+    console.log(correo)
+    console.log(clave)
 
     // Consulta SQL para buscar al usuario por correo
     const q = "SELECT * FROM usuarios WHERE correo = ?";
@@ -78,7 +81,7 @@ app.post("/usuarios", (req, res) => {
 
         // Verificar si el usuario fue encontrado
         if (data.length === 0) {
-            return res.status(404).json({ message: 'Usuario o Contraseña Incorrectos' });
+            return res.status(404).json({ message: 'Usuario o Contraseña Incorrectsos' });
         }
 
         // El usuario fue encontrado, data[0] contiene la información

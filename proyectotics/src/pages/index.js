@@ -1,8 +1,52 @@
-import React from 'react';
-//import Axios from 'axios';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import Axios from 'axios';
+import {
+    Box, 
+    Button,
+    FormControl,
+    InputLabel,
+    OutlinedInput,
+    InputAdornment,
+    IconButton,
+    Avatar,
+    Typography
+} from '@mui/material';
+import '../index.css';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useNavigate } from 'react-router-dom';
 
-export default function index() {
+function CustomEmailField({ email, setEmail }) {
+    return (
+        <FormControl sx={{ my: 2 }} fullWidth variant="outlined">
+            <InputLabel size="small" htmlFor="outlined-adornment-email">Correo</InputLabel>
+            <OutlinedInput
+                id="email"
+                name="email"
+                type="email"
+                size="small"
+                required
+                fullWidth
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                endAdornment={ 
+                    <InputAdornment position="end">
+                        <AccountCircle fontSize="inherit" />
+                    </InputAdornment>
+                }
+                label="Correo"
+            />
+        </FormControl>
+    );
+}
+
+function CustomPasswordField({ password, setPassword }) {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
+    const handleMouseDownPassword = (event) => event.preventDefault();
 
     return (
         <FormControl sx={{ my: 2 }} fullWidth variant="outlined">
