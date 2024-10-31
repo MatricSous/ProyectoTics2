@@ -20,6 +20,8 @@ import {
     NativeSelect,
     FormControlLabel,
     Checkbox,
+    MenuItem,
+    Select
 } from '@mui/material';
 import { FixedSizeList } from 'react-window';
 import AddIcon from '@mui/icons-material/Add';
@@ -96,22 +98,48 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 //Lista de materiales
-function renderRow(props) {
-    const { index, style, handleDetailOpen } = props;
-  
+
+// Simulación de datos
+const materiales = [
+    { id: 1, nombre: "Material 1", categoria: "Categoría A" },
+    { id: 2, nombre: "Material 2", categoria: "Categoría B" },
+    { id: 3, nombre: "Material 3", categoria: "Categoría C" },
+    { id: 4, nombre: "Material 4", categoria: "Categoría D" },
+    { id: 5, nombre: "Material 5", categoria: "Categoría E" },
+    { id: 6, nombre: "Material 6", categoria: "Categoría F" },
+    { id: 7, nombre: "Material 7", categoria: "Categoría G" },
+    { id: 8, nombre: "Material 8", categoria: "Categoría H" },
+    { id: 9, nombre: "Material 9", categoria: "Categoría I" },
+    { id: 10, nombre: "Material 10", categoria: "Categoría J" },
+    { id: 11, nombre: "Material 11", categoria: "Categoría K" },
+    { id: 12, nombre: "Material 12", categoria: "Categoría L" },
+    { id: 13, nombre: "Material 13", categoria: "Categoría M" },
+    { id: 14, nombre: "Material 14", categoria: "Categoría N" },
+    { id: 15, nombre: "Material 15", categoria: "Categoría Ñ" },
+    { id: 16, nombre: "Material 16", categoria: "Categoría O" },
+    { id: 17, nombre: "Material 17", categoria: "Categoría P" },
+    { id: 18, nombre: "Material 18", categoria: "Categoría Q" },
+    { id: 19, nombre: "Material 19", categoria: "Categoría R" },
+    { id: 20, nombre: "Material 20", categoria: "Categoría S" },
+];
+
+function renderRow(index, material, style, handleDetailOpen){
+//function renderRow(props) {     
+    //const { index, style, handleDetailOpen } = props;
     return (
         <ListItem 
             style={style} 
-            key={index} 
+            key={material.id} 
             component="div" 
             disablePadding 
             secondaryAction={
-                <Fab aria-label="comment" size="small" variant="extended" onClick={() => handleDetailOpen(index)} color='azulamarillo'>
+                <Fab aria-label="comment" size="small" variant="extended" onClick={() => handleDetailOpen(material)} color='azulamarillo'>
                     <MoreHorizIcon/> Ver más
                 </Fab>
             }>
             <ListItemButton>
-                <ListItemText primary={`Item ${index + 1}`} />
+                <ListItemText primary={`${index + 1} ${material.nombre}`} />
+                <ListItemText style={{paddingRight: 50}} primary={`${material.categoria}`} />
             </ListItemButton>
         </ListItem>
 
@@ -478,7 +506,7 @@ function DetailModal({ open, handleClose }) {
                 </Grid2>
               </Box>
 
-              
+
           </Modal>
       </React.Fragment>
     );
@@ -597,14 +625,21 @@ function ChildModal({ open, handleClose }) {
         }
     };
 
+    const handleGuardar = async () => {
+        //const nuevoMaterial = { familia, clase, discontinuado, secompra, sevende }; //arreglarlo con la base
+        // Simulación de guardado en base de datos
+        //await guardarEnBaseDeDatos(nuevoMaterial); // Reemplaza esta función con la integración
+        setShowSaveMessage(true); // Muestra mensaje de guardado exitoso
+    };
+
     const handleNext = () => {
         if (value === 'info') {
             setValue('precio');
         } else if (value === 'precio'){
             setValue('stock');
         } else {
-            setShowSaveMessage(true);
-            setTimeout(() => setShowSaveMessage(false), 3000); // Oculta el mensaje después de 3 segundos
+            handleGuardar();
+            setTimeout(() => handleClose, 3000); // Oculta el mensaje después de 3 segundos
         }
     };
 
@@ -732,6 +767,30 @@ export default function NestedModal({open, handleClose}) {
     const handleDetailOpen = () => setDetailOpen(true);
     const handleDetailClose = () => setDetailOpen(false);
 
+    const [ordenarPor, setOrdenarPor] = useState('nombre');
+    const ordenarMateriales = (materiales) => {
+        return [...materiales].sort((a, b) => {
+            if (ordenarPor === 'nombre') {
+                return a.nombre.localeCompare(b.nombre);
+            } else if (ordenarPor === 'categoria') {
+                return a.categoria.localeCompare(b.categoria);
+            }
+            return 0;
+        });
+    };
+
+    const [busqueda, setBusqueda] = useState('');
+    const materialesFiltrados = materiales.filter(
+        (material) => 
+            material.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+            material.categoria.toLowerCase().includes(busqueda.toLowerCase())
+    );
+    const handleChangeBusqueda = (event) => {
+        setBusqueda(event.target.value);
+    };
+
+    const materialesOrdenados = ordenarMateriales(materialesFiltrados);
+
   return (
     <div>
       <Modal
@@ -768,6 +827,8 @@ export default function NestedModal({open, handleClose}) {
                             </SearchIconWrapper>
                             <StyledInputBase
                                 placeholder="Buscar…"
+                                value={busqueda}
+                                onChange={handleChangeBusqueda}
                                 inputProps={{ 'aria-label': 'search' }}
                             />
                         </Search>
@@ -778,19 +839,33 @@ export default function NestedModal({open, handleClose}) {
             <Box
                 sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 500, bgcolor: '#e5e5e5' }}
             >
+                <FormControl variant="standard">
+                    <InputLabel htmlFor="ordenar-select">Ordenar por</InputLabel>
+                    <Select
+                        value={ordenarPor}
+                        onChange={(e) => setOrdenarPor(e.target.value)}
+                        inputProps={{ id: 'ordenar-select' }}
+                    >
+                        <MenuItem value="nombre">Nombre</MenuItem>
+                        <MenuItem value="categoria">Categoría</MenuItem>
+                    </Select>
+                </FormControl>
+
                 <FixedSizeList
-                    height={400}
+                    height={370}
                     width={500}
                     itemSize={46}
-                    itemCount={200}
+                    itemCount={materialesOrdenados.length}
                     overscanCount={5}
                 >
+                    
                     {({ index, style }) => (
-                        renderRow({
+                        renderRow(
                             index,
+                            materialesOrdenados[index],
                             style,
                             handleDetailOpen
-                        })
+                        )
                     )}
                 
                 </FixedSizeList>
@@ -802,3 +877,11 @@ export default function NestedModal({open, handleClose}) {
     </div>
   );
 }
+
+//{({ index, style }) => (
+//    renderRow({
+//        index,
+//        style,
+//        handleDetailOpen
+//    })
+//)}
