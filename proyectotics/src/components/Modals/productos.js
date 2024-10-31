@@ -215,7 +215,14 @@ function InfoForm({ familia, clase, iva, discontinuado, secompra, sevende, handl
             >
                 <FormControl sx={{ m: 1 }} variant="standard">
                     <InputLabel shrink htmlFor="bootstrap-input">
-                        Código / Nombre del material
+                        Código
+                    </InputLabel>
+                    <BootstrapInput id="nombre" />
+                </FormControl>
+
+                <FormControl sx={{ m: 1 }} variant="standard">
+                    <InputLabel shrink htmlFor="bootstrap-input">
+                        Nombre del material
                     </InputLabel>
                     <BootstrapInput id="nombre" />
                 </FormControl>
@@ -252,20 +259,38 @@ function InfoForm({ familia, clase, iva, discontinuado, secompra, sevende, handl
                         <option value={'material'}>Material</option>
                     </NativeSelect>
                 </FormControl>
+            </Box>
+            <Box
+                component="form"
+                noValidate
+                sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr 1fr' }, gap: 3 }}
 
-                <Grid2 container sx={{ alignItems: 'center' }}>
-                    <Grid2>
+            >
+                <Grid2 container alignItems="center" spacing={1}>
+                    <Grid2 item>
                         <FormControl sx={{ m: 1 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
+                            <InputLabel shrink htmlFor="iva">
                                 IVA
                             </InputLabel>
-                            <BootstrapInput id="iva" defaultValue={19} sx={{width: 70}}/> 
+                            <BootstrapInput id="iva" defaultValue={19} sx={{ width: 70 }} />
                         </FormControl>
                     </Grid2>
-                    <Grid2>
-                        %
+                    <Grid2 item>
+                        <Typography>%</Typography>
                     </Grid2>
                 </Grid2>
+                
+                <Grid2 container alignItems="center">
+                <Grid2 item large>
+                    <FormControl sx={{ m: 1, width: '100%', minWidth: 543, right: 100 }} variant="standard">
+                        <InputLabel shrink htmlFor="nombre">
+                            Descripción
+                        </InputLabel>
+                        <BootstrapInput id="descripcion" />
+                    </FormControl>
+                </Grid2>
+            </Grid2>
+                
             </Box>
 
             <Box
