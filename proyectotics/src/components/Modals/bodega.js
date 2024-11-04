@@ -17,13 +17,16 @@ import {
     Checkbox,
     ListItem,
     ListItemButton,
-    ListItemText
+    ListItemText,
+    styled,
+    alpha,
+    InputBase,
+    Toolbar
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { TableVirtuoso } from 'react-virtuoso';
 import Chance from 'chance';
-import Buscar from './buscar';
 import { FixedSizeList } from 'react-window';
 import {
     Badge,
@@ -32,6 +35,7 @@ import {
 } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
 import Remove from '@mui/icons-material/Remove';
+import SearchIcon from '@mui/icons-material/Search'
 
 
 const style = {
@@ -48,6 +52,52 @@ const style = {
     px: 4,
     pb: 3,
 };
+
+//Barra de búsqueda
+const Search = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    borderColor: '#2b2b2b',
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    border: '2px solid #2b2b2b',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(1),
+        width: 'auto',
+    },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    width: '100%',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        [theme.breakpoints.up('sm')]: {
+            width: '12ch',
+            '&:focus': {
+                width: '20ch',
+            },
+        },
+    },
+}));
+//Barra de búsqueda
 
 // Simulación de datos
 const materiales = [
@@ -365,6 +415,30 @@ function ChildModal({ open, handleClose }) {
 
 //Modal principal
 export default function NestedModalBodega({open, handleClose}) {
+    const [ordenarPor, setOrdenarPor] = useState('nombre');
+    const ordenarMateriales = (materiales) => {
+        return [...materiales].sort((a, b) => {
+            if (ordenarPor === 'nombre') {
+                return a.nombre.localeCompare(b.nombre);
+            } else if (ordenarPor === 'categoria') {
+                return a.categoria.localeCompare(b.categoria);
+            }
+            return 0;
+        });
+    };
+
+    const [busqueda, setBusqueda] = useState('');
+    const materialesFiltrados = materiales.filter(
+        (material) => 
+            material.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+            material.categoria.toLowerCase().includes(busqueda.toLowerCase())
+    );
+    const handleChangeBusqueda = (event) => {
+        setBusqueda(event.target.value);
+    };
+
+    const materialesOrdenados = ordenarMateriales(materialesFiltrados);
+
     const [childOpen, setChildOpen] = React.useState(false);
     const handleChildOpen = () => setChildOpen(true);
     const handleChildClose = () => setChildOpen(false);
@@ -397,7 +471,19 @@ export default function NestedModalBodega({open, handleClose}) {
                 </Grid2>
 
                 <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Buscar />
+                    <Toolbar>
+                        <Search>
+                            <SearchIconWrapper>
+                                <SearchIcon />
+                            </SearchIconWrapper>
+                            <StyledInputBase
+                                placeholder="Buscar…"
+                                value={busqueda}
+                                onChange={handleChangeBusqueda}
+                                inputProps={{ 'aria-label': 'search' }}
+                            />
+                        </Search>
+                    </Toolbar>
                 </Grid2>
                 <Grid2 item xs={4} style={{ textAlign: 'rigth' }} justifyContent="space-between">
                     <Fab color="amarillo" aria-label="add" variant="extended">

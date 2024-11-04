@@ -20,7 +20,8 @@ import {
     FormControlLabel,
     Checkbox,
     MenuItem,
-    Select
+    Select,
+    Toolbar
 } from '@mui/material';
 import { FixedSizeList } from 'react-window';
 import AddIcon from '@mui/icons-material/Add';
@@ -30,7 +31,8 @@ import InfoIcon from '@mui/icons-material/Info';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
-import Buscar from './buscar';
+import SearchIcon from '@mui/icons-material/Search';
+
 
 const style = {
     position: 'absolute',
@@ -46,6 +48,55 @@ const style = {
     px: 4,
     pb: 3,
 };
+
+
+
+//Barra de búsqueda
+const Search = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    borderColor: '#2b2b2b',
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    border: '2px solid #2b2b2b',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(1),
+        width: 'auto',
+    },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    width: '100%',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        [theme.breakpoints.up('sm')]: {
+            width: '12ch',
+            '&:focus': {
+                width: '20ch',
+            },
+        },
+    },
+}));
+//Barra de búsqueda
+
 
 //Lista de materiales
 
@@ -793,7 +844,19 @@ export default function NestedModalProductos({open, handleClose}) {
                 </Grid2>
 
                 <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Buscar/>
+                    <Toolbar>
+                            <Search>
+                                <SearchIconWrapper>
+                                    <SearchIcon />
+                                </SearchIconWrapper>
+                                <StyledInputBase
+                                    placeholder="Buscar…"
+                                    value={busqueda}
+                                    onChange={handleChangeBusqueda}
+                                    inputProps={{ 'aria-label': 'search' }}
+                                />
+                            </Search>
+                        </Toolbar>
                 </Grid2>
             </Grid2>
 
