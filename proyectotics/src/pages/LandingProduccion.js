@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 //import Axios from 'axios';
-import { Container, Grid, Button } from '@mui/material';
+import { Container, Grid2, Button } from '@mui/material';
 import '../index.css';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -24,10 +24,10 @@ export default function LandingProduccion() {
       style={{backgroundColor: '#e5e5e5' , }}>
     
       <Container bmaxWidth="sm" style={{ height: '100vh',paddingTop:'120px' ,display: 'flex', alignItems: 'center', justifyContent: 'center',}}>
-      <Grid container style={{ position: 'relative', height: '400px', width: '300px' }}>
+      <Grid2 container style={{ position: 'relative', height: '400px', width: '300px' }}>
 
         {/* Botón superior */}
-        <Grid item xs={12} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}>
+        <Grid2 item xs={12} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}>
           <Button 
             className='botonGrande'  
             variant="contained" 
@@ -40,10 +40,10 @@ export default function LandingProduccion() {
           Productos
           </Button>
           <NestedModalProductos open={openProductos} handleClose={handleCloseProductos} handleOpen={handleOpenProductos} />
-        </Grid>
+        </Grid2>
 
       {/* Botón inferior */}
-      <Grid item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
+      <Grid2 item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
         <Button 
           variant="contained" 
           color="azul" 
@@ -51,10 +51,10 @@ export default function LandingProduccion() {
             <SettingsIcon />}>
               Ajustes
         </Button>
-      </Grid>
+      </Grid2>
 
       {/* Botón izquierdo */}
-      <Grid item xs={12}  style={{ position: 'absolute', top: '50%', left: '-90%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
+      <Grid2 item xs={12}  style={{ position: 'absolute', top: '50%', left: '-90%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
         <Button 
           variant="contained" 
           color="amarillohoverblanco" 
@@ -66,14 +66,14 @@ export default function LandingProduccion() {
         Bodegas 
         </Button>
         <NestedModalBodega open={openBodega} handleClose={handleCloseBodega} handleOpen={handleOpenBodega} />
-      </Grid>
+      </Grid2>
 
       {/* Botón derecho */}
-      <Grid item xs={12} style={{ position: 'absolute', top: '50%', right: '-90%', transform: 'translateY(-50%)' }}>
+      <Grid2 item xs={12} style={{ position: 'absolute', top: '50%', right: '-90%', transform: 'translateY(-50%)' }}>
         <Button variant="contained" color="amarillohoverblanco" startIcon={<ReceiptLongIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px', fontSize:'30px'  }}>Recetas</Button>
-      </Grid>
+      </Grid2>
       
-    </Grid>
+    </Grid2>
   </Container>
   </div>
   );

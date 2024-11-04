@@ -7,7 +7,6 @@ import {
     Modal, 
     styled, 
     alpha, 
-    Toolbar,
     ListItem,
     ListItemButton,
     ListItemText,
@@ -26,13 +25,12 @@ import {
 import { FixedSizeList } from 'react-window';
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import SearchIcon from '@mui/icons-material/Search';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import InfoIcon from '@mui/icons-material/Info';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
-
+import Buscar from './buscar';
 
 const style = {
     position: 'absolute',
@@ -48,54 +46,6 @@ const style = {
     px: 4,
     pb: 3,
 };
-
-//Barra de búsqueda
-const Search = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    borderColor: '#2b2b2b',
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    border: '2px solid #2b2b2b',
-    '&:hover': {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(1),
-        width: 'auto',
-    },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    width: '100%',
-    '& .MuiInputBase-input': {
-        padding: theme.spacing(1, 1, 1, 0),
-      // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create('width'),
-        [theme.breakpoints.up('sm')]: {
-            width: '12ch',
-            '&:focus': {
-                width: '20ch',
-            },
-        },
-    },
-}));
-//Barra de búsqueda
-
-
 
 //Lista de materiales
 
@@ -124,8 +74,6 @@ const materiales = [
 ];
 
 function renderRow(index, material, style, handleDetailOpen){
-//function renderRow(props) {     
-    //const { index, style, handleDetailOpen } = props;
     return (
         <ListItem 
             style={style} 
@@ -281,15 +229,15 @@ function InfoForm({ familia, clase, iva, discontinuado, secompra, sevende, handl
                 </Grid2>
                 
                 <Grid2 container alignItems="center">
-                <Grid2 item large>
-                    <FormControl sx={{ m: 1, width: '100%', minWidth: 543, right: 100 }} variant="standard">
-                        <InputLabel shrink htmlFor="nombre">
-                            Descripción
-                        </InputLabel>
-                        <BootstrapInput id="descripcion" />
-                    </FormControl>
+                    <Grid2 item large>
+                        <FormControl sx={{ m: 1, width: '100%', minWidth: 543, right: 100 }} variant="standard">
+                            <InputLabel shrink htmlFor="nombre">
+                                Descripción
+                            </InputLabel>
+                            <BootstrapInput id="descripcion" />
+                        </FormControl>
+                    </Grid2>
                 </Grid2>
-            </Grid2>
                 
             </Box>
 
@@ -441,7 +389,7 @@ function StockForm() {
     const [afecto, setAfecto] = useState('');
     const handleChangeAfecto = (event) => {
         setAfecto(event.target.checked);
-      };
+    };
     return(
         <>
             <Box
@@ -449,51 +397,51 @@ function StockForm() {
                 noValidate
             >
                 <Box sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}>
-                <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Unidad de medida
-                            </InputLabel>
-                            <BootstrapInput id="unidad de medida" />
-                        </FormControl>
+                    <FormControl sx={{ m: 2 }} variant="standard">
+                        <InputLabel shrink htmlFor="bootstrap-input">
+                            Unidad de medida
+                        </InputLabel>
+                        <BootstrapInput id="unidad de medida" />
+                    </FormControl>
 
-                        <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Factor
-                            </InputLabel>
-                            <BootstrapInput id="factor" />
-                        </FormControl>
+                    <FormControl sx={{ m: 2 }} variant="standard">
+                        <InputLabel shrink htmlFor="bootstrap-input">
+                            Factor
+                        </InputLabel>
+                        <BootstrapInput id="factor" />
+                    </FormControl>
                 </Box>
 
                 <Box>
-                {afecto ? 
-                    <Box
-                        component="form"
-                        noValidate
-                        sx={{display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}
-                    >
-                        <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Stock mínimo
-                            </InputLabel>
-                            <BootstrapInput id="stockminimo" />
-                        </FormControl>
+                    {afecto ? 
+                        <Box
+                            component="form"
+                            noValidate
+                            sx={{display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}
+                        >
+                            <FormControl sx={{ m: 2 }} variant="standard">
+                                <InputLabel shrink htmlFor="bootstrap-input">
+                                    Stock mínimo
+                                </InputLabel>
+                                <BootstrapInput id="stockminimo" />
+                            </FormControl>
 
-                        <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Stock máximo
-                            </InputLabel>
-                            <BootstrapInput id="stockmaximo" />
-                        </FormControl>
-                    </Box>
-                : ''}
-                <FormControl>
-                    <FormControlLabel
-                        sx={{ m: 1 }} 
-                        id="afectostock"
-                        control={<Checkbox checked={afecto} onChange={handleChangeAfecto} />}
-                        label="Afecto a stock" 
-                    />
-                </FormControl>
+                            <FormControl sx={{ m: 2 }} variant="standard">
+                                <InputLabel shrink htmlFor="bootstrap-input">
+                                    Stock máximo
+                                </InputLabel>
+                                <BootstrapInput id="stockmaximo" />
+                            </FormControl>
+                        </Box>
+                    : ''}
+                    <FormControl>
+                        <FormControlLabel
+                            sx={{ m: 1 }} 
+                            id="afectostock"
+                            control={<Checkbox checked={afecto} onChange={handleChangeAfecto} />}
+                            label="Afecto a stock" 
+                        />
+                    </FormControl>
                 </Box>
             </Box>
             
@@ -845,19 +793,7 @@ export default function NestedModalProductos({open, handleClose}) {
                 </Grid2>
 
                 <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Toolbar>
-                        <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Buscar…"
-                                value={busqueda}
-                                onChange={handleChangeBusqueda}
-                                inputProps={{ 'aria-label': 'search' }}
-                            />
-                        </Search>
-                    </Toolbar>
+                    <Buscar/>
                 </Grid2>
             </Grid2>
 
