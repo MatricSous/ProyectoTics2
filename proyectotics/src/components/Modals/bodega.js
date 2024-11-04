@@ -32,9 +32,10 @@ import {
     Badge,
     IconButton,
     Typography,
+    Style
 } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
-import Remove from '@mui/icons-material/Remove';
+import RemoveIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search'
 
 
@@ -123,74 +124,69 @@ const materiales = [
     { id: 20, nombre: "Material 20", categoria: "Categoría S" },
 ];
 
-function renderRow(index, event, material, style, handleChangeAgregar, handleChangeAgregado, count, handleChangeCount, showZero, handleChangeShowZero, agregado){
+function renderRow(index, event, material, style, agregar, handleChangeAgregar, count, handleChangeCount, showZero, handleChangeShowZero){
 
     return (
         <ListItem 
-            style={style} 
+            style={{...style}} 
             key={material.id} 
             component="div" 
             disablePadding 
             secondaryAction={
-                <Fab aria-label="comment" size="small" variant="extended" onClick={() => handleChangeAgregar()} color='azulamarillo'>
+                <Fab aria-label="comment" size="small" variant="extended" onClick={(event) => handleChangeAgregar(event)} color='azulamarillo'>
                     <AddIcon/> Agregar
                 </Fab>
             }
         >
             <ListItemButton>
                 <ListItemText primary={`${material.id} ${material.nombre}`} />
-                {agregado ? 
-<Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 2,
-        mt: 4,
-      }}
-    >
-      <Badge badgeContent={count} showZero={showZero}>
-        <Typography level="h1" component="h2">
-          🛍
-        </Typography>
-      </Badge>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
-          pt: 4,
-          mb: 2,
-          borderTop: '1px solid',
-          borderColor: 'background.level1',
-        }}
-      >
-        <IconButton
-          size="sm"
-          variant="outlined"
-          onClick={() => handleChangeCount((c) => c - 1)}
-        >
-          <Remove />
-        </IconButton>
-        <Typography textColor="text.secondary" sx={{ fontWeight: 'md' }}>
-          {count}
-        </Typography>
-        <IconButton
-          size="sm"
-          variant="outlined"
-          onClick={() => handleChangeCount((c) => c + 1)}
-        >
-          <Add />
-        </IconButton>
-      </Box>
-      <Checkbox
-        onChange={(event) => handleChangeShowZero(event.target.checked)}
-        checked={showZero}
-        label="show zero"
-      />
-    </Box>
-                : ''}
                 <ListItemText style={{paddingRight: 50}} primary={`${material.categoria}`} />
+                {agregar ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 2,
+                            mt: 4,
+                        }}
+                    >
+                        <Badge badgeContent={count} showZero={showZero}>
+                            <Typography level="h6" component="h2">
+                            🛍
+                            </Typography>
+                        </Badge>
+                        <Box
+                            sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            pt: 4,
+                            mb: 2,
+                            borderTop: '1px solid',
+                            borderColor: 'background.level1',
+                            }}
+                        >
+                            <IconButton
+                            size="sm"
+                            variant="outlined"
+                            onClick={() => handleChangeCount((c) => c - 1)}
+                            >
+                                <RemoveIcon />
+                            </IconButton>
+                            <Typography textColor="text.secondary" sx={{ fontWeight: 'md' }}>
+                                {count}
+                            </Typography>
+                            <IconButton
+                                size="sm"
+                                variant="outlined"
+                                onClick={() => handleChangeCount((c) => c + 1)}
+                            >
+                                <Add />
+                            </IconButton>
+                        </Box>
+                    </Box>
+               ) : null}
             </ListItemButton>
         </ListItem>
 
@@ -306,22 +302,18 @@ function ChildModal({ open, handleClose }) {
     };
 
     const [agregar, setAgregar] = useState(false);
-    const handleChangeAgregar = (event) => {
-        setAgregar(event.target.checked);
-    };
-
-    const [agregado, setAgregado] =  useState(false);
-    const handleChangeAgregado = (event) => {
-        setAgregado(event.target.checked);
+    const handleChangeAgregar = () => {
+        setAgregar(!agregar);
     };
 
     const [count, setCount] = useState(0);
-    const handleChangeCount = (event) => {
-        setCount(event.target.checked);
+    const handleChangeCount = (newCount) => {
+        setCount(newCount);
     };
+
     const [showZero, setShowZero] = useState(false);
-    const handleChangeShowZero = (event) => {
-        setShowZero(event.target.checked);
+    const handleChangeShowZero = (checked) => {
+        setShowZero(checked);
     };
     return(
         <React.Fragment>
@@ -390,15 +382,15 @@ function ChildModal({ open, handleClose }) {
                                     {({ index, style }) => (
                                         renderRow(
                                             index,
+                                            null,
                                             materiales[index],
                                             style,
+                                            agregar,
                                             handleChangeAgregar,
-                                            handleChangeAgregado,
                                             count,
                                             handleChangeCount,
                                             showZero,
-                                            handleChangeShowZero,
-                                            agregado
+                                            handleChangeShowZero
                                         )
                                     )}
                             
