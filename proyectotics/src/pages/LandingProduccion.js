@@ -6,12 +6,18 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CategoryIcon from '@mui/icons-material/Category';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import NestedModal from '../components/Modals/productos';
+import NestedModalProductos from '../components/Modals/productos';
+import NestedModalBodega from '../components/Modals/bodega';
+
 
 export default function LandingProduccion() {
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [openProductos, setOpenProductos] = useState(false);
+  const handleOpenProductos = () => setOpenProductos(true);
+  const handleCloseProductos = () => setOpenProductos(false);
+
+  const [openBodega, setOpenBodega] = useState(false);
+  const handleOpenBodega = () => setOpenBodega(true);
+  const handleCloseBodega = () => setOpenBodega(false);
 
   return (
     <div 
@@ -30,21 +36,36 @@ export default function LandingProduccion() {
                 style={{ fontSize: '35px' }}/>} 
             sx={{ width: '300px', height: '75px' , fontSize:'30px' }} 
             color="amarillohoverblanco"
-            onClick={handleOpen}>
+            onClick={handleOpenProductos}>
           Productos
           </Button>
-          <NestedModal open={open} handleClose={handleClose} handleOpen={handleOpen} />
+          <NestedModalProductos open={openProductos} handleClose={handleCloseProductos} handleOpen={handleOpenProductos} />
         </Grid>
 
       {/* Botón inferior */}
       <Grid item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
-        <Button variant="contained" color="azul" startIcon={<SettingsIcon />} >Ajustes</Button>
+        <Button 
+          variant="contained" 
+          color="azul" 
+          startIcon={
+            <SettingsIcon />}>
+              Ajustes
+        </Button>
       </Grid>
 
       {/* Botón izquierdo */}
       <Grid item xs={12}  style={{ position: 'absolute', top: '50%', left: '-90%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
-        <Button variant="contained" color="amarillohoverblanco" startIcon={<InventoryIcon style={{ fontSize: '35px' }} />} sx={{ width: '300px', height: '75px', fontSize:'30px', display: 'flex'}}
-              >Bodegas </Button>
+        <Button 
+          variant="contained" 
+          color="amarillohoverblanco" 
+          startIcon={
+            <InventoryIcon 
+              style={{ fontSize: '35px' }} />} 
+          sx={{ width: '300px', height: '75px', fontSize:'30px', display: 'flex'}}
+          onClick={handleOpenBodega}>
+        Bodegas 
+        </Button>
+        <NestedModalBodega open={openBodega} handleClose={handleCloseBodega} handleOpen={handleOpenBodega} />
       </Grid>
 
       {/* Botón derecho */}

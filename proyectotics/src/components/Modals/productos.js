@@ -465,16 +465,6 @@ function StockForm() {
                 </Box>
 
                 <Box>
-
-                <FormControl>
-                    <FormControlLabel
-                        sx={{ m: 1 }} 
-                        id="afectostock"
-                        control={<Checkbox checked={afecto} onChange={handleChangeAfecto} />}
-                        label="Afecto a stock" 
-                    />
-                </FormControl>
-                </Box>
                 {afecto ? 
                     <Box
                         component="form"
@@ -496,6 +486,15 @@ function StockForm() {
                         </FormControl>
                     </Box>
                 : ''}
+                <FormControl>
+                    <FormControlLabel
+                        sx={{ m: 1 }} 
+                        id="afectostock"
+                        control={<Checkbox checked={afecto} onChange={handleChangeAfecto} />}
+                        label="Afecto a stock" 
+                    />
+                </FormControl>
+                </Box>
             </Box>
             
         </>
@@ -627,8 +626,8 @@ function ChildModal({ open, handleClose }) {
                     handleChangeClase={handleChangeClase} 
                     handleChangeIVA={handleChangeIVA} 
                     handleChangeDiscontinuado={handleChangeDiscontinuado} 
-                    handleChangeSecompra={handleChangeSecompra} h
-                    andleChangeSevende={handleChangeSevende}
+                    handleChangeSecompra={handleChangeSecompra} 
+                    handleChangeSevende={handleChangeSevende}
                 />;
             case 'precio':
                 return <PrecioForm 
@@ -665,6 +664,7 @@ function ChildModal({ open, handleClose }) {
         } else {
             handleGuardar();
             setTimeout(() => handleClose, 3000); // Oculta el mensaje después de 3 segundos
+
         }
     };
 
@@ -783,7 +783,7 @@ function ChildModal({ open, handleClose }) {
 }
 
 //Modal principal
-export default function NestedModal({open, handleClose}) {
+export default function NestedModalProductos({open, handleClose}) {
     const [childOpen, setChildOpen] = React.useState(false);
     const handleChildOpen = () => setChildOpen(true);
     const handleChildClose = () => setChildOpen(false);
