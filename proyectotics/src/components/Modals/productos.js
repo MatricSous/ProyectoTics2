@@ -7,7 +7,6 @@ import {
     Modal, 
     styled, 
     alpha, 
-    Toolbar,
     ListItem,
     ListItemButton,
     ListItemText,
@@ -20,17 +19,18 @@ import {
     NativeSelect,
     FormControlLabel,
     Checkbox,
+    MenuItem,
+    Select
 } from '@mui/material';
 import { FixedSizeList } from 'react-window';
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import SearchIcon from '@mui/icons-material/Search';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import InfoIcon from '@mui/icons-material/Info';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
-
+import Buscar from './buscar';
 
 const style = {
     position: 'absolute',
@@ -47,71 +47,47 @@ const style = {
     pb: 3,
 };
 
-//Barra de búsqueda
-const Search = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    borderColor: '#2b2b2b',
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    border: '2px solid #2b2b2b',
-    '&:hover': {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(1),
-        width: 'auto',
-    },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    width: '100%',
-    '& .MuiInputBase-input': {
-        padding: theme.spacing(1, 1, 1, 0),
-      // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create('width'),
-        [theme.breakpoints.up('sm')]: {
-            width: '12ch',
-            '&:focus': {
-                width: '20ch',
-            },
-        },
-    },
-}));
-//Barra de búsqueda
-
-
-
 //Lista de materiales
-function renderRow(props) {
-    const { index, style, handleDetailOpen } = props;
-  
+
+// Simulación de datos
+const materiales = [
+    { id: 1, nombre: "Material 1", categoria: "Categoría A" },
+    { id: 2, nombre: "Material 2", categoria: "Categoría B" },
+    { id: 3, nombre: "Material 3", categoria: "Categoría C" },
+    { id: 4, nombre: "Material 4", categoria: "Categoría D" },
+    { id: 5, nombre: "Material 5", categoria: "Categoría E" },
+    { id: 6, nombre: "Material 6", categoria: "Categoría F" },
+    { id: 7, nombre: "Material 7", categoria: "Categoría G" },
+    { id: 8, nombre: "Material 8", categoria: "Categoría H" },
+    { id: 9, nombre: "Material 9", categoria: "Categoría I" },
+    { id: 10, nombre: "Material 10", categoria: "Categoría J" },
+    { id: 11, nombre: "Material 11", categoria: "Categoría K" },
+    { id: 12, nombre: "Material 12", categoria: "Categoría L" },
+    { id: 13, nombre: "Material 13", categoria: "Categoría M" },
+    { id: 14, nombre: "Material 14", categoria: "Categoría N" },
+    { id: 15, nombre: "Material 15", categoria: "Categoría Ñ" },
+    { id: 16, nombre: "Material 16", categoria: "Categoría O" },
+    { id: 17, nombre: "Material 17", categoria: "Categoría P" },
+    { id: 18, nombre: "Material 18", categoria: "Categoría Q" },
+    { id: 19, nombre: "Material 19", categoria: "Categoría R" },
+    { id: 20, nombre: "Material 20", categoria: "Categoría S" },
+];
+
+function renderRow(index, material, style, handleDetailOpen){
     return (
         <ListItem 
             style={style} 
-            key={index} 
+            key={material.id} 
             component="div" 
             disablePadding 
             secondaryAction={
-                <Fab aria-label="comment" size="small" variant="extended" onClick={() => handleDetailOpen(index)} color='azulamarillo'>
+                <Fab aria-label="comment" size="small" variant="extended" onClick={() => handleDetailOpen(material)} color='azulamarillo'>
                     <MoreHorizIcon/> Ver más
                 </Fab>
             }>
             <ListItemButton>
-                <ListItemText primary={`Item ${index + 1}`} />
+                <ListItemText primary={`${index + 1} ${material.nombre}`} />
+                <ListItemText style={{paddingRight: 50}} primary={`${material.categoria}`} />
             </ListItemButton>
         </ListItem>
 
@@ -187,7 +163,14 @@ function InfoForm({ familia, clase, iva, discontinuado, secompra, sevende, handl
             >
                 <FormControl sx={{ m: 1 }} variant="standard">
                     <InputLabel shrink htmlFor="bootstrap-input">
-                        Código / Nombre del material
+                        Código
+                    </InputLabel>
+                    <BootstrapInput id="nombre" />
+                </FormControl>
+
+                <FormControl sx={{ m: 1 }} variant="standard">
+                    <InputLabel shrink htmlFor="bootstrap-input">
+                        Nombre del material
                     </InputLabel>
                     <BootstrapInput id="nombre" />
                 </FormControl>
@@ -224,20 +207,38 @@ function InfoForm({ familia, clase, iva, discontinuado, secompra, sevende, handl
                         <option value={'material'}>Material</option>
                     </NativeSelect>
                 </FormControl>
+            </Box>
+            <Box
+                component="form"
+                noValidate
+                sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr 1fr' }, gap: 3 }}
 
-                <Grid2 container sx={{ alignItems: 'center' }}>
-                    <Grid2>
+            >
+                <Grid2 container alignItems="center" spacing={1}>
+                    <Grid2 item>
                         <FormControl sx={{ m: 1 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
+                            <InputLabel shrink htmlFor="iva">
                                 IVA
                             </InputLabel>
-                            <BootstrapInput id="iva" defaultValue={19} sx={{width: 70}}/> 
+                            <BootstrapInput id="iva" defaultValue={19} sx={{ width: 70 }} />
                         </FormControl>
                     </Grid2>
-                    <Grid2>
-                        %
+                    <Grid2 item>
+                        <Typography>%</Typography>
                     </Grid2>
                 </Grid2>
+                
+                <Grid2 container alignItems="center">
+                    <Grid2 item large>
+                        <FormControl sx={{ m: 1, width: '100%', minWidth: 543, right: 100 }} variant="standard">
+                            <InputLabel shrink htmlFor="nombre">
+                                Descripción
+                            </InputLabel>
+                            <BootstrapInput id="descripcion" />
+                        </FormControl>
+                    </Grid2>
+                </Grid2>
+                
             </Box>
 
             <Box
@@ -388,7 +389,7 @@ function StockForm() {
     const [afecto, setAfecto] = useState('');
     const handleChangeAfecto = (event) => {
         setAfecto(event.target.checked);
-      };
+    };
     return(
         <>
             <Box
@@ -396,53 +397,52 @@ function StockForm() {
                 noValidate
             >
                 <Box sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}>
-                <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Unidad de medida
-                            </InputLabel>
-                            <BootstrapInput id="unidad de medida" />
-                        </FormControl>
+                    <FormControl sx={{ m: 2 }} variant="standard">
+                        <InputLabel shrink htmlFor="bootstrap-input">
+                            Unidad de medida
+                        </InputLabel>
+                        <BootstrapInput id="unidad de medida" />
+                    </FormControl>
 
-                        <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Factor
-                            </InputLabel>
-                            <BootstrapInput id="factor" />
-                        </FormControl>
+                    <FormControl sx={{ m: 2 }} variant="standard">
+                        <InputLabel shrink htmlFor="bootstrap-input">
+                            Factor
+                        </InputLabel>
+                        <BootstrapInput id="factor" />
+                    </FormControl>
                 </Box>
 
                 <Box>
+                    {afecto ? 
+                        <Box
+                            component="form"
+                            noValidate
+                            sx={{display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}
+                        >
+                            <FormControl sx={{ m: 2 }} variant="standard">
+                                <InputLabel shrink htmlFor="bootstrap-input">
+                                    Stock mínimo
+                                </InputLabel>
+                                <BootstrapInput id="stockminimo" />
+                            </FormControl>
 
-                <FormControl>
-                    <FormControlLabel
-                        sx={{ m: 1 }} 
-                        id="afectostock"
-                        control={<Checkbox checked={afecto} onChange={handleChangeAfecto} />}
-                        label="Afecto a stock" 
-                    />
-                </FormControl>
+                            <FormControl sx={{ m: 2 }} variant="standard">
+                                <InputLabel shrink htmlFor="bootstrap-input">
+                                    Stock máximo
+                                </InputLabel>
+                                <BootstrapInput id="stockmaximo" />
+                            </FormControl>
+                        </Box>
+                    : ''}
+                    <FormControl>
+                        <FormControlLabel
+                            sx={{ m: 1 }} 
+                            id="afectostock"
+                            control={<Checkbox checked={afecto} onChange={handleChangeAfecto} />}
+                            label="Afecto a stock" 
+                        />
+                    </FormControl>
                 </Box>
-                {afecto ? 
-                    <Box
-                        component="form"
-                        noValidate
-                        sx={{display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}
-                    >
-                        <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Stock mínimo
-                            </InputLabel>
-                            <BootstrapInput id="stockminimo" />
-                        </FormControl>
-
-                        <FormControl sx={{ m: 2 }} variant="standard">
-                            <InputLabel shrink htmlFor="bootstrap-input">
-                                Stock máximo
-                            </InputLabel>
-                            <BootstrapInput id="stockmaximo" />
-                        </FormControl>
-                    </Box>
-                : ''}
             </Box>
             
         </>
@@ -478,7 +478,7 @@ function DetailModal({ open, handleClose }) {
                 </Grid2>
               </Box>
 
-              
+
           </Modal>
       </React.Fragment>
     );
@@ -574,8 +574,8 @@ function ChildModal({ open, handleClose }) {
                     handleChangeClase={handleChangeClase} 
                     handleChangeIVA={handleChangeIVA} 
                     handleChangeDiscontinuado={handleChangeDiscontinuado} 
-                    handleChangeSecompra={handleChangeSecompra} h
-                    andleChangeSevende={handleChangeSevende}
+                    handleChangeSecompra={handleChangeSecompra} 
+                    handleChangeSevende={handleChangeSevende}
                 />;
             case 'precio':
                 return <PrecioForm 
@@ -597,14 +597,22 @@ function ChildModal({ open, handleClose }) {
         }
     };
 
+    const handleGuardar = async () => {
+        //const nuevoMaterial = { familia, clase, discontinuado, secompra, sevende }; //arreglarlo con la base
+        // Simulación de guardado en base de datos
+        //await guardarEnBaseDeDatos(nuevoMaterial); // Reemplaza esta función con la integración
+        setShowSaveMessage(true); // Muestra mensaje de guardado exitoso
+    };
+
     const handleNext = () => {
         if (value === 'info') {
             setValue('precio');
         } else if (value === 'precio'){
             setValue('stock');
         } else {
-            setShowSaveMessage(true);
-            setTimeout(() => setShowSaveMessage(false), 3000); // Oculta el mensaje después de 3 segundos
+            handleGuardar();
+            setTimeout(() => handleClose, 3000); // Oculta el mensaje después de 3 segundos
+
         }
     };
 
@@ -723,7 +731,7 @@ function ChildModal({ open, handleClose }) {
 }
 
 //Modal principal
-export default function NestedModal({open, handleClose}) {
+export default function NestedModalProductos({open, handleClose}) {
     const [childOpen, setChildOpen] = React.useState(false);
     const handleChildOpen = () => setChildOpen(true);
     const handleChildClose = () => setChildOpen(false);
@@ -731,6 +739,30 @@ export default function NestedModal({open, handleClose}) {
     const [detailOpen, setDetailOpen] = React.useState(false);
     const handleDetailOpen = () => setDetailOpen(true);
     const handleDetailClose = () => setDetailOpen(false);
+
+    const [ordenarPor, setOrdenarPor] = useState('nombre');
+    const ordenarMateriales = (materiales) => {
+        return [...materiales].sort((a, b) => {
+            if (ordenarPor === 'nombre') {
+                return a.nombre.localeCompare(b.nombre);
+            } else if (ordenarPor === 'categoria') {
+                return a.categoria.localeCompare(b.categoria);
+            }
+            return 0;
+        });
+    };
+
+    const [busqueda, setBusqueda] = useState('');
+    const materialesFiltrados = materiales.filter(
+        (material) => 
+            material.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+            material.categoria.toLowerCase().includes(busqueda.toLowerCase())
+    );
+    const handleChangeBusqueda = (event) => {
+        setBusqueda(event.target.value);
+    };
+
+    const materialesOrdenados = ordenarMateriales(materialesFiltrados);
 
   return (
     <div>
@@ -761,36 +793,40 @@ export default function NestedModal({open, handleClose}) {
                 </Grid2>
 
                 <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Toolbar>
-                        <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Buscar…"
-                                inputProps={{ 'aria-label': 'search' }}
-                            />
-                        </Search>
-                    </Toolbar>
+                    <Buscar/>
                 </Grid2>
             </Grid2>
 
             <Box
                 sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 500, bgcolor: '#e5e5e5' }}
             >
+                <FormControl variant="standard">
+                    <InputLabel htmlFor="ordenar-select">Ordenar por</InputLabel>
+                    <Select
+                        value={ordenarPor}
+                        onChange={(e) => setOrdenarPor(e.target.value)}
+                        inputProps={{ id: 'ordenar-select' }}
+                    >
+                        <MenuItem value="nombre">Nombre</MenuItem>
+                        <MenuItem value="categoria">Categoría</MenuItem>
+                    </Select>
+                </FormControl>
+
                 <FixedSizeList
-                    height={400}
+                    height={370}
                     width={500}
                     itemSize={46}
-                    itemCount={200}
+                    itemCount={materialesOrdenados.length}
                     overscanCount={5}
                 >
+                    
                     {({ index, style }) => (
-                        renderRow({
+                        renderRow(
                             index,
+                            materialesOrdenados[index],
                             style,
                             handleDetailOpen
-                        })
+                        )
                     )}
                 
                 </FixedSizeList>
@@ -802,3 +838,11 @@ export default function NestedModal({open, handleClose}) {
     </div>
   );
 }
+
+//{({ index, style }) => (
+//    renderRow({
+//        index,
+//        style,
+//        handleDetailOpen
+//    })
+//)}
