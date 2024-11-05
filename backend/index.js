@@ -442,7 +442,7 @@ app.post('/materiales/editarMaterial', verifyToken, (req, res) => {
 
 
 // Ruta para crear una nueva bodega
-app.post('/bodegas/crearBodega', verifyToken, (req, res) => {
+app.post('/bodegas', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
     const correo = req.user.correo;
 
@@ -466,24 +466,68 @@ app.post('/bodegas/crearBodega', verifyToken, (req, res) => {
         }
 
         // Consulta para insertar una nueva bodega
-        const q5 = "INSERT INTO bodegas (id_bodega, nombre_bodega) VALUES (?, ?)";
+        const q5 = "INSERT INTO bodegas ( nombre_bodega) VALUES (?)";
 
-        const { id_bodega, nombre_bodega } = req.body;
+        const  nombre_bodega  = req.body.nombre_bodega;
 
-        db.query(q5, [id_bodega, nombre_bodega], (err, data) => {
+        db.query(q5, [nombre_bodega], (err, data) => {
             if (err) {
-                console.log(err);
+
+                if (err.errno == "1062"){return res.status(500).json({ message: 'Bodega Ya Existe', error: err })}
                 return res.status(500).json({ message: 'Error al crear la bodega', error: err });
             }
 
             // Retornar éxito si la bodega se ha creado correctamente
-            return res.json({ message: 'Bodega creada exitosamente', bodega: { id_bodega, nombre_bodega } });
+            return res.json({ message: 'Bodega creada exitosamente', bodega: {nombre_bodega } });
+        });
+    });
+});
+
+
+// Ruta para crear una nueva bodega
+app.post('/bodegas/agregarBodegas', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para crear una bodega
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear una bodega' });
+        }
+
+        // Consulta para insertar una nueva bodega
+        const q5 = "INSERT INTO bodegas ( nombre_bodega) VALUES (?)";
+
+        const  nombre_bodega  = req.body.nombre_bodega;
+
+        db.query(q5, [nombre_bodega], (err, data) => {
+            if (err) {
+
+                if (err.errno == "1062"){return res.status(500).json({ message: 'Bodega Ya Existe', error: err })}
+                return res.status(500).json({ message: 'Error al crear la bodega', error: err });
+            }
+
+            // Retornar éxito si la bodega se ha creado correctamente
+            return res.json({ message: 'Bodega creada exitosamente', bodega: {nombre_bodega } });
         });
     });
 });
 
 // Ruta para eliminar una bodega por id_bodega
-app.delete('/bodegas/eliminarBodega/:id_bodega', verifyToken, (req, res) => {
+app.delete('/bodegas/:id_bodega', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
     const correo = req.user.correo;
 
@@ -529,7 +573,7 @@ app.delete('/bodegas/eliminarBodega/:id_bodega', verifyToken, (req, res) => {
 });
 
 // Ruta para actualizar el nombre de una bodega por id_bodega
-app.put('/bodegas/actualizarNombre/:id_bodega', verifyToken, (req, res) => {
+app.put('/bodegas/:id_bodega', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
     const correo = req.user.correo;
 
@@ -576,6 +620,127 @@ app.put('/bodegas/actualizarNombre/:id_bodega', verifyToken, (req, res) => {
 });
 
 
+//Recetas
+
+// Materiales
+app.post('/recetas/crearReceta', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear una receta' });
+        }
+
+        // Extraer los datos de la receta y los materiales
+        const { nombre_receta, materiales, precio_producto_unitario, foto_producto, notas_recetas, id_bodega } = req.body;
+        const codigos = materiales.map(material => material.codigo_material);
+        const cantidades = materiales.map(material => material.cantidad);
+
+        // Crear un array de objetos con pares {codigo_material, cantidad}
+        const materialesJson = materiales.map(material => ({
+            codigo: material.codigo_material,
+            cantidad: material.cantidad
+        }));
+
+        // Verificar si todos los códigos de materiales existen en la base de datos
+        const q2 = "SELECT codigo_material FROM materiales WHERE codigo_material IN (?)";
+
+        db.query(q2, [codigos], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error al verificar materiales', error: err });
+            }
+
+            // Comprobar si todos los códigos enviados están en la base de datos
+            const codigosEncontrados = result.map(row => row.codigo_material);
+            if (codigosEncontrados.length !== codigos.length) {
+                const codigosNoEncontrados = codigos.filter(codigo => !codigosEncontrados.includes(codigo));
+                return res.status(404).json({
+                    message: 'Algunos materiales no existen en la base de datos',
+                    codigosNoEncontrados
+                });
+            }
+
+            // Si todos los materiales existen, proceder a insertar la receta
+            const q3 = `INSERT INTO recetas 
+                (nombre_receta, materiales, precio_producto_unitario, foto_producto, notas_recetas, id_bodega) 
+                VALUES (?, ?, ?, ?, ?, ?)`;
+
+            // Convertir `materialesJson` a una cadena JSON para la inserción
+            db.query(q3, [nombre_receta, JSON.stringify(materialesJson), precio_producto_unitario, foto_producto, notas_recetas, id_bodega], (err, recetaData) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error al crear la receta', error: err });
+                }
+
+                return res.json({
+                    message: 'Receta creada exitosamente',
+                    recetaId: recetaData.insertId
+                });
+            });
+        });
+    });
+});
+
+// Eliminar una receta por ID con verificación de rol
+app.delete('/recetas/:id', verifyToken, (req, res) => {
+    const correo = req.user.correo;
+    const recetaId = req.params.id;
+
+    // Verificación del rol del usuario
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+    db.query(q, [correo], (err, data) => {
+        if (err) return res.status(500).json({ message: 'Error al verificar usuario', error: err });
+        if (data.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+        const user = data[0];
+        if (user.rol_usuario !== 0) return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para eliminar una receta' });
+
+        // Eliminar receta si el usuario tiene permisos
+        const deleteQuery = "DELETE FROM recetas WHERE id_recetas = ?";
+        db.query(deleteQuery, [recetaId], (err, result) => {
+            if (err) return res.status(500).json({ message: 'Error al eliminar la receta', error: err });
+            if (result.affectedRows === 0) return res.status(404).json({ message: 'Receta no encontrada' });
+            res.json({ message: 'Receta eliminada exitosamente' });
+        });
+    });
+});
+
+
+
+// Traer todas las recetas
+app.get('/recetas', (req, res) => {
+    const q = "SELECT * FROM recetas";
+    db.query(q, (err, data) => {
+        if (err) return res.status(500).json({ message: 'Error al obtener recetas', error: err });
+        res.json({ recetas: data });
+    });
+});
+
+// Traer una receta por ID
+app.get('/recetas/:id', (req, res) => {
+    const recetaId = req.params.id;
+    const q = "SELECT * FROM recetas WHERE id_recetas = ?";
+
+    db.query(q, [recetaId], (err, data) => {
+        if (err) return res.status(500).json({ message: 'Error al obtener la receta', error: err });
+        if (data.length === 0) return res.status(404).json({ message: 'Receta no encontrada' });
+        res.json({ receta: data[0] });
+    });
+});
   
   
 
