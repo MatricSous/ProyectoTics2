@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-//import Axios from 'axios';
+import Axios from 'axios';
 
 import { Container, Grid2, Button } from '@mui/material';
 import '../index.css';
@@ -11,8 +11,8 @@ import PlumbingIcon from '@mui/icons-material/Plumbing';
 import CategoryIcon from '@mui/icons-material/Category';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import NestedModal from '../components/Modals/productos';
 import NestedModalProductos from '../components/Modals/productos';
-import NestedModalBodega from '../components/Modals/bodega';
 
 
 export default function LandingProduccion() {
@@ -25,7 +25,7 @@ export default function LandingProduccion() {
   const handleCloseBodega = () => setOpenBodega(false);
 
   return (
-    <div 
+<div 
       style={{backgroundColor: '#e5e5e5' , }}>
     
       <Container bmaxWidth="sm" style={{ height: '100vh',paddingTop:'120px' ,display: 'flex', alignItems: 'center', justifyContent: 'center',}}>
@@ -70,7 +70,7 @@ export default function LandingProduccion() {
           onClick={handleOpenBodega}>
         Bodegas 
         </Button>
-        <NestedModalBodega open={openBodega} handleClose={handleCloseBodega} handleOpen={handleOpenBodega} />
+        <NestedModalProductos open={openBodega} handleClose={handleCloseBodega} handleOpen={handleOpenBodega} />
       </Grid2>
 
       {/* Botón derecho */}
@@ -86,3 +86,4 @@ export default function LandingProduccion() {
 
 
 }
+

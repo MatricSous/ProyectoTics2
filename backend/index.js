@@ -147,18 +147,34 @@ app.post('/materiales/crearMaterial', verifyToken, (req, res) => {
             return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear un producto' });
         }
 
+        console.log(req.body)
+
         // Aquí iría el código para crear el producto si el rol es 0
-        const q2 = "INSERT INTO materiales (codigo_material, nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo) VALUES (?, ?, ?, ?, ?, ?,?,?,?)";
-        const codigo_material = req.body.material.codigo_material;
-        const nombre_material = req.body.material.nombre_material;
-        const descripcion_material = req.body.material.descripcion_material;
-        const tipo_material = req.body.material.tipo_material;
-        const precio_material = req.body.material.precio_material;
-        const foto_material = req.body.material.foto_material;
-        const modificar_precio = req.body.material.modificar_precio;
-        const valor_iva = req.body.material.valor_iva;
-        const descuento_maximo = req.body.material.descuento_maximo;
-        db.query(q2,[codigo_material, nombre_material,descripcion_material,tipo_material,precio_material,foto_material,modificar_precio,valor_iva,descuento_maximo], (err,data) =>{
+        const q2 = "INSERT INTO materiales (codigo_material, nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo, discontinuado, seCompra, seVende, moneda, costo, unidad_medida, unidad_alternativa, factor, afecto, stockMinimo, stockMaximo) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?, ?, ?, ?, ?, ?,?,?,?,?,?)";
+        const codigo_material = req.body.codigo_material;
+        const nombre_material = req.body.nombre_material;
+        const descripcion_material = req.body.descripcion_material;
+        const tipo_material = req.body.tipo_material;
+        const precio_material = req.body.precio_material;
+        const foto_material = req.body.foto_material;
+        const modificar_precio = req.body.modificar_precio;
+        const valor_iva = req.body.valor_iva;
+        const descuento_maximo = req.body.descuento_maximo;
+        const discontinuado = req.body.discontinuado;
+        const seCompra = req.body.seCompra;
+        const seVende = req.body.seVende;
+        const moneda = req.body.moneda;
+        const costo = req.body.costo;
+        const unidad_medida = req.body.unidad_medida;
+        const unidad_alternativa = req.body.unidad_alternativa;
+        const factor = req.body.factor;
+        const afecto = req.body.afecto;
+        const stockMinimo = req.body.stockMinimo;
+        const stockMaximo = req.body.stockMaximo;
+
+        
+
+        db.query(q2,[codigo_material, nombre_material,descripcion_material,tipo_material,precio_material,foto_material,modificar_precio,valor_iva,descuento_maximo, discontinuado, seCompra, seVende, moneda, costo, unidad_medida, unidad_alternativa, factor, afecto, stockMinimo, stockMaximo], (err,data) =>{
             if (err){
                 console.log(err)
                 return res.status(500).json({message: 'Hubo un error ingresando el material'});
