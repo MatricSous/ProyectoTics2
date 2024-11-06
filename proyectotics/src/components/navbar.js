@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Grid, AppBar, Toolbar, Typography, Button, styled, Box } from '@mui/material';
 import logo from '../images/LOGOrial.png'; // Ajusta la ruta de tu logo
 import { useNavigate, useLocation } from 'react-router-dom'; // Importa useNavigate
@@ -61,11 +61,7 @@ function Navbar() {
                 </Button>
               )}
               {!hidenButton && (
-<<<<<<< HEAD
                 <Button variant="contained" color='amarillo' onClick={() => navigate('/')}>
-=======
-                <Button variant="contained" color='amarillo' >
->>>>>>> 7f83e09 (cambio navbar)
                   Cerrar sesión 
                 </Button>
               )}
