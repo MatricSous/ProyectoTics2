@@ -1,81 +1,8 @@
 import React from 'react';
 //import Axios from 'axios';
-import {
-    Box, 
-    Button,
-    FormControl,
-    InputLabel,
-    OutlinedInput,
-    InputAdornment,
-    IconButton,
-    Avatar,
-    Typography
-} from '@mui/material';
-import '../index.css';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { useState } from 'react';
 
-//const signIn = async (provider, formData) => {
-//  const promise = new Promise((resolve) => {
-//    setTimeout(() => {
-//      const email = formData?.get('email');
-//      const password = formData?.get('password');
-      // preview-start (mensaje de error)
-//      resolve({
-//        type: 'CredentialsSignin',
-//        error: 'Credenciales Inválidas.',
-//      });
-      // preview-end
-//    }, 300);
-//  });
-//  return promise;
-//};
-
-const signIn = async (provider) => {
-    const promise = new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`Sign in with ${provider.id}`);
-        resolve();
-      }, 500);
-    });
-    return promise;
-  };
-
-function CustomEmailField() {
-    return (
-        <FormControl sx={{ my: 2 }} fullWidth variant="outlined">
-        <InputLabel size="small" htmlFor="outlined-adornment-email">
-           Correo
-        </InputLabel>
-        <OutlinedInput
-            id="email"
-            name="email"
-            type="email"
-            size="small"
-            required
-            fullWidth
-            endAdornment={ 
-                <InputAdornment position="end">
-                    <AccountCircle fontSize="inherit" />
-                </InputAdornment>
-            
-            }
-            label="Correo"
-      />
-    </FormControl>
-
-    );
-}
-
-function CustomPasswordField() {
-    const [showPassword, setShowPassword] = React.useState(false);
-    const handleClickShowPassword = () => setShowPassword((show) => !show);
-    const handleMouseDownPassword = (event) => {
-        event.preventDefault();
-    };
+export default function index() {
 
     return (
         <FormControl sx={{ my: 2 }} fullWidth variant="outlined">
