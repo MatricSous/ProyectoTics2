@@ -50,63 +50,58 @@ function CustomPasswordField({ password, setPassword }) {
 
     return (
         <FormControl sx={{ my: 2 }} fullWidth variant="outlined">
-        <InputLabel size="small" htmlFor="outlined-adornment-password">
-            Contraseña
-        </InputLabel>
-        <OutlinedInput
-            id="password"
-            type={showPassword ? 'text' : 'password'}
-            name="password"
-            size="small"
-            endAdornment={
-            <InputAdornment position="end">
-                <IconButton
-                aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseDownPassword}
-                edge="end"
+            <InputLabel size="small" htmlFor="outlined-adornment-password">Contraseña</InputLabel>
+            <OutlinedInput
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
                 size="small"
-                >
-                {showPassword ? (
-                    <VisibilityOff fontSize="inherit" />
-                ) : (
-                    <Visibility fontSize="inherit" />
-                )}
-                </IconButton>
-            </InputAdornment>
-            }
-            label="Contraseña"
-        />
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                endAdornment={
+                    <InputAdornment position="end">
+                        <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            edge="end"
+                            size="small"
+                        >
+                            {showPassword ? <VisibilityOff fontSize="inherit" /> : <Visibility fontSize="inherit" />}
+                        </IconButton>
+                    </InputAdornment>
+                }
+                label="Contraseña"
+            />
         </FormControl>
     );
 }
 
-function CustomButton() {
-    const navigate = useNavigate(); // Crea una instancia de navigate
-    return (
-        <Button
-        onClick={() => navigate('/Landing')}
-        variant="contained"
-        color="amarillohoverblanco"
-        size="small"
-        disableElevation
-        fullWidth
-        sx={{ my: 2 }}
-        >
-        Ingresar
-        </Button>
-    );
-}
-
-//function ForgotPasswordLink() {
-//    return (
-//      <Link href="/" variant="body2">
-//        Forgot password?
-//      </Link>
-//    );
-//  }
-
 export default function Index() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await Axios.post('http://localhost:8081/login', { correo: email, clave: password });
+            const { token } = response.data;
+            
+
+            if (token) {
+                console.log(response)
+                // Guardar el token en el localStorage o manejarlo según tu preferencia
+                localStorage.setItem('token', token);
+                navigate('/Landing'); // Navegar a la página deseada después del login
+            }
+        } catch (error) {
+            console.error('Error de inicio de sesión:', error);
+            alert('Usuario o contraseña incorrectos');
+        }
+    };
+
     return (
         <Box 
             sx={{
@@ -162,12 +157,20 @@ export default function Index() {
                 <Avatar sx={{ bgcolor: '#093d77', m: 1 }}>
                     <LockOutlinedIcon fontSize="small" />
                 </Avatar>
-                <Typography component="h1" variant="h5" gutterBottom>
-                    Iniciar Sesión
-                </Typography>
-                <CustomEmailField />
-                <CustomPasswordField />
-                <CustomButton />
+                <Typography component="h1" variant="h5" gutterBottom>Iniciar Sesión</Typography>
+                <CustomEmailField email={email} setEmail={setEmail} />
+                <CustomPasswordField password={password} setPassword={setPassword} />
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="amarillohoverblanco"
+                    size="small"
+                    disableElevation
+                    fullWidth
+                    sx={{ my: 2 }}
+                >
+                    Ingresar
+                </Button>
             </Box>
         </Box>
     );
