@@ -6,6 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import '../../index.css';
 import ProcesoList from './ProcesoList';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 const style = {
   position: 'absolute',
@@ -27,22 +28,33 @@ const RecipeModal = ({ open, handleClose }) => {
   const handleCloseModal = () => setOpenModal(false);
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal 
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
+    open={open} onClose={handleClose}>
+      
       <Box sx={style}>
         <Button
           onClick={handleClose}
           sx={{ position: 'absolute', top: 10, right: 10, color: 'black', zIndex: 1 }}
         >
-          <CloseIcon />
+          <HighlightOffIcon style={{color: '#b71c1c'}}/>
         </Button>
-
-        <Typography
-          variant="h6"
-          component="h2"
-          sx={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', color: 'black', zIndex: 1 }}
+        <h2
+          id="parent-modal-title"
+          style={{
+            position: 'absolute',
+            top: -5,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: 'black',
+            zIndex: 1,
+            fontSize: '1.5rem', 
+          }}
         >
           Transformaciones de Productos
-        </Typography>
+        </h2>
+
         <div className="Raya"></div>
 
         <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>

@@ -82,6 +82,43 @@ const currencies = [
           label: 'ID 19. nombre',
         },
         {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        {
+          value: 'ID 19',
+          label: 'ID 19. nombre',
+        },
+        
+        {
           value: 'ID 20',
           label: 'ID 20. nombre',
         }
