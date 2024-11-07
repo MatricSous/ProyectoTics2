@@ -66,6 +66,9 @@ app.post("/usuarios", (req, res) => {
 
   app.post('/login', (req, res) => {
     const { correo, clave } = req.body;
+    console.log(req)
+    console.log(correo)
+    console.log(clave)
 
     // Consulta SQL para buscar al usuario por correo
     const q = "SELECT * FROM usuarios WHERE correo = ?";
@@ -78,7 +81,7 @@ app.post("/usuarios", (req, res) => {
 
         // Verificar si el usuario fue encontrado
         if (data.length === 0) {
-            return res.status(404).json({ message: 'Usuario o Contraseña Incorrectos' });
+            return res.status(404).json({ message: 'Usuario o Contraseña Incorrectsos' });
         }
 
         // El usuario fue encontrado, data[0] contiene la información
@@ -279,6 +282,67 @@ app.get('/materiales/verMaterial/:codigo_material', verifyToken, (req, res) => {
 
 
 
+app.post('/materiales/crearMateriales', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear materiales' });
+        }
+
+        // Insertar múltiples materiales si el rol es 0
+        const materiales = req.body.materiales; // Asumimos que es un array de objetos con los datos de cada material
+
+        if (!Array.isArray(materiales) || materiales.length === 0) {
+            return res.status(400).json({ message: 'Debe proporcionar una lista de materiales para insertar' });
+        }
+
+        const q2 = `
+            INSERT INTO materiales (codigo_material, nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo) 
+            VALUES ?
+        `;
+
+        // Transformar cada material en un array de valores
+        const values = materiales.map(material => [
+            material.codigo_material,
+            material.nombre_material,
+            material.descripcion_material,
+            material.tipo_material,
+            material.precio_material,
+            material.foto_material,
+            material.modificar_precio,
+            material.valor_iva,
+            material.descuento_maximo
+        ]);
+
+        db.query(q2, [values], (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Hubo un error al ingresar los materiales', error: err });
+            }
+
+            return res.json({ message: 'Materiales ingresados exitosamente', insertedRows: result.affectedRows });
+        });
+    });
+});
+
+
+
 app.post('/materiales/eliminarMaterial', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
     const correo = req.user.correo;
@@ -303,8 +367,10 @@ app.post('/materiales/eliminarMaterial', verifyToken, (req, res) => {
         }
 
         // Código para eliminar el material si el rol es 0
-        const codigo_material = req.body.codigo_material;
+        const codigo_material = req.body.material.codigo_material;
         const q2 = "DELETE FROM materiales WHERE codigo_material = ?";
+
+        console.log(codigo_material)
 
         db.query(q2, [codigo_material], (err, result) => {
             if (err) {
@@ -321,6 +387,59 @@ app.post('/materiales/eliminarMaterial', verifyToken, (req, res) => {
         });
     });
 });
+
+
+app.post('/materiales/editarMaterial', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para editar un material' });
+        }
+
+        // Código para editar el material si el rol es 0
+        const { codigo_material, nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo } = req.body.material;
+        const q2 = `
+            UPDATE materiales 
+            SET nombre_material = ?, descripcion_material = ?, tipo_material = ?, precio_material = ?, foto_material = ?, modificar_precio = ?, valor_iva = ?, descuento_maximo = ?
+            WHERE codigo_material = ?
+        `;
+
+        const values = [nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo, codigo_material];
+
+        db.query(q2, values, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Hubo un error al actualizar el material' });
+            }
+
+            // Verificar si algún material fue actualizado
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: 'Material no encontrado' });
+            }
+
+            return res.json({ message: 'Material actualizado exitosamente' });
+        });
+    });
+});
+
+
+
 
 // Ruta para crear una nueva bodega
 app.post('/bodegas/crearBodega', verifyToken, (req, res) => {

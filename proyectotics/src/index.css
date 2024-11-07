@@ -11,3 +11,18 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.iconoGrande {
+  font-size: 500px; /* Cambia el tamaño según necesites */
+}
+
+.botonGrande {
+  width: 200px;
+  height: 60px;
+}
+
+.Raya{
+  width: 100%; /* Ocupa todo el ancho del modal */
+  border-top: 2px solid black; /* Cambia el color y el grosor según lo necesites */
+  margin: 20px 0; /* Espacio superior e inferior */
+}
