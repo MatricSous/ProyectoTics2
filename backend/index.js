@@ -576,7 +576,7 @@ app.post('/bodegas/agregarBodegas', verifyToken, (req, res) => {
         // Consulta para insertar una nueva bodega
         const q5 = "INSERT INTO bodegas ( nombre_bodega) VALUES (?)";
 
-        const  nombre_bodega  = req.body.nombre_bodega;
+        const  nombre_bodega  = req.body.newBodega;
 
         db.query(q5, [nombre_bodega], (err, data) => {
             if (err) {

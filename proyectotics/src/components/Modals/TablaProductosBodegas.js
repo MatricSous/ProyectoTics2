@@ -2,7 +2,6 @@ import { Button, Modal, Box, TextField, Typography, Snackbar, Alert } from '@mui
 import { DataGrid } from '@mui/x-data-grid';
 import { esES } from '@mui/x-data-grid/locales';
 import React, { useState, useEffect } from 'react';
-import TablaProductosBodegas from './TablaProductosBodegas';
 import axios from 'axios';
 
 
@@ -11,25 +10,11 @@ const initialRows = [
   { id: 2, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" }
 ];
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 1000,
-  bgcolor: '#e5e5e5',
-  border: '3px solid #093d77',
-  boxShadow: 24,
-  borderRadius: 3,
-  pt: 2,
-  px: 4,
-  pb: 3,
-};
 
 
 
 
-function TablaBodegas() {
+function TablaProductosBodegas() {
   
   const [rows, setRows] = useState(initialRows);  // Estado para las filas de la tabla
   const [openModal, setOpenModal] = useState(false);  // Estado para controlar el modal
@@ -67,27 +52,7 @@ function TablaBodegas() {
       minWidth: 150, 
       maxWidth: 300 
     },
-    { 
-      field: 'bodega', 
-      headerName: 'Bodega', 
-      flex: 1,  
-      minWidth: 200, 
-      maxWidth: 400 
-    },
-    { 
-      field: 'stock', 
-      headerName: 'Stock', 
-      flex: 1,  
-      minWidth: 200, 
-      maxWidth: 400 
-    }, 
-    { 
-      field: 'stockComp', 
-      headerName: 'Stock Comprometido', 
-      flex: 1,  
-      minWidth: 200, 
-      maxWidth: 400 
-    }, 
+
     { 
       field: 'stockMin', 
       headerName: 'Stock Minimo', 
@@ -110,8 +75,8 @@ function TablaBodegas() {
       maxWidth: 400 
     }, 
     { 
-      field: 'Modificar', 
-      headerName: 'Modificar', 
+      field: 'anadir', 
+      headerName: 'Añadir', 
       width: 150,  
       minWidth: 100, 
       maxWidth: 200, 
@@ -130,7 +95,7 @@ function TablaBodegas() {
 
   //Peticiones
 
-const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
 
 // Función para obtener el Inventario cuando se abre el modal
@@ -234,7 +199,7 @@ useEffect(() => {
 
       handleCloseCreateModal();
 
-      toggleSnackbar();
+        toggleSnackbar();
     })
     .catch(error => setErrorMessage('No se pudo agregar la bodega'));
       
@@ -330,7 +295,7 @@ useEffect(() => {
       >
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: 400, bgcolor: 'white', boxShadow: 24, padding: 4, borderRadius: 3
+          width: 800, bgcolor: 'white', boxShadow: 24, padding: 4, borderRadius: 3
         }}>
           <h2 id="modal-title">Crear Nueva Bodega</h2>
           <TextField
@@ -361,7 +326,7 @@ useEffect(() => {
       >
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: 400, bgcolor: 'white', boxShadow: 24, padding: 4, borderRadius: 3
+          width: 800, bgcolor: 'white', boxShadow: 24, padding: 4, borderRadius: 3
         }}>
           <h2 id="modal-title">Modificar Stock</h2>
           <p id="modal-description">Actualmente, el stock es {selectedStock} {stockUnit}. Ingresa el nuevo valor de stock:</p>
@@ -393,39 +358,34 @@ useEffect(() => {
         onClose={handleCloseAnadirModal}
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
-        >
-          <Box sx={style}>
- 
-            <h2
-              id="parent-modal-title"
-              style={{
-                position: 'absolute',
-                top: -5,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                color: 'black',
-                zIndex: 1,
-                fontSize: '1.5rem',
-              }}
-            >
-              Bodegas
-            </h2>
-            <div className="Raya"></div>
-  
-            {/* Contenedor que envuelve la tabla */}
-            <Box
-              sx={{
-                mt: 4, // Para dar un margen superior
-                height: 'calc(100vh - 100px)', // Para asegurar que no se sobrepase la pantalla
-                overflowY: 'auto', // Permite desplazamiento si el contenido excede el tamaño
-              }}
-            >
-              <TablaProductosBodegas />
-            </Box>
-          </Box>
-        </Modal>
+      >
+        <Box sx={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: 800, bgcolor: 'white', boxShadow: 24, padding: 4, borderRadius: 3
+        }}>
+          <h2 id="modal-title">Anadir Producto</h2>
+          {/* Campo de entrada para modificar solo el número de stock */}
+          <TextField
+            label="Nuevo Stock"
+            variant="outlined"
+            value={selectedStock}
+            onChange={handleStockChange}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+            type="number"  // Asegura que solo se pueda ingresar números
+          />
+
+          {/* Botones de acción */}
+          <Button onClick={handleSaveStock} variant="contained" color="primary" sx={{ marginRight: 1 }}>
+            Guardar
+          </Button>
+          <Button onClick={handleCloseModal} variant="contained" color="secondary">
+            Cerrar
+          </Button>
+        </Box>
+      </Modal>
     </div>
   );
 }
 
-export default TablaBodegas;
+export default TablaProductosBodegas;
