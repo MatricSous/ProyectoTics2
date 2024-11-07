@@ -1,16 +1,19 @@
 import React from 'react';
 //import Axios from 'axios';
+import { useState } from 'react';
 import { Container, Grid, Button } from '@mui/material';
 import '../index.css';
 import SettingsIcon from '@mui/icons-material/Settings';
 import StoreIcon from '@mui/icons-material/Store';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import LocalMallIcon from '@mui/icons-material/LocalMall';
+import { useHref } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 
 export default function Landing() {
     const navigate = useNavigate(); // Crea una instancia de navigate
 
+        
     return (
         <div 
         style={{backgroundColor: '#e5e5e5' , }}>
@@ -44,4 +47,7 @@ export default function Landing() {
       </Container>
       </div>
       );
+    
+
+
 }

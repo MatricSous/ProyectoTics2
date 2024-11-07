@@ -23,6 +23,7 @@ import {
     InputBase,
     Toolbar
 } from '@mui/material';
+
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { TableVirtuoso } from 'react-virtuoso';
@@ -38,13 +39,13 @@ import Add from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search'
 
+import axios from 'axios';
 
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
     bgcolor: '#e5e5e5',
     border: '3px solid #093d77',
     boxShadow: 24,
@@ -211,22 +212,22 @@ function createData(id) {
 
 const columns = [
     {
-      width: 50,
+      width: 200,
       label: 'Código',
       dataKey: 'codigo',
     },
     {
-      width: 70,
+      width: 300,
       label: 'Nombre',
       dataKey: 'nombre',
     },
     {
-      width: 100,
+      width: 500,
       label: 'Descripción',
       dataKey: 'descripciion',
     },
     {
-      width: 30,
+      width: 100,
       label: 'Stock',
       dataKey: 'stock',
     },
@@ -322,6 +323,7 @@ function ChildModal({ open, handleClose }) {
                 onClose={handleClose}
                 aria-labelledby="child-modal-title"
                 aria-describedby="child-modal-description"
+                width='1000px'
             >
                 <Box sx={{ ...style, width: 700 }}>
                     <Grid2 container alignItems="center" justifyContent="space-between">
@@ -487,48 +489,37 @@ export default function NestedModalBodega({open, handleClose}) {
             <Box
                 sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 700, bgcolor: '#e5e5e5' }}
             >
-                
-                <Paper style={{ height: 400, width: '100%' }} elevation={0}>
-                    <TableVirtuoso
-                        data={rows}
-                        components={VirtuosoTableComponents}
-                        fixedHeaderContent={() => (
-                            <TableRow>
-                                {columns.map((column) => (
-                                    <TableCell
-                                        key={column.dataKey}
-                                        variant="head"
-                                        align={'left'}
-                                        style={{
-                                            width: column.width,
-                                            backgroundColor: '#093d77',
-                                            color: '#daa520', // Color de letra blanco
-                                        }}
-                                    >
-                                        {column.label}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        )}
-
-                        //contenido de la tabla
-                        itemContent={(_, row) => (
-                            columns.map((column) => (
-                                <TableCell
-                                    key={column.dataKey}
-                                    align={'left'}
-                                >
-                                    {row[column.dataKey]}
-                                </TableCell>
-                            ))
-                        )}                        
-                        sx={{bgcolor: '#e5e5e5'}}
-                    />
-                </Paper>
+              <HighlightOffIcon style={{ color: '#b71c1c' }} />
+            </Button>
+            <h2
+              id="parent-modal-title"
+              style={{
+                position: 'absolute',
+                top: -5,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: 'black',
+                zIndex: 1,
+                fontSize: '1.5rem',
+              }}
+            >
+              Bodegas
+            </h2>
+            <div className="Raya"></div>
+  
+            {/* Contenedor que envuelve la tabla */}
+            <Box
+              sx={{
+                mt: 4, // Para dar un margen superior
+                height: 'calc(100vh - 100px)', // Para asegurar que no se sobrepase la pantalla
+                overflowY: 'auto', // Permite desplazamiento si el contenido excede el tamaño
+              }}
+            >
+              <TablaBodegas />
             </Box>
-            <ChildModal open={childOpen} handleClose={handleChildClose} />
-        </Box>
-      </Modal>
-    </div>
-  );
-}
+          </Box>
+        </Modal>
+      </div>
+    );
+  }
+  
