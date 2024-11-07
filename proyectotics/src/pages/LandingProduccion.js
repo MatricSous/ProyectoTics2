@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 //import Axios from 'axios';
 
 import { Container, Grid, Grid2, Button } from '@mui/material';
-import RecipeModal from '../components/Modals/RecipeModal'; // Ajusta la ruta según sea necesario
+import RecipeModal from '../components/Modals/Recetas/RecipeModal'; // Ajusta la ruta según sea necesario
 import SettingsIcon from '@mui/icons-material/Settings';
 import CategoryIcon from '@mui/icons-material/Category';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
