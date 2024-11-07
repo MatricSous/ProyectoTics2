@@ -13,12 +13,18 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import NestedModal from '../components/Modals/productos';
 import NestedModalProductos from '../components/Modals/productos';
+import NestedModalBodega from '../components/Modals/bodega';
+import NestedModalRecetas from '../components/Modals/recetas';
 
 
 export default function LandingProduccion() {
   const [openProductos, setOpenProductos] = useState(false);
   const handleOpenProductos = () => setOpenProductos(true);
   const handleCloseProductos = () => setOpenProductos(false);
+
+  const[openRecetas, setOpenRecetas] = useState(false);
+  const handleOpenRecetas = () => setOpenRecetas(true);
+  const handleCloseRecetas = () => setOpenRecetas(false);
 
   const [openBodega, setOpenBodega] = useState(false);
   const handleOpenBodega = () => setOpenBodega(true);
@@ -70,12 +76,19 @@ export default function LandingProduccion() {
           onClick={handleOpenBodega}>
         Bodegas 
         </Button>
-        <NestedModalProductos open={openBodega} handleClose={handleCloseBodega} handleOpen={handleOpenBodega} />
+        <NestedModalBodega open={openBodega} handleClose={handleCloseBodega} handleOpen={handleOpenBodega} />
       </Grid2>
 
       {/* Botón derecho */}
       <Grid2 item xs={12} style={{ position: 'absolute', top: '50%', right: '-90%', transform: 'translateY(-50%)' }}>
-        <Button variant="contained" color="amarillohoverblanco" startIcon={<ReceiptLongIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px', fontSize:'30px'  }}>Recetas</Button>
+        <Button variant="contained" 
+        color="amarillohoverblanco" 
+        startIcon={<ReceiptLongIcon 
+        style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px', fontSize:'30px'  }}
+        onClick={handleOpenRecetas}>
+          Recetas
+        </Button>
+        <NestedModalRecetas open={openRecetas} handleClose={handleCloseRecetas} handleOpen={handleOpenRecetas} />
       </Grid2>
       
     </Grid2>

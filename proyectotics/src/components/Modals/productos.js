@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import axios from 'axios';
 import {v4} from 'uuid';
 import {
+    Snackbar,
+    Alert,
     Grid2, 
     Button, 
     Box, 
@@ -35,7 +37,7 @@ import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantity
 import Buscar from './buscar';
 import { imageDb} from '../../firebase';
 import {uploadBytes, getDownloadURL, ref} from 'firebase/storage'
-
+import * as xlsx from "xlsx";
 const style = {
     position: 'absolute',
     top: '50%',
@@ -142,7 +144,7 @@ const VisuallyHiddenInput = styled('input')({
     { label: "Tornillos", value: "Tornillos" },
     { label: "Pinturas", value: "Pinturas" },
     { label: "Tapacantos", value: "Tapacantos" },
-    // Agrega más categorías según sea necesario
+    
 ];
 
 
@@ -349,16 +351,6 @@ function PrecioForm({dctoMax, handleChangeDctoMax, moneda, unitario, coniva, cos
                     />
                 </FormControl>
 
-                <FormControl sx={{ m: 1 }} variant="standard">
-                    <InputLabel shrink htmlFor="bootstrap-input">
-                        Precio con IVA
-                    </InputLabel>
-                    <BootstrapInput
-                        id="precioconiva"
-                        value={coniva}
-                        onChange={handleChangeConiva}
-                    />
-                </FormControl>
 
                 <FormControl sx={{ m: 1 }} variant="standard">
                     <InputLabel shrink htmlFor="bootstrap-input">
@@ -563,6 +555,10 @@ function ChildModal({ open, handleClose }) {
     //foto
     const [foto, setFoto] = useState('')
     const [linkFoto, setLinkFoto] = useState('NF')
+
+    //subir excel
+
+    const [arregloExcel, setArregloExcel] = useState('');
  
     useEffect(() => {
         if (open) {
@@ -790,18 +786,47 @@ function ChildModal({ open, handleClose }) {
         }
     };
 
-    //////////////////////////////////////////////////////
-    const SubirExcel = () => {
-        if (value === 'info') {
-            setValue('precio');
-        } else if (value === 'precio'){
-            setValue('stock');
-        } else {
-            setShowSaveMessage(true);
-            setTimeout(() => setShowSaveMessage(false), 3000); // Oculta el mensaje después de 3 segundos
+    const columnasEsperadas = ["columna 1", "columna 2", "prueba"]; // Agrega los nombres de columnas esperados
+    const [mensaje, setMensaje] = useState({ texto: "", color: "" });
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+
+    const subirExcel = (e) => {
+
+        e.preventDefault();
+
+        if (e.target.files) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = e.target.result;
+                const workbook = xlsx.read(data, { type: "array" });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const json = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+
+                // Obtener nombres de columnas del archivo
+                const nombresColumnas = json[0];
+                
+                // Validar que las columnas coincidan con las esperadas
+                const esValido = columnasEsperadas.every((col) => nombresColumnas.includes(col));
+
+                if (esValido) {
+                    // Convertir el contenido a JSON y mostrar mensaje de éxito
+                    const productos = xlsx.utils.sheet_to_json(worksheet);
+                    console.log(productos);
+                    setMensaje({ texto: "Productos agregados exitosamente!", color: "success" });
+                } else {
+                    setMensaje({ texto: "La plantilla no cuenta con el formato correcto", color: "error" });
+                }
+                
+                // Abrir la notificación
+                setOpenSnackbar(true);
+            };
+            reader.readAsArrayBuffer(e.target.files[0]);
         }
     };
-    ///////////////////////////////////////////////////////7
+
+    
+
 
     const handleBack = () => {
         if (value === 'precio') {
@@ -810,6 +835,22 @@ function ChildModal({ open, handleClose }) {
             setValue('precio');
         }
     };
+
+    const fileInputRef = useRef(null);
+
+    const handleUploadClick = () => {
+        // Abre el explorador de archivos al hacer clic en el botón
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Llama a la función SubirExcel con el archivo seleccionado
+            subirExcel(file);
+        }
+    };
+
 
     const isLastTab = value === 'stock';
     const isFirstTab = value === 'info';
@@ -888,15 +929,33 @@ function ChildModal({ open, handleClose }) {
                             </Typography>
                         </Box>
                     )}
-
                     <Box mt={2} display="flex" justifyContent="space-between">
-                        <Button variant="contained" onClick={isFirstTab ? SubirExcel : handleBack} color={isFirstTab ? 'success' : "amarillo"}>
-                            {isFirstTab ? "Subir Excel" : "Anterior"}
-                        </Button>
-                        <Button variant="contained" onClick={handleNext} color={isLastTab ? "success" : "amarillo"}>
-                            {isLastTab ? "Guardar" : "Siguiente"}
-                        </Button>
-                    </Box>
+                                {/* Botón izquierdo */}
+                                {isFirstTab ? (
+                                    <>
+                                        <Button variant="contained" onClick={handleUploadClick} color="success">
+                                            Subir Excel
+                                        </Button>
+                                        {/* Campo de entrada de archivo oculto */}
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={subirExcel}
+                                            accept=".xlsx, .xls"
+                                            style={{ display: 'none' }}
+                                        />
+                                    </>
+                                ) : (
+                                    <Button variant="contained" onClick={handleBack} color="amarillo">
+                                        Anterior
+                                    </Button>
+                                )}
+
+                                {/* Botón derecho */}
+                                <Button variant="contained" onClick={handleNext} color={isLastTab ? "success" : "amarillo"}>
+                                    {isLastTab ? "Guardar" : "Siguiente"}
+                                </Button>
+                        </Box>
 
                 </Box>
             </Modal>

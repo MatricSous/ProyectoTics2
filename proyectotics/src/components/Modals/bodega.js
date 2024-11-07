@@ -17,29 +17,36 @@ import {
     Checkbox,
     ListItem,
     ListItemButton,
-    ListItemText
+    ListItemText,
+    styled,
+    alpha,
+    InputBase,
+    Toolbar
 } from '@mui/material';
+
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { TableVirtuoso } from 'react-virtuoso';
 import Chance from 'chance';
-import Buscar from './buscar';
 import { FixedSizeList } from 'react-window';
 import {
     Badge,
     IconButton,
     Typography,
+    Style
 } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
-import Remove from '@mui/icons-material/Remove';
+import RemoveIcon from '@mui/icons-material/Remove';
+import SearchIcon from '@mui/icons-material/Search'
+import TablaBodegas from './TablaBodegas';
 
+import axios from 'axios';
 
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
     bgcolor: '#e5e5e5',
     border: '3px solid #093d77',
     boxShadow: 24,
@@ -48,6 +55,52 @@ const style = {
     px: 4,
     pb: 3,
 };
+
+//Barra de búsqueda
+const Search = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    borderColor: '#2b2b2b',
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    border: '2px solid #2b2b2b',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(1),
+        width: 'auto',
+    },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    width: '100%',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        [theme.breakpoints.up('sm')]: {
+            width: '12ch',
+            '&:focus': {
+                width: '20ch',
+            },
+        },
+    },
+}));
+//Barra de búsqueda
 
 // Simulación de datos
 const materiales = [
@@ -73,74 +126,69 @@ const materiales = [
     { id: 20, nombre: "Material 20", categoria: "Categoría S" },
 ];
 
-function renderRow(index, event, material, style, handleChangeAgregar, handleChangeAgregado, count, handleChangeCount, showZero, handleChangeShowZero, agregado){
+function renderRow(index, event, material, style, agregar, handleChangeAgregar, count, handleChangeCount, showZero, handleChangeShowZero){
 
     return (
         <ListItem 
-            style={style} 
+            style={{...style}} 
             key={material.id} 
             component="div" 
             disablePadding 
             secondaryAction={
-                <Fab aria-label="comment" size="small" variant="extended" onClick={() => handleChangeAgregar()} color='azulamarillo'>
+                <Fab aria-label="comment" size="small" variant="extended" onClick={(event) => handleChangeAgregar(event)} color='azulamarillo'>
                     <AddIcon/> Agregar
                 </Fab>
             }
         >
             <ListItemButton>
                 <ListItemText primary={`${material.id} ${material.nombre}`} />
-                {agregado ? 
-<Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 2,
-        mt: 4,
-      }}
-    >
-      <Badge badgeContent={count} showZero={showZero}>
-        <Typography level="h1" component="h2">
-          🛍
-        </Typography>
-      </Badge>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
-          pt: 4,
-          mb: 2,
-          borderTop: '1px solid',
-          borderColor: 'background.level1',
-        }}
-      >
-        <IconButton
-          size="sm"
-          variant="outlined"
-          onClick={() => handleChangeCount((c) => c - 1)}
-        >
-          <Remove />
-        </IconButton>
-        <Typography textColor="text.secondary" sx={{ fontWeight: 'md' }}>
-          {count}
-        </Typography>
-        <IconButton
-          size="sm"
-          variant="outlined"
-          onClick={() => handleChangeCount((c) => c + 1)}
-        >
-          <Add />
-        </IconButton>
-      </Box>
-      <Checkbox
-        onChange={(event) => handleChangeShowZero(event.target.checked)}
-        checked={showZero}
-        label="show zero"
-      />
-    </Box>
-                : ''}
                 <ListItemText style={{paddingRight: 50}} primary={`${material.categoria}`} />
+                {agregar ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 2,
+                            mt: 4,
+                        }}
+                    >
+                        <Badge badgeContent={count} showZero={showZero}>
+                            <Typography level="h6" component="h2">
+                            🛍
+                            </Typography>
+                        </Badge>
+                        <Box
+                            sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            pt: 4,
+                            mb: 2,
+                            borderTop: '1px solid',
+                            borderColor: 'background.level1',
+                            }}
+                        >
+                            <IconButton
+                            size="sm"
+                            variant="outlined"
+                            onClick={() => handleChangeCount((c) => c - 1)}
+                            >
+                                <RemoveIcon />
+                            </IconButton>
+                            <Typography textColor="text.secondary" sx={{ fontWeight: 'md' }}>
+                                {count}
+                            </Typography>
+                            <IconButton
+                                size="sm"
+                                variant="outlined"
+                                onClick={() => handleChangeCount((c) => c + 1)}
+                            >
+                                <Add />
+                            </IconButton>
+                        </Box>
+                    </Box>
+               ) : null}
             </ListItemButton>
         </ListItem>
 
@@ -165,22 +213,22 @@ function createData(id) {
 
 const columns = [
     {
-      width: 50,
+      width: 200,
       label: 'Código',
       dataKey: 'codigo',
     },
     {
-      width: 70,
+      width: 300,
       label: 'Nombre',
       dataKey: 'nombre',
     },
     {
-      width: 100,
+      width: 500,
       label: 'Descripción',
       dataKey: 'descripciion',
     },
     {
-      width: 30,
+      width: 100,
       label: 'Stock',
       dataKey: 'stock',
     },
@@ -256,22 +304,18 @@ function ChildModal({ open, handleClose }) {
     };
 
     const [agregar, setAgregar] = useState(false);
-    const handleChangeAgregar = (event) => {
-        setAgregar(event.target.checked);
-    };
-
-    const [agregado, setAgregado] =  useState(false);
-    const handleChangeAgregado = (event) => {
-        setAgregado(event.target.checked);
+    const handleChangeAgregar = () => {
+        setAgregar(!agregar);
     };
 
     const [count, setCount] = useState(0);
-    const handleChangeCount = (event) => {
-        setCount(event.target.checked);
+    const handleChangeCount = (newCount) => {
+        setCount(newCount);
     };
+
     const [showZero, setShowZero] = useState(false);
-    const handleChangeShowZero = (event) => {
-        setShowZero(event.target.checked);
+    const handleChangeShowZero = (checked) => {
+        setShowZero(checked);
     };
     return(
         <React.Fragment>
@@ -280,6 +324,7 @@ function ChildModal({ open, handleClose }) {
                 onClose={handleClose}
                 aria-labelledby="child-modal-title"
                 aria-describedby="child-modal-description"
+                width='1000px'
             >
                 <Box sx={{ ...style, width: 700 }}>
                     <Grid2 container alignItems="center" justifyContent="space-between">
@@ -340,15 +385,15 @@ function ChildModal({ open, handleClose }) {
                                     {({ index, style }) => (
                                         renderRow(
                                             index,
+                                            null,
                                             materiales[index],
                                             style,
+                                            agregar,
                                             handleChangeAgregar,
-                                            handleChangeAgregado,
                                             count,
                                             handleChangeCount,
                                             showZero,
-                                            handleChangeShowZero,
-                                            agregado
+                                            handleChangeShowZero
                                         )
                                     )}
                             
@@ -363,95 +408,59 @@ function ChildModal({ open, handleClose }) {
     );
 }
 
-//Modal principal
-export default function NestedModalBodega({open, handleClose}) {
-    const [childOpen, setChildOpen] = React.useState(false);
-    const handleChildOpen = () => setChildOpen(true);
-    const handleChildClose = () => setChildOpen(false);
-  return (
-    <div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
-      >
-        <Box sx={{ ...style, width: 700 }}>
-            <Grid2 container alignItems="center" justifyContent="space-between">
-                <Grid2 item xs={4} style={{ textAlign: 'left' }}>
-                    <h2 id="parent-modal-title">Bodega</h2>
-                </Grid2>
+// Modal principal
+export default function NestedModalBodega({ open, handleClose }) {
 
-                <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Button onClick={handleClose}>
-                        <HighlightOffIcon style={{color: '#b71c1c'}}/>
-                    </Button>
-                </Grid2>
-            </Grid2>
-
-            <Grid2 container alignItems="center" justifyContent="space-between">
-                <Grid2 item xs={4} style={{ textAlign: 'left' }} justifyContent="space-between">
-                    <Fab color="amarillo" aria-label="add" variant="extended" onClick={handleChildOpen}> 
-                        <AddIcon/>Ingreso
-                    </Fab>
-                </Grid2>
-
-                <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Buscar />
-                </Grid2>
-                <Grid2 item xs={4} style={{ textAlign: 'rigth' }} justifyContent="space-between">
-                    <Fab color="amarillo" aria-label="add" variant="extended">
-                        <AddIcon/>Salida
-                    </Fab>
-                </Grid2>
-            </Grid2>
-
-            <Box
-                sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 700, bgcolor: '#e5e5e5' }}
+    return (
+      <div>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="parent-modal-title"
+          aria-describedby="parent-modal-description"
+        >
+          <Box sx={style}>
+            <Button
+              onClick={handleClose}
+              sx={{
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                color: 'black',
+                zIndex: 1,
+              }}
             >
-                
-                <Paper style={{ height: 400, width: '100%' }} elevation={0}>
-                    <TableVirtuoso
-                        data={rows}
-                        components={VirtuosoTableComponents}
-                        fixedHeaderContent={() => (
-                            <TableRow>
-                                {columns.map((column) => (
-                                    <TableCell
-                                        key={column.dataKey}
-                                        variant="head"
-                                        align={'left'}
-                                        style={{
-                                            width: column.width,
-                                            backgroundColor: '#093d77',
-                                            color: '#daa520', // Color de letra blanco
-                                        }}
-                                    >
-                                        {column.label}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        )}
-
-                        //contenido de la tabla
-                        itemContent={(_, row) => (
-                            columns.map((column) => (
-                                <TableCell
-                                    key={column.dataKey}
-                                    align={'left'}
-                                >
-                                    {row[column.dataKey]}
-                                </TableCell>
-                            ))
-                        )}                        
-                        sx={{bgcolor: '#e5e5e5'}}
-                    />
-                </Paper>
+              <HighlightOffIcon style={{ color: '#b71c1c' }} />
+            </Button>
+            <h2
+              id="parent-modal-title"
+              style={{
+                position: 'absolute',
+                top: -5,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: 'black',
+                zIndex: 1,
+                fontSize: '1.5rem',
+              }}
+            >
+              Bodegas
+            </h2>
+            <div className="Raya"></div>
+  
+            {/* Contenedor que envuelve la tabla */}
+            <Box
+              sx={{
+                mt: 4, // Para dar un margen superior
+                height: 'calc(100vh - 100px)', // Para asegurar que no se sobrepase la pantalla
+                overflowY: 'auto', // Permite desplazamiento si el contenido excede el tamaño
+              }}
+            >
+              <TablaBodegas />
             </Box>
-            <ChildModal open={childOpen} handleClose={handleChildClose} />
-        </Box>
-      </Modal>
-    </div>
-  );
-}
+          </Box>
+        </Modal>
+      </div>
+    );
+  }
   

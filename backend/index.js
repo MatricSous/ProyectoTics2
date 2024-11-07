@@ -499,7 +499,56 @@ app.post('/bodegas', verifyToken, (req, res) => {
     });
 });
 
+// Ruta para traer todos los datos del Inventario
+app.get('/inventarios/getInventario', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
 
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para acceder al inventario
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para ver el inventario' });
+        }
+
+        // Consulta para obtener todas las bodegas y todos los datos de sus materiales relacionados
+        const q5 = `
+            SELECT b.nombre_bodega as bodega, m.codigo_material as codigo, m.nombre_material as material,
+            bm.cantidad as stock, bm.cantidad_comprometida as stockComp, m.stockMaximo as stockMax,
+            m.stockMinimo as stockMin, m.unidad_medida as unidad
+            FROM bodegas AS b
+            JOIN bodegas_materiales AS bm ON b.id_bodega = bm.id_bodega
+            JOIN materiales AS m ON bm.id_material = m.id_materiales
+        `;
+
+        db.query(q5, (err, data) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error al obtener el inventario', error: err });
+            }
+
+            // Añadir un id único a cada fila
+            const inventario = data.map((item, index) => ({
+                id: index + 1,  // Crear un ID único para cada fila
+                ...item
+            }));
+
+            // Retornar todas las bodegas y sus materiales asociados con todos los datos de cada material
+            return res.json({ message: 'Inventario obtenido exitosamente', inventario });
+        });
+    });
+});
 // Ruta para crear una nueva bodega
 app.post('/bodegas/agregarBodegas', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
