@@ -21,8 +21,13 @@ import {
     styled,
     alpha,
     InputBase,
+    Toolbar,
+    styled,
+    alpha,
+    InputBase,
     Toolbar
 } from '@mui/material';
+
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { TableVirtuoso } from 'react-virtuoso';
@@ -33,18 +38,21 @@ import {
     IconButton,
     Typography,
     Style
+    Style
 } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import RemoveIconIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search'
+import SearchIcon from '@mui/icons-material/Search'
+import TablaBodegas from './TablaBodegas';
 
+import axios from 'axios';
 
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
     bgcolor: '#e5e5e5',
     border: '3px solid #093d77',
     boxShadow: 24,
@@ -211,22 +219,22 @@ function createData(id) {
 
 const columns = [
     {
-      width: 50,
+      width: 200,
       label: 'Código',
       dataKey: 'codigo',
     },
     {
-      width: 70,
+      width: 300,
       label: 'Nombre',
       dataKey: 'nombre',
     },
     {
-      width: 100,
+      width: 500,
       label: 'Descripción',
       dataKey: 'descripciion',
     },
     {
-      width: 30,
+      width: 100,
       label: 'Stock',
       dataKey: 'stock',
     },
@@ -322,6 +330,7 @@ function ChildModal({ open, handleClose }) {
                 onClose={handleClose}
                 aria-labelledby="child-modal-title"
                 aria-describedby="child-modal-description"
+                width='1000px'
             >
                 <Box sx={{ ...style, width: 700 }}>
                     <Grid2 container alignItems="center" justifyContent="space-between">
@@ -526,9 +535,9 @@ export default function NestedModalBodega({open, handleClose}) {
                     />
                 </Paper>
             </Box>
-            <ChildModal open={childOpen} handleClose={handleChildClose} />
-        </Box>
-      </Modal>
-    </div>
-  );
-}
+          </Box>
+        </Modal>
+      </div>
+    );
+  }
+  
