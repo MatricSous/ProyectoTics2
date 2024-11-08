@@ -540,6 +540,7 @@ function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa
 
 
 
+
 function Transforma(valor){
     if (valor === true){
         valor = 'Si';
