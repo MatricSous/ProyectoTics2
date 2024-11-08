@@ -21,10 +21,6 @@ import {
     styled,
     alpha,
     InputBase,
-    Toolbar,
-    styled,
-    alpha,
-    InputBase,
     Toolbar
 } from '@mui/material';
 
@@ -38,14 +34,12 @@ import {
     IconButton,
     Typography,
     Style
-    Style
 } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
 import RemoveIconIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search'
-import SearchIcon from '@mui/icons-material/Search'
 import TablaBodegas from './TablaBodegas';
-
+import RemoveIcon from '@mui/icons-material/Remove';
 import axios from 'axios';
 
 const style = {

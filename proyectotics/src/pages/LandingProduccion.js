@@ -7,7 +7,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CategoryIcon from '@mui/icons-material/Category';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import NestedModal from '../components/Modals/productos';
 import NestedModalProductos from '../components/Modals/productos';
 import NestedModalBodega from '../components/Modals/bodega';
 import NestedModalRecetas from '../components/Modals/recetas';
