@@ -45,6 +45,7 @@ import { TableVirtuoso } from 'react-virtuoso';
 import Chance from 'chance';
 import SearchIcon from '@mui/icons-material/Search';
 import logo from '../../images/LOGOrial.png'; // Ajusta la ruta de tu logo
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
 
 
 const style = {
@@ -264,9 +265,9 @@ function InfoForm({
                     <Grid2>
                     {agregarCategoria ?
                         <Button
-                            sx={{ m: 1, width: 115, height: 45, fontSize: 11, marginTop: 4 }}
+                            sx={{ m: 1, width: 115, height: 45, fontSize: 11, marginTop: 4}}
                             variant="contained"
-                            startIcon={<AddIcon />}
+                            startIcon={<SyncAltIcon sx={{marginLeft: 1}}/>}
                             color="negro"
                             onClick={handleChangeAgregarCategoria}
                         >
@@ -537,14 +538,22 @@ function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa
 };
 //Formulario de stock
 
+//Modal de excel
+
 
 
 
 //Modal de detalle
 function DetailModal({ open, handleClose, material }) {
     if (!material) return null;
-    let valor = false;
-    if (material.valor === true) {valor = true};    
+    let descontinuado = false;
+    if (material.valor === true) {descontinuado = true};    
+    let secompra = false;
+    if (material.valor === true) {secompra = true};   
+    let sevende = false;
+    if (material.valor === true) {sevende = true};   
+    let afecto = false;
+    if (material.valor === true) {afecto = true};  
 
     return (
       <React.Fragment>
@@ -608,7 +617,7 @@ function DetailModal({ open, handleClose, material }) {
                         <Grid2 container spacing={3} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
                             <Grid2 item xs={6} style={{ textAlign: 'center' }}>
                                 <h4 style={{ marginBottom: '4px' }}>Descontinuado</h4>
-                                {valor ? 
+                                {descontinuado ? 
                                     <a>Si</a>
                                 : <a>No</a>
                                 }
@@ -616,7 +625,7 @@ function DetailModal({ open, handleClose, material }) {
 
                             <Grid2 item xs={4} style={{ textAlign: 'center' }}>
                                 <h4 style={{ marginBottom: '4px' }}>Se compra</h4>
-                                {valor ? 
+                                {secompra ? 
                                     <a>Si</a>
                                 : <a>No</a>
                                 }
@@ -624,7 +633,7 @@ function DetailModal({ open, handleClose, material }) {
 
                             <Grid2 item xs={4} style={{ textAlign: 'center' }}>
                                 <h4 style={{ marginBottom: '4px' }}>Se vende</h4>
-                                {valor ? 
+                                {sevende ? 
                                     <a>Si</a>
                                 : <a>No</a>
                                 }
@@ -681,7 +690,7 @@ function DetailModal({ open, handleClose, material }) {
 
                     <Grid2 item xs={4} style={{ textAlign: 'center' }}>
                         <h4 style={{ marginBottom: '4px' }}>Afecto a stock</h4>
-                        {valor ? 
+                        {afecto ? 
                             <a>Si</a>
                         : <a>No</a>
                         }
@@ -1330,7 +1339,7 @@ export default function NestedModalProductos({open, handleClose}) {
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
-        <Box sx={{ ...style, width: 550 }}>
+        <Box sx={{ ...style, width: 600 }}>
             <Grid2 container alignItems="center" justifyContent="space-between">
                 <Grid2 item xs={4} style={{ textAlign: 'left' }}>
                     <h2 id="parent-modal-title">Productos</h2>
@@ -1368,7 +1377,7 @@ export default function NestedModalProductos({open, handleClose}) {
             </Grid2>
 
             <Box
-                sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 550, bgcolor: '#e5e5e5' }}
+                sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 600, bgcolor: '#e5e5e5' }}
             >
                 <FormControl variant="standard">
                     <InputLabel htmlFor="ordenar-select">Ordenar por</InputLabel>
