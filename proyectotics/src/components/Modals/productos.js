@@ -1,9 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import axios from 'axios';
-import {v4} from 'uuid';
 import {
-    Snackbar,
-    Alert,
     Grid2, 
     Button, 
     Box, 
@@ -11,9 +8,6 @@ import {
     Modal, 
     styled, 
     alpha, 
-    ListItem,
-    ListItemButton,
-    ListItemText,
     BottomNavigation,
     BottomNavigationAction,
     InputBase,
@@ -24,7 +18,17 @@ import {
     FormControlLabel,
     Checkbox,
     MenuItem,
-    Select
+    Select,
+    TableContainer,
+    Paper,
+    Table,
+    TableHead,
+    TableRow,
+    TableBody,
+    TableCell,
+    Toolbar,
+    Divider,
+    List
 } from '@mui/material';
 import { FixedSizeList } from 'react-window';
 import AddIcon from '@mui/icons-material/Add';
@@ -34,10 +38,16 @@ import InfoIcon from '@mui/icons-material/Info';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
-import Buscar from './buscar';
 import { imageDb} from '../../firebase';
 import {uploadBytes, getDownloadURL, ref} from 'firebase/storage'
 import * as xlsx from "xlsx";
+import { TableVirtuoso } from 'react-virtuoso';
+import Chance from 'chance';
+import SearchIcon from '@mui/icons-material/Search';
+import logo from '../../images/LOGOrial.png'; // Ajusta la ruta de tu logo
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
+
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -53,37 +63,62 @@ const style = {
     pb: 3,
 };
 
-//Lista de materiales
+const style2 = {
+    p:0,
+    width: '100%',
+    maxWidth: '100%',
+    border: '1px solid #daa520',
+    borderRadius: 2,
+    borderColor: 'divider',
+    marginTop: '20px',
+    backgroundColor: '#daa520'
+};
 
+//Barra de búsqueda
+const Search = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    borderColor: '#2b2b2b',
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    border: '2px solid #2b2b2b',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(1),
+        width: 'auto',
+    },
+}));
 
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
 
-
-
-
-function renderRow(index, material, style, handleDetailOpen){
-    return (
-        <ListItem 
-            style={style} 
-            key={material.id_material} 
-            component="div" 
-            disablePadding 
-            secondaryAction={
-                <Fab aria-label="comment" size="small" variant="extended" onClick={() => handleDetailOpen(material)} color='azulamarillo'>
-                    <MoreHorizIcon/> Ver más
-                </Fab>
-            }>
-            <ListItemButton>
-                <ListItemText primary={`${index + 1} ${material.nombre_material}`} />
-                <ListItemText style={{paddingRight: 50}} primary={`${material.tipo_material}`} />
-            </ListItemButton>
-        </ListItem>
-
-    );
-}
-//Lista de materiales
-
-
-
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    width: '100%',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        [theme.breakpoints.up('sm')]: {
+            width: '12ch',
+            '&:focus': {
+                width: '20ch',
+            },
+        },
+    },
+}));
+//Barra de búsqueda
 
 //Formulario de información
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
@@ -147,17 +182,17 @@ const VisuallyHiddenInput = styled('input')({
     
 ];
 
-
-
 function InfoForm({ 
     foto, handleChangeFoto,
     nombre, handleChangeNombre, 
     descripcion, handleChangeDescripcion, 
     codigo, handleChangeCodigo, 
     categoria, iva, 
-    discontinuado, secompra, sevende, 
+    descontinuado, secompra, sevende, 
+    agregarCategoria,
     handleChangeCategoria, handleChangeIVA, 
-    handleChangeDiscontinuado, handleChangeSecompra, handleChangeSevende
+    handleChangeDescontinuado, handleChangeSecompra, handleChangeSevende,
+    handleChangeAgregarCategoria
 }) {
 
     return (
@@ -180,67 +215,89 @@ function InfoForm({
                     </InputLabel>
                     <BootstrapInput id="nombre" value={nombre} onChange={handleChangeNombre} />
                 </FormControl>
-
-                <FormControl sx={{ m: 1 }} variant="standard">
-                    <InputLabel shrink htmlFor="demo-customized-select-label">
-                        Categoría
-                    </InputLabel>
-                    <NativeSelect
-                        id="categoria"
-                        value={categoria}
-                        onChange={handleChangeCategoria}
-                        input={<BootstrapInput />}
-                    >
-                        {categorias.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </NativeSelect>
-                </FormControl>
             </Box>
 
-            <Box
-                component="form"
-                noValidate
-                sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr 1fr' }, gap: 3 }}
-            >
+            <Box>
                 <Grid2 container alignItems="center" spacing={1}>
-                    <Grid2 item>
+                    <Grid2 container alignItems="center" spacing={1} sx={{marginRight: 2}}>
+                        <Grid2 item>
+                            <FormControl sx={{ m: 1 }} variant="standard">
+                                <InputLabel shrink htmlFor="iva">
+                                    IVA
+                                </InputLabel>
+                                <BootstrapInput 
+                                    id="iva" 
+                                    value={iva} 
+                                    onInput={handleChangeIVA} // Cambiado de onChange a onInput
+                                    sx={{ width: 150}} 
+                                    inputProps={{ maxLength: 2 }} // Limitar a 2 dígitos
+                                />
+                            </FormControl>
+                        </Grid2>
+                        <Grid2 item>
+                            <Typography sx={{marginTop: 3 }}>%</Typography>
+                        </Grid2>
+                    </Grid2>
+
+                    <Grid2 xs={4}>
                         <FormControl sx={{ m: 1 }} variant="standard">
-                            <InputLabel shrink htmlFor="iva">
-                                IVA
+                            <InputLabel shrink htmlFor="demo-customized-select-label">
+                                Categoría
                             </InputLabel>
-                            <BootstrapInput 
-                                id="iva" 
-                                value={iva} 
-                                onInput={handleChangeIVA} // Cambiado de onChange a onInput
-                                sx={{ width: 70 }} 
-                                inputProps={{ maxLength: 2 }} // Limitar a 2 dígitos
-                            />
+                            {agregarCategoria ? 
+                                <BootstrapInput id="categoria" value={categoria} onChange={handleChangeCategoria} sx={{ width: 330 }}/>
+                            : <NativeSelect
+                                id="categoria"
+                                value={categoria}
+                                onChange={handleChangeCategoria}
+                                input={<BootstrapInput />}
+                                sx={{ width: 330 }}
+                              >
+                                {categorias.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </NativeSelect>
+                            }
                         </FormControl>
                     </Grid2>
-                    <Grid2 item>
-                        <Typography>%</Typography>
-                    </Grid2>
-                </Grid2>
-                
-                <Grid2 container alignItems="center">
-                    <Grid2 item large>
-                        <FormControl sx={{ m: 1, width: '100%', minWidth: 543, right: 100 }} variant="standard">
-                            <InputLabel shrink htmlFor="descripcion">
-                                Descripción
-                            </InputLabel>
-                            <BootstrapInput 
-                                id="descripcion" 
-                                value={descripcion} 
-                                onChange={handleChangeDescripcion} 
-                                inputProps={{ maxLength: 100 }} // Limitar a 100 caracteres
-                            />
-                        </FormControl>
+                    <Grid2>
+                    {agregarCategoria ?
+                        <Button
+                            sx={{ m: 1, width: 115, height: 45, fontSize: 11, marginTop: 4}}
+                            variant="contained"
+                            startIcon={<SyncAltIcon sx={{marginLeft: 1}}/>}
+                            color="negro"
+                            onClick={handleChangeAgregarCategoria}
+                        >
+                            Seleccionar Categoría
+                        </Button>
+                    : <Button
+                            sx={{ m: 1, width: 115, height: 45, fontSize: 11, marginTop: 4 }}
+                            variant="contained"
+                            startIcon={<AddIcon />}
+                            color="negro"
+                            onClick={handleChangeAgregarCategoria}
+                        >
+                            Añadir Categoría
+                        </Button>
+                    }
                     </Grid2>
                 </Grid2>
             </Box>
+
+            <FormControl sx={{ m: 1, width: '98%', minWidth: 543}} variant="standard">
+                <InputLabel shrink htmlFor="descripcion">
+                    Descripción
+                </InputLabel>
+                <BootstrapInput 
+                    id="descripcion" 
+                    value={descripcion} 
+                    onChange={handleChangeDescripcion} 
+                    inputProps={{ maxLength: 100 }} // Limitar a 100 caracteres
+                />
+            </FormControl>
 
             <Box
                 component="form"
@@ -249,8 +306,8 @@ function InfoForm({
             >
                 <FormControlLabel 
                     sx={{ m: 1 }} 
-                    control={<Checkbox checked={discontinuado} onChange={handleChangeDiscontinuado} />} 
-                    label="Discontinuado" 
+                    control={<Checkbox checked={descontinuado} onChange={handleChangeDescontinuado} />} 
+                    label="Descontinuado" 
                 />
                 <FormControlLabel 
                     sx={{ m: 1 }}
@@ -269,7 +326,7 @@ function InfoForm({
                 component="label"
                 variant="contained"
                 startIcon={<CloudUploadIcon />}
-                color="primary"
+                color="negro"
             >
                 Subir foto
                 <input
@@ -282,8 +339,6 @@ function InfoForm({
         </>
     );
 }
-
-
 
 //Formulario de precios
 const currencies = [
@@ -319,7 +374,7 @@ function PrecioForm({dctoMax, handleChangeDctoMax, moneda, unitario, coniva, cos
             <Box
                 component="form"
                 noValidate
-                sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr 1fr 1fr' }, gap: 4 }}
+                sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr 1fr' }, gap: 3 }}
             >
                 <FormControl sx={{ m: 1 }} variant="standard">
                     <InputLabel shrink htmlFor="demo-customized-select-label">
@@ -408,7 +463,7 @@ function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa
                 component="form"
                 noValidate
             >
-                <Box sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr 1fr' }, gap: 3 }}>
                     <FormControl sx={{ m: 2 }} variant="standard">
                         <InputLabel shrink htmlFor="bootstrap-input">
                             Unidad de medida
@@ -483,12 +538,23 @@ function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa
 };
 //Formulario de stock
 
+//Modal de excel
+
 
 
 
 //Modal de detalle
-function DetailModal({ open, handleClose }) {
-    
+function DetailModal({ open, handleClose, material }) {
+    if (!material) return null;
+    let descontinuado = false;
+    if (material.valor === true) {descontinuado = true};    
+    let secompra = false;
+    if (material.valor === true) {secompra = true};   
+    let sevende = false;
+    if (material.valor === true) {sevende = true};   
+    let afecto = false;
+    if (material.valor === true) {afecto = true};  
+
     return (
       <React.Fragment>
           <Modal
@@ -497,10 +563,10 @@ function DetailModal({ open, handleClose }) {
               aria-labelledby="child-modal-title"
               aria-describedby="child-modal-description"
           >
-              <Box sx={{ ...style, width: 400 }}>
+              <Box sx={{ ...style, width: 500 }}>
                 <Grid2 container alignItems="center" justifyContent="space-between">
                     <Grid2 item xs={4} style={{ textAlign: 'left' }}>
-                        <h2 id="parent-modal-title">Detalles</h2>
+                        <h2 id="parent-modal-title">Detalles {material.nombre_material}</h2>
                     </Grid2>
 
                     <Grid2 item xs={4} style={{ textAlign: 'right' }}>
@@ -509,13 +575,148 @@ function DetailModal({ open, handleClose }) {
                         </Button>
                     </Grid2>
                 </Grid2>
+
+                <Grid2 container alignItems="center" justifyContent="space-between">
+                    <Grid2 item xs={4}>
+                        <img src={logo} alt="foto" style={{ width: '150px', height: '200px', paddingRight: '25px', border: '2px solid #093d77'}} />
+                    </Grid2>
+
+                    <Grid2 item xs={8}>
+                        <Grid2 container spacing={5} justifyContent="center" alignItems="center">
+                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
+                                <h4 style={{ marginBottom: '4px' }}>Código</h4>
+                                <a>{material.codigo}</a>
+                            </Grid2>
+
+                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
+                                <h4 style={{ marginBottom: '4px' }}>Categoría</h4>
+                                <a>{material.categoria_material}</a>
+                            </Grid2>
+
+                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
+                                <h4 style={{ marginBottom: '4px' }}>IVA</h4>
+                                <a>{material.codigo} %</a>
+                            </Grid2>
+                        </Grid2>
+
+                        <List sx={style2}>
+                            <Divider component="li" />
+                        </List>
+
+                        <Grid2 container justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
+                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
+                                <h4 style={{ marginBottom: '4px' }}>Descripción</h4>
+                                <a>{material.codigo}</a>
+                            </Grid2>
+                        </Grid2>
+
+                        <List sx={style2}>
+                            <Divider component="li" />
+                        </List>
+
+                        <Grid2 container spacing={3} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
+                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
+                                <h4 style={{ marginBottom: '4px' }}>Descontinuado</h4>
+                                {descontinuado ? 
+                                    <a>Si</a>
+                                : <a>No</a>
+                                }
+                            </Grid2>
+
+                            <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                                <h4 style={{ marginBottom: '4px' }}>Se compra</h4>
+                                {secompra ? 
+                                    <a>Si</a>
+                                : <a>No</a>
+                                }
+                            </Grid2>
+
+                            <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                                <h4 style={{ marginBottom: '4px' }}>Se vende</h4>
+                                {sevende ? 
+                                    <a>Si</a>
+                                : <a>No</a>
+                                }
+                            </Grid2>
+                        </Grid2>
+                    </Grid2>
+                </Grid2>
+
+                <List sx={style2}>
+                    <Divider component="li" />
+                </List>
+
+                <Grid2 container spacing={3} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Moneda</h4>
+                        <a>{material.codigo}</a>
+                    </Grid2>
+                    
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Precio unitario</h4>
+                        <a>${material.codigo}</a>
+                    </Grid2>
+
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Costo compra</h4>
+                        <a>${material.codigo}</a>
+                    </Grid2>
+
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Precio modificable</h4>
+                        <a>{material.codigo}</a>
+                    </Grid2> 
+                </Grid2>
+
+                <List sx={style2}>
+                    <Divider component="li" />
+                </List>
+
+                <Grid2 container spacing={2} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Unidad de medida</h4>
+                        <a>{material.codigo}</a>
+                    </Grid2>
+                    
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Unidad alternativa</h4>
+                        <a>{material.codigo}</a>
+                    </Grid2>
+
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Factor</h4>
+                        <a>{material.codigo}</a>
+                    </Grid2>
+
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Afecto a stock</h4>
+                        {afecto ? 
+                            <a>Si</a>
+                        : <a>No</a>
+                        }
+                    </Grid2>
+                </Grid2>
+
+                <List sx={style2}>
+                    <Divider component="li" />
+                </List>
+
+                <Grid2 container spacing={3} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Stock mínimo</h4>
+                        <a>{material.codigo}</a>
+                    </Grid2>
+                    
+                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
+                        <h4 style={{ marginBottom: '4px' }}>Stock Máximo</h4>
+                        <a>{material.codigo}</a>
+                    </Grid2>
+                </Grid2>
               </Box>
-
-
           </Modal>
       </React.Fragment>
     );
-  }
+}
 
 
 //Modal de agregar material
@@ -529,9 +730,10 @@ function ChildModal({ open, handleClose }) {
     const [descripcion, setDescripcion] = React.useState('');
     const [codigo, setCodigo] = React.useState('');
     const [categoria, setCategoria] = React.useState('');
-    const [discontinuado, setDiscontinuado] = React.useState(false);
+    const [descontinuado, setDescontinuado] = React.useState(false);
     const [secompra, setSecompra] = React.useState(false);
     const [sevende, setSevende] = React.useState(false);
+    const [agregarCategoria, setAgregarCategoria] = React.useState(false);
 
     //valores para precio
     const [moneda, setMoneda] = React.useState('');
@@ -613,9 +815,13 @@ function ChildModal({ open, handleClose }) {
             setIVA(numericValue); // Llama al manejador si es válido
         }
     };
-    const handleChangeDiscontinuado = () => setDiscontinuado(prev => !prev);
+    const handleChangeDescontinuado = () => setDescontinuado(prev => !prev);
     const handleChangeSecompra = () => setSecompra(prev => !prev);
     const handleChangeSevende = () => setSevende(prev => !prev);
+
+    const handleChangeAgregarCategoria = () => {
+        setAgregarCategoria(prev => !prev);
+    };
 
     const handleChangeUnitario = (event) => {
         setUnitario(event.target.value);
@@ -682,22 +888,24 @@ function ChildModal({ open, handleClose }) {
                 return <InfoForm
                     categoria={categoria} 
                     iva={iva} 
-                    discontinuado={discontinuado} 
+                    descontinuado={descontinuado} 
                     secompra={secompra} 
                     sevende={sevende}
                     nombre = {nombre}
                     descripcion = {descripcion}
                     codigo = {codigo}
                     foto = {foto}
-                    handleChangeNombre={handleChangeNombre}
-                    handleChangeCategoria={handleChangeCategoria} 
-                    handleChangeIVA={handleChangeIVA} 
-                    handleChangeDiscontinuado={handleChangeDiscontinuado} 
-                    handleChangeSecompra={handleChangeSecompra} 
-                    handleChangeSevende={handleChangeSevende}
+                    agregarCategoria = {agregarCategoria}
+                    handleChangeNombre = {handleChangeNombre}
+                    handleChangeCategoria = {handleChangeCategoria} 
+                    handleChangeIVA = {handleChangeIVA} 
+                    handleChangeDescontinuado = {handleChangeDescontinuado} 
+                    handleChangeSecompra = {handleChangeSecompra} 
+                    handleChangeSevende = {handleChangeSevende}
                     handleChangeDescripcion = {handleChangeDescripcion}
                     handleChangeCodigo = {handleChangeCodigo}
-                    handleChangeFoto={handleChangeFoto}
+                    handleChangeFoto = {handleChangeFoto}
+                    handleChangeAgregarCategoria = {handleChangeAgregarCategoria}
                 />;
             case 'precio':
                 return <PrecioForm 
@@ -743,7 +951,7 @@ function ChildModal({ open, handleClose }) {
             "tipo_material": categoria,
             "valor_iva": iva,
             "descripcion_material": descripcion,
-            discontinuado,
+            descontinuado,
             "seCompra": secompra,
             "seVende": sevende,
             moneda,
@@ -824,9 +1032,6 @@ function ChildModal({ open, handleClose }) {
             reader.readAsArrayBuffer(e.target.files[0]);
         }
     };
-
-    
-
 
     const handleBack = () => {
         if (value === 'precio') {
@@ -963,12 +1168,20 @@ function ChildModal({ open, handleClose }) {
     );
 }
 
-
-
-
 //Modal principal
 export default function NestedModalProductos({open, handleClose}) {
-    const [materiales, setMateriales] = useState([]);
+    const materiales = [
+        {codigo: "abc1", nombre_material: "Torinillo1", categoria_material: "Tornillos", valor: true},
+        {codigo: "abc2", nombre_material: "Torinillo2", categoria_material: "Tornillos", valor: true},
+        {codigo: "abc3", nombre_material: "Torinillo3", categoria_material: "Tornillos", valor: false},
+        {codigo: "abc4", nombre_material: "Torinillo4", categoria_material: "Tornillos", valor: true},
+        {codigo: "abc5", nombre_material: "Torinillo5", categoria_material: "Tornillos", valor: false},
+        {codigo: "abc6", nombre_material: "Torinillo6", categoria_material: "Tornillos", valor: false},
+        {codigo: "abc7", nombre_material: "Torinillo7", categoria_material: "Tornillos", valor: true},
+    ];
+
+    const [material, setMateriales] = useState(materiales);
+    const [materialSeleccionado, setMaterialSeleccionado] = useState(null);
    
 
     const [childOpen, setChildOpen] = React.useState(false);
@@ -976,8 +1189,15 @@ export default function NestedModalProductos({open, handleClose}) {
     const handleChildClose = () => setChildOpen(false);
 
     const [detailOpen, setDetailOpen] = React.useState(false);
-    const handleDetailOpen = () => setDetailOpen(true);
-    const handleDetailClose = () => setDetailOpen(false);
+    const handleDetailOpen = (material) => {
+        setMaterialSeleccionado(material);
+        setDetailOpen(true);
+
+    };
+    const handleDetailClose = () => {
+        setDetailOpen(false);
+        setMaterialSeleccionado(null);
+    };
 
     const [ordenarPor, setOrdenarPor] = useState('nombre');
 
@@ -992,7 +1212,92 @@ export default function NestedModalProductos({open, handleClose}) {
         });
     };
 
-    
+    const columns = [
+        {
+          width: 60,
+          label: 'Código',
+          dataKey: 'codigo',
+        },
+        {
+          width: 120,
+          label: 'Nombre',
+          dataKey: 'nombre_material',
+        },
+        {
+          width: 120,
+          label: 'Tipo de Material',
+          dataKey: 'categoria_material',
+        },
+        {
+          width: 90,
+          label: 'Ver más',
+          dataKey: 'vermas',
+        },
+    ];
+
+    const VirtuosoTableComponents = {
+        Scroller: React.forwardRef((props, ref) => (
+        <TableContainer component={Paper} {...props} ref={ref} />
+        )),
+        Table: (props) => (
+        <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
+        ),
+        TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
+        TableRow,
+        TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
+    };
+
+    function fixedHeaderContent() {
+        return (
+            <TableRow>
+                {columns.map((column) => (
+                    <TableCell
+                        key={column.dataKey}
+                        variant="head"
+                        align={'left'}
+                        style={{
+                            width: column.width,
+                            backgroundColor: '#093d77',
+                            color: '#daa520',
+                            zIndex: 2,
+                        }}
+                    >
+                    {column.label}
+                    </TableCell>
+                ))}
+            </TableRow>
+        )
+    }
+
+    function rowContent(_index, row){
+        return (
+            <React.Fragment>
+                {columns.map((column) => (
+                    <TableCell
+                        key={column.dataKey}
+                        align={'left'}
+                        
+                    >
+                        {column.dataKey === 'vermas' ? (
+                            <Fab
+                                aria-label="comment"
+                                size="small"
+                                variant="extended"
+                                onClick={() => handleDetailOpen(row)}
+                                color="azulamarillo"
+                                sx={{fontSize: '12px', zIndex: 1 }}
+                            >
+                                <MoreHorizIcon /> Ver más
+                            </Fab>
+                        ) : (
+                            row[column.dataKey]
+                        )}
+                        
+                    </TableCell>
+                ))}
+            </React.Fragment>
+        );
+    }
    
     const token = localStorage.getItem('token');
 
@@ -1034,7 +1339,7 @@ export default function NestedModalProductos({open, handleClose}) {
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
-        <Box sx={{ ...style, width: 500 }}>
+        <Box sx={{ ...style, width: 600 }}>
             <Grid2 container alignItems="center" justifyContent="space-between">
                 <Grid2 item xs={4} style={{ textAlign: 'left' }}>
                     <h2 id="parent-modal-title">Productos</h2>
@@ -1055,12 +1360,24 @@ export default function NestedModalProductos({open, handleClose}) {
                 </Grid2>
 
                 <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Buscar/>
+                    <Toolbar>
+                            <Search>
+                                <SearchIconWrapper>
+                                    <SearchIcon />
+                                </SearchIconWrapper>
+                                <StyledInputBase
+                                    placeholder="Buscar…"
+                                    value={busqueda}
+                                    onChange={handleChangeBusqueda}
+                                    inputProps={{ 'aria-label': 'search' }}
+                                />
+                            </Search>
+                        </Toolbar>
                 </Grid2>
             </Grid2>
 
             <Box
-                sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 500, bgcolor: '#e5e5e5' }}
+                sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 600, bgcolor: '#e5e5e5' }}
             >
                 <FormControl variant="standard">
                     <InputLabel htmlFor="ordenar-select">Ordenar por</InputLabel>
@@ -1074,37 +1391,22 @@ export default function NestedModalProductos({open, handleClose}) {
                     </Select>
                 </FormControl>
 
-                <FixedSizeList
-                    height={370}
-                    width={500}
-                    itemSize={46}
-                    itemCount={materialesOrdenados.length}
-                    overscanCount={5}
-                >
-                    
-                    {({ index, style }) => (
-                        renderRow(
-                            index,
-                            materialesOrdenados[index],
-                            style,
-                            handleDetailOpen
-                        )
-                    )}
-                
-                </FixedSizeList>
+                <Paper style={{  marginTop:10, height: 350, width: '100%' }} elevation={0}>
+                    <TableVirtuoso
+                        data={material}
+                        components={VirtuosoTableComponents}
+                        fixedHeaderContent={fixedHeaderContent}
+
+                        //contenido de la tabla
+                        itemContent={rowContent}                        
+                        sx={{bgcolor: '#e5e5e5', overflow: 'auto'}}
+                    />
+                </Paper>
             </Box>
             <ChildModal open={childOpen} handleClose={handleChildClose} />
-            <DetailModal open={detailOpen} handleClose={handleDetailClose} />
+            <DetailModal open={detailOpen} handleClose={handleDetailClose} material={materialSeleccionado}/>
         </Box>
       </Modal>
     </div>
   );
 }
-
-//{({ index, style }) => (
-//    renderRow({
-//        index,
-//        style,
-//        handleDetailOpen
-//    })
-//)}
