@@ -194,6 +194,8 @@ app.get('/materiales/verMateriales', verifyToken, (req, res) => {
     // Consulta SQL para buscar al usuario por correo y verificar el rol
     const q = "SELECT * FROM usuarios WHERE correo = ?";
 
+    console.log("materiales")
+
     db.query(q, [correo], (err, data) => {
         if (err) {
             return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
@@ -212,17 +214,8 @@ app.get('/materiales/verMateriales', verifyToken, (req, res) => {
 
         // Consulta para obtener todos los materiales con sus 9 características
         const q3 = `
-            SELECT 
-                codigo_material, 
-                nombre_material, 
-                descripcion_material, 
-                tipo_material, 
-                precio_material, 
-                foto_material, 
-                modificar_precio, 
-                valor_iva, 
-                descuento_maximo 
-            FROM materiales
+            SELECT *
+            FROM materiales where afecto = 1
         `;
         
         db.query(q3, (err, data) => {
@@ -499,6 +492,86 @@ app.post('/bodegas', verifyToken, (req, res) => {
     });
 });
 
+
+// Ruta para crear una nueva bodega
+app.post('/bodegas/bodegasMateriales', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para crear una bodega
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear una bodega' });
+        }
+
+        // Extraer datos del cuerpo de la solicitud
+        const id_bodega = req.body.bodega;
+        const id_material = req.body.material;
+        const cantidad = req.body.cantidad;
+
+        // Verificar si el id_bodega existe en la tabla bodegas
+        const q1 = "SELECT * FROM bodegas WHERE id_bodega = ?";
+        console.log(id_bodega)
+
+        db.query(q1, [id_bodega], (err, bodegaData) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error al verificar la bodega en la base de datos', error: err });
+            }
+
+            if (bodegaData.length === 0) {
+                return res.status(404).json({ message: 'Bodega no encontrada' });
+            }
+
+            // Verificar si el par (id_bodega, id_material) existe en la tabla bodega_productos
+            const q2 = "SELECT * FROM bodegas_materiales WHERE id_bodega = ? AND id_material = ?";
+            
+            db.query(q2, [id_bodega, id_material], (err, materialData) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error al verificar el material en la base de datos', error: err });
+                }
+
+                if (materialData.length > 0) {
+                    // Si el par existe, actualizar la cantidad
+                    const q3 = "UPDATE bodegas_materiales SET cantidad = cantidad + ? WHERE id_bodega = ? AND id_material = ?";
+                    
+                    db.query(q3, [cantidad, id_bodega, id_material], (err, updateData) => {
+                        if (err) {
+                            return res.status(500).json({ message: 'Error al actualizar la cantidad del material', error: err });
+                        }
+
+                        return res.json({ message: 'Cantidad actualizada exitosamente', bodega: { id_bodega, id_material, cantidad } });
+                    });
+                } else {
+                    // Si el par no existe, crear el nuevo registro con la cantidad proporcionada
+                    const q4 = "INSERT INTO bodegas_materiales (id_bodega, id_material, cantidad) VALUES (?, ?, ?)";
+
+                    db.query(q4, [id_bodega, id_material, cantidad], (err, insertData) => {
+                        if (err) {
+                            return res.status(500).json({ message: 'Error al agregar el material a la bodega', error: err });
+                        }
+
+                        return res.json({ message: 'Material agregado a la bodega exitosamente', bodega: { id_bodega, id_material, cantidad } });
+                    });
+                }
+            });
+        });
+    });
+});
+
+
 // Ruta para traer todos los datos del Inventario
 app.get('/inventarios/getInventario', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
@@ -546,6 +619,53 @@ app.get('/inventarios/getInventario', verifyToken, (req, res) => {
 
             // Retornar todas las bodegas y sus materiales asociados con todos los datos de cada material
             return res.json({ message: 'Inventario obtenido exitosamente', inventario });
+        });
+    });
+});
+
+// Ruta para traer todos los datos del Inventario
+app.get('/bodegas/getBodegas', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para acceder al inventario
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para ver el inventario' });
+        }
+
+        // Consulta para obtener todas las bodegas y todos los datos de sus materiales relacionados
+        const q5 = `
+            SELECT *
+            FROM bodegas
+        `;
+
+        db.query(q5, (err, data) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error al obtener el inventario', error: err });
+            }
+
+            // Añadir un id único a cada fila
+            const bodegas = data.map((item, index) => ({
+                id: index + 1,  // Crear un ID único para cada fila
+                ...item
+            }));
+
+            // Retornar todas las bodegas y sus materiales asociados con todos los datos de cada material
+            return res.json({ message: 'Inventario obtenido exitosamente', bodegas });
         });
     });
 });
