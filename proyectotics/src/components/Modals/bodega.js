@@ -23,6 +23,7 @@ import {
     InputBase,
     Toolbar
 } from '@mui/material';
+
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { TableVirtuoso } from 'react-virtuoso';
@@ -37,14 +38,15 @@ import {
 import Add from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search'
+import TablaBodegas from './TablaBodegas';
 
+import axios from 'axios';
 
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
     bgcolor: '#e5e5e5',
     border: '3px solid #093d77',
     boxShadow: 24,
@@ -211,22 +213,22 @@ function createData(id) {
 
 const columns = [
     {
-      width: 50,
+      width: 200,
       label: 'Código',
       dataKey: 'codigo',
     },
     {
-      width: 70,
+      width: 300,
       label: 'Nombre',
       dataKey: 'nombre',
     },
     {
-      width: 100,
+      width: 500,
       label: 'Descripción',
       dataKey: 'descripciion',
     },
     {
-      width: 30,
+      width: 100,
       label: 'Stock',
       dataKey: 'stock',
     },
@@ -322,6 +324,7 @@ function ChildModal({ open, handleClose }) {
                 onClose={handleClose}
                 aria-labelledby="child-modal-title"
                 aria-describedby="child-modal-description"
+                width='1000px'
             >
                 <Box sx={{ ...style, width: 700 }}>
                     <Grid2 container alignItems="center" justifyContent="space-between">
@@ -405,130 +408,59 @@ function ChildModal({ open, handleClose }) {
     );
 }
 
-//Modal principal
-export default function NestedModalBodega({open, handleClose}) {
-    const [ordenarPor, setOrdenarPor] = useState('nombre');
-    const ordenarMateriales = (materiales) => {
-        return [...materiales].sort((a, b) => {
-            if (ordenarPor === 'nombre') {
-                return a.nombre.localeCompare(b.nombre);
-            } else if (ordenarPor === 'categoria') {
-                return a.categoria.localeCompare(b.categoria);
-            }
-            return 0;
-        });
-    };
+// Modal principal
+export default function NestedModalBodega({ open, handleClose }) {
 
-    const [busqueda, setBusqueda] = useState('');
-    const materialesFiltrados = materiales.filter(
-        (material) => 
-            material.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
-            material.categoria.toLowerCase().includes(busqueda.toLowerCase())
-    );
-    const handleChangeBusqueda = (event) => {
-        setBusqueda(event.target.value);
-    };
-
-    const materialesOrdenados = ordenarMateriales(materialesFiltrados);
-
-    const [childOpen, setChildOpen] = React.useState(false);
-    const handleChildOpen = () => setChildOpen(true);
-    const handleChildClose = () => setChildOpen(false);
-  return (
-    <div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
-      >
-        <Box sx={{ ...style, width: 700 }}>
-            <Grid2 container alignItems="center" justifyContent="space-between">
-                <Grid2 item xs={4} style={{ textAlign: 'left' }}>
-                    <h2 id="parent-modal-title">Bodega</h2>
-                </Grid2>
-
-                <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Button onClick={handleClose}>
-                        <HighlightOffIcon style={{color: '#b71c1c'}}/>
-                    </Button>
-                </Grid2>
-            </Grid2>
-
-            <Grid2 container alignItems="center" justifyContent="space-between">
-                <Grid2 item xs={4} style={{ textAlign: 'left' }} justifyContent="space-between">
-                    <Fab color="amarillo" aria-label="add" variant="extended" onClick={handleChildOpen}> 
-                        <AddIcon/>Ingreso
-                    </Fab>
-                </Grid2>
-
-                <Grid2 item xs={4} style={{ textAlign: 'right' }}>
-                    <Toolbar>
-                        <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Buscar…"
-                                value={busqueda}
-                                onChange={handleChangeBusqueda}
-                                inputProps={{ 'aria-label': 'search' }}
-                            />
-                        </Search>
-                    </Toolbar>
-                </Grid2>
-                <Grid2 item xs={4} style={{ textAlign: 'rigth' }} justifyContent="space-between">
-                    <Fab color="amarillo" aria-label="add" variant="extended">
-                        <AddIcon/>Salida
-                    </Fab>
-                </Grid2>
-            </Grid2>
-
-            <Box
-                sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 700, bgcolor: '#e5e5e5' }}
+    return (
+      <div>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="parent-modal-title"
+          aria-describedby="parent-modal-description"
+        >
+          <Box sx={style}>
+            <Button
+              onClick={handleClose}
+              sx={{
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                color: 'black',
+                zIndex: 1,
+              }}
             >
-                
-                <Paper style={{ height: 400, width: '100%' }} elevation={0}>
-                    <TableVirtuoso
-                        data={rows}
-                        components={VirtuosoTableComponents}
-                        fixedHeaderContent={() => (
-                            <TableRow>
-                                {columns.map((column) => (
-                                    <TableCell
-                                        key={column.dataKey}
-                                        variant="head"
-                                        align={'left'}
-                                        style={{
-                                            width: column.width,
-                                            backgroundColor: '#093d77',
-                                            color: '#daa520', // Color de letra blanco
-                                        }}
-                                    >
-                                        {column.label}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        )}
-
-                        //contenido de la tabla
-                        itemContent={(_, row) => (
-                            columns.map((column) => (
-                                <TableCell
-                                    key={column.dataKey}
-                                    align={'left'}
-                                >
-                                    {row[column.dataKey]}
-                                </TableCell>
-                            ))
-                        )}                        
-                        sx={{bgcolor: '#e5e5e5'}}
-                    />
-                </Paper>
+              <HighlightOffIcon style={{ color: '#b71c1c' }} />
+            </Button>
+            <h2
+              id="parent-modal-title"
+              style={{
+                position: 'absolute',
+                top: -5,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: 'black',
+                zIndex: 1,
+                fontSize: '1.5rem',
+              }}
+            >
+              Bodegas
+            </h2>
+            <div className="Raya"></div>
+  
+            {/* Contenedor que envuelve la tabla */}
+            <Box
+              sx={{
+                mt: 4, // Para dar un margen superior
+                height: 'calc(100vh - 100px)', // Para asegurar que no se sobrepase la pantalla
+                overflowY: 'auto', // Permite desplazamiento si el contenido excede el tamaño
+              }}
+            >
+              <TablaBodegas />
             </Box>
-            <ChildModal open={childOpen} handleClose={handleChildClose} />
-        </Box>
-      </Modal>
-    </div>
-  );
-}
+          </Box>
+        </Modal>
+      </div>
+    );
+  }
+  

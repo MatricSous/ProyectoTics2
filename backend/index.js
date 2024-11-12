@@ -13,7 +13,7 @@ app.use(cors());
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password:"milla",
+    password:"1234",
     database: "rebolledo"
 });
 
@@ -257,6 +257,7 @@ app.get('/materiales/verMaterial/:codigo_material', verifyToken, (req, res) => {
         // Consulta para obtener el material por su codigo_material
         const q4 = `
             SELECT 
+                id_materiales,
                 codigo_material, 
                 nombre_material, 
                 descripcion_material, 
@@ -518,8 +519,8 @@ app.post('/bodegas/bodegasMateriales', verifyToken, (req, res) => {
         }
 
         // Extraer datos del cuerpo de la solicitud
-        const id_bodega = req.body.bodega;
-        const id_material = req.body.material;
+        const id_bodega = req.body.id_bodega;
+        const id_material = req.body.id_material;
         const cantidad = req.body.cantidad;
 
         // Verificar si el id_bodega existe en la tabla bodegas
@@ -528,6 +529,7 @@ app.post('/bodegas/bodegasMateriales', verifyToken, (req, res) => {
 
         db.query(q1, [id_bodega], (err, bodegaData) => {
             if (err) {
+                console.log(err)
                 return res.status(500).json({ message: 'Error al verificar la bodega en la base de datos', error: err });
             }
 
@@ -540,8 +542,11 @@ app.post('/bodegas/bodegasMateriales', verifyToken, (req, res) => {
             
             db.query(q2, [id_bodega, id_material], (err, materialData) => {
                 if (err) {
+                    console.log(2)
+                    console.log(err)
                     return res.status(500).json({ message: 'Error al verificar el material en la base de datos', error: err });
                 }
+                console.log("hasta aqui")
 
                 if (materialData.length > 0) {
                     // Si el par existe, actualizar la cantidad
@@ -555,11 +560,13 @@ app.post('/bodegas/bodegasMateriales', verifyToken, (req, res) => {
                         return res.json({ message: 'Cantidad actualizada exitosamente', bodega: { id_bodega, id_material, cantidad } });
                     });
                 } else {
+                    console.log("no")
                     // Si el par no existe, crear el nuevo registro con la cantidad proporcionada
                     const q4 = "INSERT INTO bodegas_materiales (id_bodega, id_material, cantidad) VALUES (?, ?, ?)";
 
                     db.query(q4, [id_bodega, id_material, cantidad], (err, insertData) => {
                         if (err) {
+                            console.log(err)
                             return res.status(500).json({ message: 'Error al agregar el material a la bodega', error: err });
                         }
 

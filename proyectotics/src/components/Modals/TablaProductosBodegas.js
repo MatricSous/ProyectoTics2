@@ -28,7 +28,7 @@ function TablaProductosBodegas() {
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openAnadirModal, setOpenAnadirModal] = useState(false);  // Estado para controlar el modal de creación de bodega
   const [selectedId, setSelectedId] = useState(null);  // Estado para guardar el ID de la fila seleccionada
-  const [selectedStock, setSelectedStock] = useState('');  // Estado para el valor de stock en el modal
+  const [selectedStock, setSelectedStock] = useState(0);  // Estado para el valor de stock en el modal
   const [stockUnit, setStockUnit] = useState('');  // Estado para la unidad de medida
   const [searchText, setSearchText] = useState('');  // Estado para guardar el texto de búsqueda
   const [newBodega, setNewBodega] = useState('');  // Estado para el nombre de la nueva bodega
@@ -133,7 +133,7 @@ useEffect(() => {
           // Mapear cada elemento de la respuesta al formato deseado
           console.log(response.data)
           const mappedData = response.data.materiales.map((item, index) => ({
-            id: index + 1,  // id incremental empezando desde 1
+            id: item.id_materiales,  // id incremental empezando desde 1
             material: item.nombre_material,
             codigo: item.codigo_material,
             descripcion: item.descripcion_material,
@@ -215,8 +215,10 @@ useEffect(() => {
       await axios.post('http://localhost:8081/bodegas/bodegasMateriales', {
         id_material: selectedId,
         id_bodega: bodegaElegida,
-        cantidad: selectedStock,
-      });
+        cantidad: valorAgregar,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
 
       console.log(selectedId, " ", bodegaElegida, " ", selectedStock)
   
@@ -286,36 +288,7 @@ useEffect(() => {
   return (
     <div>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-
-      <TextField
-        label="Buscar"
-        variant="outlined"
-        value={searchText}
-        onChange={handleSearchChange}
-        sx={{ marginTop: 1, width: 250 }}
-      />
-
-      {/* Contenedor para agrupar los botones a la derecha */}
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        <Button
-          variant="contained"
-          color="azul"
-          sx={{ marginTop: 1 }}
-          onClick={handleCreateBodegaClick}
-        >
-          Crear Bodega
-        </Button>
-        <Button
-          variant="contained"
-          color="azul"
-          sx={{ marginTop: 1 }}
-          onClick={handleAnadirProductoClick}
-        >
-          Añadir Producto a Bodega
-        </Button>
-      </Box>
-    </Box>
+   
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={openSnackBar}
@@ -333,7 +306,7 @@ useEffect(() => {
         </Alert>
       </Snackbar>
 
-
+      <Box sx={{marginTop: 2}}>
       <DataGrid
         headerHeight={0}
         rowHeight={50}
@@ -343,6 +316,7 @@ useEffect(() => {
         checkboxSelection={false}
         disableSelectionOnClick={true}
         rowSelection={false}
+    
         sx={{
           '& .MuiDataGrid-columnHeader': {
             backgroundColor: '#093d77',  // Color de fondo de la cabecera
@@ -361,17 +335,18 @@ useEffect(() => {
         }}
         localeText={esES.components.MuiDataGrid.defaultProps.localeText} // Aplicar las traducciones al DataGrid
       />
-
+      </Box>
       {/* Modal de creación de nueva bodega */}
       <Modal
         open={openCreateModal}
         onClose={handleCloseCreateModal}
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
+        
       >
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: 800, bgcolor: 'white', boxShadow: 24, padding: 4, borderRadius: 3
+          width: 1000, bgcolor: 'white', boxShadow: 24, padding: 4, borderRadius: 3
         }}>
           <h2 id="modal-title">Crear Nueva Bodega</h2>
           <TextField

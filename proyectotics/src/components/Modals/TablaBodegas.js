@@ -162,6 +162,34 @@ useEffect(() => {
 }, [token]);  // Asegúrate de incluir `token` como dependencia para recargar si cambia
 
 
+// Función para obtener el Inventario cuando se abre el modal
+useEffect(() => {
+  if (token) {
+      console.log("enviando get");
+      axios.get('http://localhost:8081/inventarios/getInventario', {
+          headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
+          // Mapear cada elemento de la respuesta al formato deseado
+          const mappedData = response.data.inventario.map(item => ({
+              id: item.id,
+              codigo: item.codigo,
+              material: item.material,
+              bodega: item.bodega,
+              stock: item.stock,
+              stockComp: item.stockComp,
+              stockMax: item.stockMax,
+              stockMin: item.stockMin,
+              unidad: item.unidad
+          }));
+
+          // Actualizar el estado de initialRows con los datos mapeados
+          setRows(mappedData);
+      })
+      .catch(error => console.error('Error al obtener Inventario:', error));
+  }
+}, [openAnadirModal]);  // Asegúrate de incluir `token` como dependencia para recargar si cambia
+
 
 
   const handleButtonClick = (id) => {
@@ -337,7 +365,7 @@ useEffect(() => {
             label="Nombre de la Bodega"
             variant="outlined"
             value={newBodega}
-            onChange={handleNewBodegaChange}
+            onChaBodegasnge={handleNewBodegaChange}
             fullWidth
             sx={{ marginBottom: 2 }}
           />
@@ -405,10 +433,10 @@ useEffect(() => {
                 transform: 'translateX(-50%)',
                 color: 'black',
                 zIndex: 1,
-                fontSize: '1.5rem',
+                fontSize: '1.5rem'
               }}
             >
-              Bodegas
+              Ingresar a Bodega
             </h2>
             <div className="Raya"></div>
   
@@ -418,6 +446,7 @@ useEffect(() => {
                 mt: 4, // Para dar un margen superior
                 height: 'calc(100vh - 100px)', // Para asegurar que no se sobrepase la pantalla
                 overflowY: 'auto', // Permite desplazamiento si el contenido excede el tamaño
+
               }}
             >
               <TablaProductosBodegas />
