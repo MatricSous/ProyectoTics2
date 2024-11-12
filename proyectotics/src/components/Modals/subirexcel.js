@@ -145,7 +145,7 @@ function Editar(param, ancho, color){
     );
 }
 
-function Detalles({index, event, expanded, handleExpansion, materiales, handleSelectInfo, selectInfo, handleSelectPrecio, selectPrecio, handleSelectStock, selectStock, selectDescrip, handleSelectDescrip, selectTitulo, handleSelectTitulo}){
+function Detalles({index, expanded, handleExpansion, materiales, handleSelectInfo, selectInfo, handleSelectPrecio, selectPrecio, handleSelectStock, selectStock, selectDescrip, handleSelectDescrip, selectTitulo}){
 
     return(    
         <Accordion
@@ -773,52 +773,7 @@ function Detalles({index, event, expanded, handleExpansion, materiales, handleSe
 
 
 //Modal principal
-export default function NestedModalBodega({open, handleClose}) {
-    
-const materiales = [
-    {
-        codigo: "abc1", 
-        nombre: "Tornillo1", 
-        iva: "19", 
-        categoria: "Tornillos", 
-        descripcion: "aaa", 
-        descontinuado: true, 
-        secompra: false, 
-        sevende: true, 
-        moneda: "clp", 
-        unitario: "1234", 
-        costo: "1234", 
-        modificable: true, 
-        dctoMax: "10", 
-        unidad_medida: "lts", 
-        unidad_alternativa: "cm3", 
-        factor: "0.1", 
-        afecto: true, 
-        stockMaximo: "1234", 
-        stockMinimo: "2345"
-    },
-    {
-        codigo: "abc2", 
-        nombre: "Tornillo2", 
-        iva: "19", 
-        categoria: "Tornillos", 
-        descripcion: "aaa", 
-        descontinuado: true, 
-        secompra: false, 
-        sevende: true, 
-        moneda: "clp", 
-        unitario: "1234", 
-        costo: "1234", 
-        modificable: false, 
-        dctoMax: "10", 
-        unidad_medida: "lts", 
-        unidad_alternativa: "cm3", 
-        factor: "0.1", 
-        afecto: false, 
-        stockMaximo: "1234", 
-        stockMinimo: "2345"
-    }
-];
+export default function NestedModalSubirExcel({open, handleClose, materiales}) {
 
     const [busqueda, setBusqueda] = useState('');
     const handleChangeBusqueda = (event) => {
@@ -981,12 +936,17 @@ const materiales = [
                         selectDescrip={selectDescrip}
                         handleSelectDescrip={handleSelectDescrip}
                         selectTitulo={selectTitulo}
-                        handleSelectTitulo={handleSelectTitulo}
-
-
                     />
                 ))}
             </Box>
+            <CssVarsProvider>
+            <Box display="flex" justifyContent="space-between">
+            <Button variant='container' onClick={handleClose} style={{ backgroundColor: '#daa520', paddingBottom: 7}}> CANCELAR
+            </Button>
+            <Button variant='container' style={{ backgroundColor: 'green', color: 'white', paddingBottom: 7}}> GUARDAR
+            </Button>
+            </Box>
+            </CssVarsProvider>
         </Box>
       </Modal>
     </div>
