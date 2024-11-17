@@ -525,11 +525,9 @@ app.post('/bodegas/bodegasMateriales', verifyToken, (req, res) => {
 
         // Verificar si el id_bodega existe en la tabla bodegas
         const q1 = "SELECT * FROM bodegas WHERE id_bodega = ?";
-        console.log(id_bodega)
 
         db.query(q1, [id_bodega], (err, bodegaData) => {
             if (err) {
-                console.log(err)
                 return res.status(500).json({ message: 'Error al verificar la bodega en la base de datos', error: err });
             }
 
@@ -537,47 +535,122 @@ app.post('/bodegas/bodegasMateriales', verifyToken, (req, res) => {
                 return res.status(404).json({ message: 'Bodega no encontrada' });
             }
 
-            // Verificar si el par (id_bodega, id_material) existe en la tabla bodega_productos
-            const q2 = "SELECT * FROM bodegas_materiales WHERE id_bodega = ? AND id_material = ?";
+            // Verificar si el par (id_bodega, id_material) existe en la tabla bodegas_materiales
+            const q2 = `
+                SELECT * 
+                FROM bodegas_materiales 
+                WHERE id_bodega = ? AND id_material = ?
+                ORDER BY fecha_creacion DESC 
+                LIMIT 1;
+            `;
             
             db.query(q2, [id_bodega, id_material], (err, materialData) => {
                 if (err) {
-                    console.log(2)
-                    console.log(err)
                     return res.status(500).json({ message: 'Error al verificar el material en la base de datos', error: err });
                 }
-                console.log("hasta aqui")
 
+                let nuevaCantidad = cantidad; // Si no existe un registro previo, la cantidad es la nueva
                 if (materialData.length > 0) {
-                    // Si el par existe, actualizar la cantidad
-                    const q3 = "UPDATE bodegas_materiales SET cantidad = cantidad + ? WHERE id_bodega = ? AND id_material = ?";
-                    
-                    db.query(q3, [cantidad, id_bodega, id_material], (err, updateData) => {
-                        if (err) {
-                            return res.status(500).json({ message: 'Error al actualizar la cantidad del material', error: err });
-                        }
-
-                        return res.json({ message: 'Cantidad actualizada exitosamente', bodega: { id_bodega, id_material, cantidad } });
-                    });
-                } else {
-                    console.log("no")
-                    // Si el par no existe, crear el nuevo registro con la cantidad proporcionada
-                    const q4 = "INSERT INTO bodegas_materiales (id_bodega, id_material, cantidad) VALUES (?, ?, ?)";
-
-                    db.query(q4, [id_bodega, id_material, cantidad], (err, insertData) => {
-                        if (err) {
-                            console.log(err)
-                            return res.status(500).json({ message: 'Error al agregar el material a la bodega', error: err });
-                        }
-
-                        return res.json({ message: 'Material agregado a la bodega exitosamente', bodega: { id_bodega, id_material, cantidad } });
-                    });
+                    // Si hay un registro previo, sumamos la cantidad existente
+                    const material = materialData[0];
+                    nuevaCantidad += material.cantidad;
                 }
+
+                // Crear un nuevo registro con la cantidad actualizada
+                const q3 = `
+                    INSERT INTO bodegas_materiales (id_bodega, id_material, cantidad, fecha_creacion) 
+                    VALUES (?, ?, ?, NOW());
+                `;
+
+                db.query(q3, [id_bodega, id_material, nuevaCantidad], (err, insertData) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Error al agregar el material a la bodega', error: err });
+                    }
+
+                    return res.json({
+                        message: 'Material agregado a la bodega exitosamente con registro histórico',
+                        bodega: { id_bodega, id_material, cantidad: nuevaCantidad }
+                    });
+                });
             });
         });
     });
 });
 
+// Ruta para actualizar el inventario
+app.post('/inventarios/actualizarInventario', verifyToken, (req, res) => {
+    const { codigo_material, cantidad, bodega } = req.body;
+
+    // Verificar que todos los parámetros estén presentes
+    if (!codigo_material || !cantidad || !bodega) {
+        return res.status(400).json({ message: 'Faltan parámetros: codigo_material, cantidad o bodega' });
+    }
+
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para actualizar el inventario
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para actualizar el inventario' });
+        }
+
+        // Verificar si el material existe en la tabla materiales y obtener su id_materiales
+        const qMaterial = "SELECT id_materiales FROM materiales WHERE codigo_material = ?";
+        db.query(qMaterial, [codigo_material], (err, materialData) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error al buscar el material', error: err });
+            }
+
+            if (materialData.length === 0) {
+                return res.status(404).json({ message: `El material con código ${codigo_material} no existe` });
+            }
+
+            const id_material = materialData[0].id_materiales;
+
+            // Buscar el id_bodega correspondiente al nombre de la bodega
+            const qBodega = "SELECT id_bodega FROM bodegas WHERE nombre_bodega = ?";
+            db.query(qBodega, [bodega], (err, bodegaData) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error al buscar la bodega', error: err });
+                }
+
+                if (bodegaData.length === 0) {
+                    return res.status(404).json({ message: `La bodega con nombre ${bodega} no existe` });
+                }
+
+                const id_bodega = bodegaData[0].id_bodega;
+
+                // Insertar la nueva entrada en bodegas_materiales
+                const insertQuery = `
+                    INSERT INTO bodegas_materiales (id_bodega, id_material, cantidad, fecha_creacion)
+                    VALUES (?, ?, ?, NOW());
+                `;
+                db.query(insertQuery, [id_bodega, id_material, cantidad], (err) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Error al actualizar el inventario', error: err });
+                    }
+
+                    // Retornar éxito
+                    return res.json({ message: 'Inventario actualizado exitosamente' });
+                });
+            });
+        });
+    });
+});
 
 // Ruta para traer todos los datos del Inventario
 app.get('/inventarios/getInventario', verifyToken, (req, res) => {
@@ -603,14 +676,27 @@ app.get('/inventarios/getInventario', verifyToken, (req, res) => {
             return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para ver el inventario' });
         }
 
-        // Consulta para obtener todas las bodegas y todos los datos de sus materiales relacionados
+        // Consulta para obtener los registros más recientes de cada par bodega-material, filtrando por cantidad > 0
         const q5 = `
-            SELECT b.nombre_bodega as bodega, m.codigo_material as codigo, m.nombre_material as material,
-            bm.cantidad as stock, bm.cantidad_comprometida as stockComp, m.stockMaximo as stockMax,
-            m.stockMinimo as stockMin, m.unidad_medida as unidad
+            SELECT 
+                b.nombre_bodega AS bodega, 
+                m.codigo_material AS codigo, 
+                m.nombre_material AS material,
+                bm.cantidad AS stock, 
+                bm.cantidad_comprometida AS stockComp, 
+                m.stockMaximo AS stockMax,
+                m.stockMinimo AS stockMin, 
+                m.unidad_medida AS unidad
             FROM bodegas AS b
             JOIN bodegas_materiales AS bm ON b.id_bodega = bm.id_bodega
             JOIN materiales AS m ON bm.id_material = m.id_materiales
+            WHERE (bm.id_bodega, bm.id_material, bm.fecha_creacion) IN (
+                SELECT 
+                    id_bodega, id_material, MAX(fecha_creacion)
+                FROM bodegas_materiales
+                GROUP BY id_bodega, id_material
+            )
+            AND bm.cantidad > 0;  -- Filtrar solo los registros con cantidad mayor a 0
         `;
 
         db.query(q5, (err, data) => {
@@ -624,11 +710,12 @@ app.get('/inventarios/getInventario', verifyToken, (req, res) => {
                 ...item
             }));
 
-            // Retornar todas las bodegas y sus materiales asociados con todos los datos de cada material
+            // Retornar todas las bodegas y sus materiales asociados con los datos más recientes de cada material
             return res.json({ message: 'Inventario obtenido exitosamente', inventario });
         });
     });
 });
+
 
 // Ruta para traer todos los datos del Inventario
 app.get('/bodegas/getBodegas', verifyToken, (req, res) => {
@@ -892,6 +979,8 @@ app.delete('/recetas/:id', verifyToken, (req, res) => {
     const correo = req.user.correo;
     const recetaId = req.params.id;
 
+    
+
     // Verificación del rol del usuario
     const q = "SELECT * FROM usuarios WHERE correo = ?";
     db.query(q, [correo], (err, data) => {
@@ -914,7 +1003,7 @@ app.delete('/recetas/:id', verifyToken, (req, res) => {
 
 
 // Traer todas las recetas
-app.get('/recetas', (req, res) => {
+app.get('/recetas', verifyToken, (req, res) => {
     const q = "SELECT * FROM recetas";
     db.query(q, (err, data) => {
         if (err) return res.status(500).json({ message: 'Error al obtener recetas', error: err });
@@ -935,6 +1024,346 @@ app.get('/recetas/:id', (req, res) => {
 });
   
   
+// Endpoint para crear cotización
+app.post('/ordenes/crearOC', verifyToken, (req, res) => {
+    const { id_proveedor, numero_cotizacion = null, forma_pago, materiales } = req.body;
+
+    // Extraer el correo del token decodificado
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0 (permitido)
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' });
+        }
+
+        // Validación de los datos recibidos
+        if (!id_proveedor || !forma_pago || !Array.isArray(materiales) || materiales.length === 0) {
+            return res.status(400).json({ error: 'Datos insuficientes o formato incorrecto' });
+        }
+
+        // Inserción de la cotización
+        db.query(
+            'INSERT INTO orden_compra (id_proveedor, forma_pago) VALUES ( ?, ?)',
+            [id_proveedor, numero_cotizacion, forma_pago],
+            (err, result) => {
+                if (err) {
+                    console.error('Error al insertar la cotización:', err);
+                    return res.status(500).json({ error: 'Error en el servidor al insertar la cotización' });
+                }
+
+                const cotizacionId = result.insertId;
+
+                // Inserción de materiales
+                const materialValues = materiales.map(material => [cotizacionId, material.codigo_material, material.cantidad]);
+                db.query(
+                    'INSERT INTO materiales_orden_compra (id_orden_compra, codigo_material, cantidad) VALUES ?',
+                    [materialValues],
+                    (err) => {
+                        if (err) {
+                            console.error('Error al insertar materiales:', err);
+                            return res.status(500).json({ error: 'Error en el servidor al insertar materiales' });
+                        }
+
+                        res.status(201).json({ message: 'Cotización creada exitosamente', id_orden_compra: cotizacionId });
+                    }
+                );
+            }
+        );
+    });
+});
+
+app.get('/ordenes/obtenerOC/:id', verifyToken, (req, res) => {
+    const id_orden_compra = req.params.id;
+
+    // Extraer el correo del token decodificado
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0 (permitido)
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' });
+        }
+
+        // Consultar la cotización específica y sus materiales
+        const cotizacionQuery = `
+            SELECT oc.id_orden, oc.id_proveedor, oc.forma_pago, p.nombre AS proveedor
+            FROM orden_compra AS oc
+            JOIN proveedores AS p ON oc.id_proveedor = p.id_proveedores
+            WHERE oc.id_orden = ?;
+        `;
+        
+        db.query(cotizacionQuery, [id_orden_compra], (err, cotizacionData) => {
+            if (err) {
+                console.error('Error al buscar la cotización:', err);
+                return res.status(500).json({ error: 'Error en el servidor al buscar la cotización' });
+            }
+
+            // Verificar si la cotización existe
+            if (cotizacionData.length === 0) {
+                return res.status(404).json({ message: 'Cotización no encontrada' });
+            }
+
+            const cotizacion = cotizacionData[0];
+
+            // Consultar los materiales de la cotización, seleccionando el más reciente por código de material
+            const materialesQuery = `
+                SELECT moc.codigo_material, moc.cantidad, moc.cantidad_recibida, 
+                       m.nombre_material, m.descripcion_material, m.precio_material
+                FROM materiales_orden_compra AS moc
+                JOIN materiales AS m ON moc.codigo_material = m.codigo_material
+                WHERE moc.id_orden_compra = ?
+                AND moc.fecha_creacion = (
+                    SELECT MAX(fecha_creacion) 
+                    FROM materiales_orden_compra 
+                    WHERE codigo_material = moc.codigo_material AND id_orden_compra = ?
+                )
+                HAVING moc.cantidad != moc.cantidad_recibida; -- Excluir materiales completos
+            `;
+
+            db.query(materialesQuery, [id_orden_compra, id_orden_compra], (err, materialesData) => {
+                if (err) {
+                    console.error('Error al buscar los materiales:', err);
+                    return res.status(500).json({ error: 'Error en el servidor al buscar los materiales' });
+                }
+
+                // Estructurar la respuesta final
+                res.status(200).json({
+                    detalles: {
+                        id_orden_compra: cotizacion.id_orden,
+                        id_proveedor: cotizacion.id_proveedor,
+                        forma_pago: cotizacion.forma_pago,
+                        proveedor: cotizacion.proveedor,
+                    },
+                    materiales: materialesData.map(material => ({
+                        codigo_material: material.codigo_material,
+                        nombre_material: material.nombre_material,
+                        descripcion: material.descripcion_material,
+                        cantidad: material.cantidad,
+                        precio_unitario: material.precio_material
+                    }))
+                });
+            });
+        });
+    });
+});
+
+
+app.post('/ordenes/actualizarOC', verifyToken, (req, res) => {
+    const { id_proveedor, id_orden, forma_pago, materiales, bodega } = req.body;
+    console.log(id_proveedor, id_orden, forma_pago, materiales, bodega);
+
+    // Extraer el correo del token decodificado
+    const correo = req.user.correo;
+
+    // Consulta para verificar el usuario
+    const userQuery = "SELECT * FROM usuarios WHERE correo = ?";
+    db.query(userQuery, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' });
+        }
+
+        if (!id_proveedor || !id_orden || !forma_pago || !Array.isArray(materiales) || materiales.length === 0) {
+            return res.status(400).json({ error: 'Datos insuficientes o formato incorrecto' });
+        }
+
+        // Consulta para obtener los materiales más recientes por cada par (id_orden_compra, codigo_material)
+        const checkOrderQuery = `
+            SELECT moc.codigo_material, moc.cantidad, moc.cantidad_recibida, moc.fecha_creacion
+            FROM materiales_orden_compra moc
+            WHERE moc.id_orden_compra = ?
+            AND moc.fecha_creacion = (
+                SELECT MAX(sub.fecha_creacion)
+                FROM materiales_orden_compra sub
+                WHERE sub.id_orden_compra = moc.id_orden_compra
+                AND sub.codigo_material = moc.codigo_material
+            );
+        `;
+
+        db.query(checkOrderQuery, [id_orden], (err, existingMaterials) => {
+            if (err) {
+                console.error('Error al obtener materiales de la orden:', err);
+                return res.status(500).json({ error: 'Error al verificar materiales de la orden' });
+            }
+
+            if (existingMaterials.length === 0) {
+                return res.status(404).json({ error: 'La orden de compra no tiene materiales registrados' });
+            }
+
+            // Verificar si recibido es mayor que cantidad
+            const sobrantes = materiales.filter(material => material.recibido > material.cantidad);
+            if (sobrantes.length > 0) {
+                return res.status(400).json({
+                    error: 'Materiales con cantidades recibidas superiores a las solicitadas',
+                    materiales_sobrantes: sobrantes.map(mat => ({
+                        codigo_material: mat.codigo_material,
+                        cantidad: mat.cantidad,
+                        recibido: mat.recibido
+                    }))
+                });
+            }
+
+            // Consultas para actualizar materiales en la orden de compra y registrar en bodega
+            const updateMaterialsQuery = `
+                UPDATE materiales_orden_compra 
+                SET cantidad_recibida = ?
+                WHERE id_orden_compra = ? AND codigo_material = ?;
+            `;
+
+            const insertMaterialsQuery = `
+                INSERT INTO materiales_orden_compra (id_orden_compra, codigo_material, cantidad, cantidad_recibida, fecha_creacion)
+                VALUES (?, ?, ?, ?, NOW());
+            `;
+
+            const insertBodegaMaterialQuery = `
+                INSERT INTO bodegas_materiales (id_bodega, id_material, cantidad, cantidad_comprometida, fecha_creacion)
+                VALUES (?, ?, ?, 0, NOW());
+            `;
+
+            const updatePromises = materiales.map(material => {
+                return new Promise((resolve, reject) => {
+                    const existingMaterial = existingMaterials.find(
+                        mat => mat.codigo_material === material.codigo_material
+                    );
+            
+                    if (!existingMaterial) {
+                        return reject(`Material ${material.codigo_material} no encontrado en la orden.`);
+                    }
+            
+                    const cantidadRestante = existingMaterial.cantidad - material.recibido;
+            
+                    // Primero, actualizamos los materiales en la orden de compra
+                    const cantidadRecibida = parseInt(material.recibido, 10);
+            
+                    console.log("cantidad recibida ", cantidadRecibida, "cantidad restante", cantidadRestante);
+            
+                    db.query(
+                        updateMaterialsQuery,
+                        [cantidadRecibida, id_orden, material.codigo_material],
+                        (err) => {
+                            if (err) {
+                                console.error('Error al actualizar el material existente en la orden:', err);
+                                return reject(err);
+                            }
+            
+                            // Si la cantidad recibida es menor que la cantidad solicitada, insertamos una nueva entrada
+                            if (cantidadRestante > 0) {
+                                db.query(
+                                    insertMaterialsQuery,
+                                    [id_orden, material.codigo_material, cantidadRestante, 0], // cantidad restante, recibido 0
+                                    (err) => {
+                                        if (err) {
+                                            console.error('Error al insertar nueva entrada para el material:', err);
+                                            return reject(err);
+                                        }
+                                        console.log(`Nueva entrada creada para material ${material.codigo_material}, cantidad restante: ${cantidadRestante}`);
+                                    }
+                                );
+                            }
+            
+                            // Insertar material en la tabla bodegas_materiales
+                            const getIdMaterialQuery = "SELECT id_materiales FROM materiales WHERE codigo_material = ?";
+                            db.query(getIdMaterialQuery, [material.codigo_material], (err, result) => {
+                                if (err) {
+                                    console.error('Error al obtener id_material:', err);
+                                    return reject(err);
+                                }
+            
+                                if (result.length === 0) {
+                                    return reject(`No se encontró el material con código ${material.codigo_material}`);
+                                }
+            
+                                const id_material = result[0].id_materiales;
+                                const cantidadEnBodegaQuery = `
+                                    SELECT cantidad
+                                    FROM bodegas_materiales
+                                    WHERE id_bodega = ? AND id_material = ?
+                                    ORDER BY fecha_creacion DESC LIMIT 1;
+                                `;
+            
+                                // Verificamos si existe un material en la bodega
+                                db.query(cantidadEnBodegaQuery, [bodega, id_material], (err, bodegaMaterial) => {
+                                    if (err) {
+                                        console.error('Error al verificar material en la bodega:', err);
+                                        return reject(err);
+                                    }
+            
+                                    let cantidadBodega = 0;
+                                    if (bodegaMaterial.length > 0) {
+                                        cantidadBodega = bodegaMaterial[0].cantidad;
+                                    }
+            
+                                    // Insertamos un nuevo registro con la suma de la cantidad en bodega y la cantidad recibida
+                                    db.query(
+                                        insertBodegaMaterialQuery,
+                                        [bodega, id_material, cantidadBodega + material.recibido],
+                                        (err) => {
+                                            if (err) {
+                                                console.error('Error al insertar material en la bodega:', err);
+                                                return reject(err);
+                                            }
+                                            resolve();
+                                        }
+                                    );
+                                });
+                            });
+                        }
+                    );
+                });
+            });
+            
+            Promise.all(updatePromises)
+                .then(() => {
+                    res.status(200).json({
+                        message: 'Orden de compra actualizada exitosamente y materiales registrados en la bodega',
+                        id_orden_compra: id_orden
+                    });
+                })
+                .catch(err => {
+                    console.error('Error durante la actualización de materiales en la orden o en la bodega:', err);
+                    res.status(500).json({ error: 'Error al actualizar los materiales en la orden o en la bodega', detalle: err });
+                });
+            
+
+
+        });
+    });
+});
+
+
 
 app.listen(8081, () => {
     console.log("listening");

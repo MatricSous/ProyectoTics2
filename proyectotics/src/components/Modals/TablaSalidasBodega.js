@@ -5,9 +5,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import { esES } from '@mui/x-data-grid/locales';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import InventoryIcon from '@mui/icons-material/Inventory';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import TablaSalidasBodegas from './TablaSalidasBodega';
 
 const initialRows = [
   { id: 1, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
@@ -48,7 +47,7 @@ function a11yProps(index) {
 }
 
 
-function TablaProductosBodegas() {
+function TablaSalidasBodegas() {
   
   const [rows, setRows] = useState(initialRows);  // Estado para las filas de la tabla
   const [bodegas, setBodegas] = useState(initialBodegas)
@@ -107,21 +106,7 @@ function TablaProductosBodegas() {
       headerName: 'Descripcion', 
       flex: 1,  
       minWidth: 150, 
-      maxWidth: 300,
-      renderCell: (params) => (
-        <div style={{ 
-            display: 'flex',
-            justifyContent: 'just', 
-            whiteSpace: 'normal',
-            wordBreak: 'break-word',
-            alignItems: 'center',
-
-            height: '100%',
-            lineHeight: '1.2'
-        }}>
-            {params.value}
-        </div>
-    )
+      maxWidth: 300 
     },
 
     { 
@@ -245,33 +230,20 @@ useEffect(() => {
 
 const [orderNumber, setOrderNumber] = useState('');
 const [orderDetails, setOrderDetails] = useState([]);
-const [orderDetails1, setOrderDetails1] = useState([]);
 const [formData, setFormData] = useState({});
-const [errorMessageOC, setErrorMessageOC] = useState('');
-
 
 const handleSearch = () => {
-
-  
+  const details = fetchOrderDetails(orderNumber);
+  setOrderDetails(details);
   // Initialize formData with the same structure as orderDetails
- fetchOrderDetails(orderNumber)
+  const initialFormData = details.reduce((acc, item) => {
+    acc[item.materialCode] = { ...item, quantityReceived: 0 };  // Initialize quantityReceived to 0
+    return acc;
+  }, {});
+  setFormData(initialFormData);
 };
 
 const handleQuantityChange = (materialCode, value) => {
-  console.log(orderDetails)
-  const intValue = parseInt(value, 10); // Convertir el valor a entero
-  setOrderDetails(prevDetails =>
-    prevDetails.map(material =>
-      material.materialCode === materialCode
-        ? { ...material, quantityReceived: intValue }
-        : material
-    )
-  );
-};
-
-
-const handleQuantityChange1 = (materialCode, value) => {
- 
   setFormData({
     ...formData,
     [materialCode]: {
@@ -281,77 +253,31 @@ const handleQuantityChange1 = (materialCode, value) => {
   });
 };
 
-const handleSubmit = async () => {
-  try {
-    // Crear el JSON combinando los datos
-    console.log(orderDetails)
-    const payload = {
-      id_orden: orderDetails1.id_orden_compra,
-      id_proveedor: orderDetails1.id_proveedor,
-      forma_pago: orderDetails1.forma_pago,
-      bodega: bodegaElegida,
-      materiales: orderDetails.map(material => ({
-        codigo_material: material.materialCode,
-        cantidad: material.quantityToReceive,
-        recibido: material.quantityReceived,
-      })),
-    };
-
-    console.log('Payload:', payload); // Para verificar la estructura antes de enviar
-
-    // Enviar los datos a la API
-    const response = await axios.post(
-      "http://localhost:8081/ordenes/actualizarOC",
-      payload, {
-        headers: { Authorization: `Bearer ${token}` }
-    }
-    );
-
-    console.log('Respuesta del servidor:', response.data);
-    alert('Orden actualizada exitosamente');
-  } catch (error) {
-    console.error('Error al enviar la solicitud:', error.response || error.message);
-    alert('Error al actualizar la orden. Revisa la consola para más detalles.');
-  }
+const handleSubmit = () => {
+  // Handle the form submission logic
+  console.log('Form Data:', formData);
+  // You can add your submission logic here (e.g., send data to an API)
 };
 
-const fetchOrderDetails = async (orderNumber) => {
-  try {
-    const response = await axios.get(`http://localhost:8081/ordenes/obtenerOC/${orderNumber}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const renamedData = response.data.materiales.map((item, index) => ({
-      id: index + 1,
-      materialCode: item.codigo_material,
-      name: item.nombre_material,
-      quantityToReceive: item.cantidad,
+const fetchOrderDetails = (orderNumber) => {
+  // Aquí podrías hacer una solicitud a una API para obtener los datos
+  // Este es un ejemplo simulado
+  if (orderNumber === '123') {
+    return [
+      {id:1, materialCode: 'M001', name: 'Material 1', quantityToReceive: 100, quantityReceived: 0 },
+      {id:2, materialCode: 'M002', name: 'Material 2', quantityToReceive: 200, quantityReceived: 0 },
+    ];
+  } else  if (orderNumber === '124') {
+    return Array.from({ length: 30 }, (_, index) => ({
+      id: index+1,
+      materialCode: `M00${index + 1}`,
+      name: `Material${index + 1}`,
+      quantityToReceive: 100 + index * 10,
       quantityReceived: 0,
     }));
-
-    if (renamedData.length === 0) {
-      // Si el arreglo está vacío, actualizamos el mensaje de error
-      setOrderDetails([])
-      setOrderDetails1([])
-      setErrorMessageOC("No se encontraron resultados para la solicitud.");
-    } else {
-      // Si hay datos, limpiamos el mensaje de error y actualizamos el estado de las órdenes
-      setErrorMessageOC('');
-      setOrderDetails(renamedData);
-      setOrderDetails1(response.data.detalles);
-      console.log(response.data.detalles)
-    }
-
-    return renamedData;
-  } catch (error) {
-    console.error("Error al obtener los detalles de la orden:", error);
-    setOrderDetails([])
-    setOrderDetails1([])
-    setErrorMessageOC("Error al obtener los detalles de la orden.");
-    return [];
   }
+  return [];
 };
-
 
   const handleButtonClick = (id) => {
     const row = rows.find((r) => r.id === id);
@@ -493,27 +419,13 @@ const fetchOrderDetails = async (orderNumber) => {
           },
         }}
       >
-        {/* Primer Tab con línea divisoria a la derecha */}
-        <Tab
-          icon={<InventoryIcon />}
-          iconPosition="start"
-          label="Ingreso Manual"
-          sx={{
-            color: '#F8F9FA',
-            fontWeight: 'bold',
 
-            '&.Mui-selected': {
-              color: '#F8F9FA',
-              bgcolor: '#093D77',
-            },
-          }}
-        />
         
         {/* Segundo Tab */}
         <Tab
-          icon={<ShoppingCartIcon />}
+          icon={<LocalShippingIcon />}
           iconPosition="start"
-          label="Ingreso con Orden de Compra"
+          label="Salida con Orden de Despacho"
           sx={{
             color: '#F8F9FA',
             fontWeight: 'bold',
@@ -525,91 +437,33 @@ const fetchOrderDetails = async (orderNumber) => {
         />
       </Tabs>
 
-     <CustomTabPanel value={valueTab} index={0}>
-
-      <DataGrid
-        headerHeight={0}
-        rowHeight={70}
-        rows={filteredRows}
-        columns={columns}
-        pageSize={5}
-        checkboxSelection={false}
-        disableSelectionOnClick={true}
-        rowSelection={false}
-    
-        sx={{
-          '& .MuiDataGrid-columnHeader': {
-            backgroundColor: '#093d77',  // Color de fondo de la cabecera
-            color: '#fff',  // Color de texto de la cabecera
-          },
-          '& .MuiDataGrid-cell': {
-            backgroundColor: '#f5f5f5',  // Color de fondo de las celdas
-            color: '#000',  // Color del texto de las celdas
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: '#d6e3f1',  // Color de fila al pasar el ratón
-          },
-          '& .MuiDataGrid-selection': {
-            backgroundColor: 'rgba(9, 61, 119, 0.5)',  // Color de selección de filas
-          },   
-           "&:last-child td, &:last-child th": {
-            border: 0,
-          },
-
-        }}
-        localeText={esES.components.MuiDataGrid.defaultProps.localeText} // Aplicar las traducciones al DataGrid
-      />
- 
-      </CustomTabPanel>
-      <CustomTabPanel value={valueTab} index={1}>
+  
+      <CustomTabPanel value={valueTab} index={0}>
       <Box 
-        sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          padding: 2, 
-          borderRadius: 1, 
-          gap: 3 // Espacio entre los elementos
-        }}
-      >
-        <TextField
-          label="Número de Orden de Compra"
-          value={orderNumber}
-          onChange={(e) => setOrderNumber(e.target.value)}
-          sx={{ flex: 0.5 }} // Menos espacio para el campo de texto
-        />
-        <Button 
-          variant="contained" 
-          color="azul" 
-          onClick={handleSearch} 
-          sx={{ height: '56px' }} // Ajusta la altura del botón al campo de texto
-        >
-          Buscar
-        </Button>
-        <FormControl sx={{ flex: 2, minWidth: 200 }}> {/* Más espacio para el selector */}
-          <InputLabel id="warehouse-label">Seleccionar Bodega</InputLabel>
-          <Select
-            labelId="warehouse-label"
-            id="warehouse-select"
-            value={bodegaElegida}
-            onChange={handleWarehouseChange}
-            label="Seleccionar Bodega"
-          >
-            {bodegas.map((bodega) => (
-              <MenuItem key={bodega.id} value={bodega.id_bodega}>
-                {bodega.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+  sx={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    padding: 2, 
+    borderRadius: 1,
+    gap: 2 // Espacio entre el campo de texto y el botón
+  }}
+>
+  <TextField
+    label="Número de Orden de Compra"
+    value={orderNumber}
+    onChange={(e) => setOrderNumber(e.target.value)}
+    fullWidth
+  />
+  <Button 
+    variant="contained" 
+    color="azul" 
+    onClick={handleSearch} 
+    sx={{ height: '56px' }} // Ajusta la altura del botón al campo de texto
+  >
+    Buscar
+  </Button>
+</Box>
 
-
-{/* Agrega el mensaje de error en rojo debajo del Box */}
-{errorMessageOC && (
-  <Typography color="error" sx={{ paddingLeft: 2, paddingTop: 1 }}>
-    {errorMessageOC}
-  </Typography>
-)}
 {/* Línea divisoria */}
 <Box 
   sx={{ 
@@ -804,6 +658,4 @@ const fetchOrderDetails = async (orderNumber) => {
   );
 }
 
-export default TablaProductosBodegas;
-
-
+export default TablaSalidasBodegas;

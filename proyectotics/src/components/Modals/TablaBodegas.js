@@ -1,14 +1,43 @@
-import { Button, Modal, Box, TextField, Typography, Snackbar, Alert } from '@mui/material';
+import { Button, Modal, Box, TextField, Typography, Snackbar, Alert, Tab } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { esES } from '@mui/x-data-grid/locales';
 import React, { useState, useEffect } from 'react';
 import TablaProductosBodegas from './TablaProductosBodegas';
+import TablaSalidasBodegas from './TablaSalidasBodega';
 import axios from 'axios';
 
 
 const initialRows = [
   { id: 1, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
-  { id: 2, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" }
+  { id: 2, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 3, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 4, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 5, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 6, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 7, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 8, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 9, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 10, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 11, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 12, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 13, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 14, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 15, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 16, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 17, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 18, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 19, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 20, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 21, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 22, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 23, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 24, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 25, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 26, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+  { id: 27, codigo: "MA3345", material: "Tornillo Cruz 3mm", stock: 20, stockComp: 10 ,bodega: "Ventas", stockMax: 99, stockMin: 5, unidad: "UN"},
+  { id: 28, codigo: "MAT7645", material: "Pintura Mate Blanca", stock: 5, stockComp: 10 , bodega: "Elaboracion", stockMax: 20, stockMin: 1, unidad: "LT" },
+
+
 ];
 
 const style = {
@@ -16,11 +45,11 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 1000,
   bgcolor: '#e5e5e5',
   border: '3px solid #093d77',
   boxShadow: 24,
   borderRadius: 3,
+  width: 1500,
   pt: 2,
   px: 4,
   pb: 3,
@@ -35,12 +64,16 @@ function TablaBodegas() {
   const [openModal, setOpenModal] = useState(false);  // Estado para controlar el modal
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openAnadirModal, setOpenAnadirModal] = useState(false);  // Estado para controlar el modal de creación de bodega
+  const [openSalidaBodegaModal, setOpenSalidaBodegaModal] = useState(false);  // Estado para controlar el modal de creación de bodega
+
   const [selectedId, setSelectedId] = useState(null);  // Estado para guardar el ID de la fila seleccionada
   const [selectedStock, setSelectedStock] = useState('');  // Estado para el valor de stock en el modal
   const [stockUnit, setStockUnit] = useState('');  // Estado para la unidad de medida
   const [searchText, setSearchText] = useState('');  // Estado para guardar el texto de búsqueda
   const [newBodega, setNewBodega] = useState('');  // Estado para el nombre de la nueva bodega
   const [errorMessage, setErrorMessage] = useState('');  // Estado para el mensaje de error si la bodega ya existe
+  const [selectedBodega, setSelectedBodega] = useState('');
+  const [selectedCodigo, setSelectedCodigo] = useState('');
 
   // Filtramos las filas según el texto de búsqueda
   const filteredRows = rows.filter(
@@ -190,6 +223,32 @@ useEffect(() => {
   }
 }, [openAnadirModal]);  // Asegúrate de incluir `token` como dependencia para recargar si cambia
 
+useEffect(() => {
+  if (token) {
+      console.log("enviando get");
+      axios.get('http://localhost:8081/inventarios/getInventario', {
+          headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
+          // Mapear cada elemento de la respuesta al formato deseado
+          const mappedData = response.data.inventario.map(item => ({
+              id: item.id,
+              codigo: item.codigo,
+              material: item.material,
+              bodega: item.bodega,
+              stock: item.stock,
+              stockComp: item.stockComp,
+              stockMax: item.stockMax,
+              stockMin: item.stockMin,
+              unidad: item.unidad
+          }));
+
+          // Actualizar el estado de initialRows con los datos mapeados
+          setRows(mappedData);
+      })
+      .catch(error => console.error('Error al obtener Inventario:', error));
+  }
+}, [openSalidaBodegaModal]);  // Asegúrate de incluir `token` como dependencia para recargar si cambia
 
 
   const handleButtonClick = (id) => {
@@ -198,6 +257,8 @@ useEffect(() => {
     setSelectedStock(row.stock);  // Establecemos el valor del número de stock
     setStockUnit(row.unidad);  // Establecemos la unidad de medida (si existe)
     setOpenModal(true);  // Abrimos el modal
+    setSelectedBodega(row.bodega)
+    setSelectedCodigo(row.codigo)
   };
 
   const handleCloseModal = () => {
@@ -207,6 +268,11 @@ useEffect(() => {
     setOpenAnadirModal(false);  // Cerramos el modal
   };
 
+  const handleCloseSalidaBodegaModal = () => {
+    setOpenSalidaBodegaModal(false);  // Cerramos el modal
+  };
+
+
   const handleSearchChange = (event) => {
     setSearchText(event.target.value);  // Actualizamos el texto de búsqueda
   };
@@ -215,7 +281,35 @@ useEffect(() => {
     setSelectedStock(event.target.value);  // Actualizamos el valor del número de stock en el modal
   };
 
-  const handleSaveStock = () => {
+  const handleSaveStock = async () => {
+    try {
+      // Realizamos la petición POST con axios, enviando el id y el nuevo stock
+      console.log(selectedId, " ", selectedBodega, " ", selectedStock, " ", selectedCodigo)
+      await axios.post('http://localhost:8081/inventarios/actualizarInventario', {
+        codigo_material: selectedCodigo,
+        cantidad: selectedStock,
+        bodega: selectedBodega,
+
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+      console.log(selectedId, " ", selectedBodega, " ", selectedStock)
+  
+      // Si la petición es exitosa, actualizamos la fila en el estado
+      setRows(rows.map((row) =>
+        row.id === selectedId ? { ...row, stock: `${selectedStock}` } : row
+      ));
+  
+      // Cerramos el modal
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error al actualizar el stock:", error);
+    }
+  };
+
+
+  const handleSaveStock1 = () => {
     // Actualizamos la fila con el nuevo stock, manteniendo la unidad de medida
     setRows(rows.map((row) =>
       row.id === selectedId ? { ...row, stock: `${selectedStock}` } : row
@@ -233,6 +327,12 @@ useEffect(() => {
 
   const handleAnadirProductoClick = () => {
     setOpenAnadirModal(true);  // Abrimos el modal para crear una nueva bodega
+  };
+
+
+
+  const handleSalidaBodegaClick = () => {
+    setOpenSalidaBodegaModal(true);  // Abrimos el modal para crear una nueva bodega
   };
 
   const handleCloseCreateModal = () => {
@@ -275,32 +375,47 @@ useEffect(() => {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
 
+
+      <Box sx={{ display: 'flex', justifyContent: 'align-left', gap: 1 }}>
+
       <TextField
         label="Buscar"
         variant="outlined"
         value={searchText}
         onChange={handleSearchChange}
         sx={{ marginTop: 1, width: 250 }}
-      />
+      />      
 
+      <Button
+      variant="contained"
+      color="azul"
+      sx={{ marginTop: 1 }}
+      onClick={handleCreateBodegaClick}
+      >
+      Crear Bodega
+    </Button>
+      </Box>
       {/* Contenedor para agrupar los botones a la derecha */}
       <Box sx={{ display: 'flex', gap: 1 }}>
-        <Button
+
+      <Button
           variant="contained"
-          color="azul"
+          color="amarillo"
           sx={{ marginTop: 1 }}
-          onClick={handleCreateBodegaClick}
+          onClick={handleSalidaBodegaClick}
         >
-          Crear Bodega
+          - Salida de Bodega
         </Button>
+
         <Button
           variant="contained"
           color="azul"
           sx={{ marginTop: 1 }}
           onClick={handleAnadirProductoClick}
         >
-          Añadir Producto a Bodega
+          + Ingreso a Bodega
         </Button>
+
       </Box>
     </Box>
       <Snackbar
@@ -322,6 +437,7 @@ useEffect(() => {
 
 
       <DataGrid
+        
         headerHeight={0}
         rowHeight={50}
         rows={filteredRows}
@@ -331,9 +447,13 @@ useEffect(() => {
         disableSelectionOnClick={true}
         rowSelection={false}
         sx={{
+          height: '80vh',
           '& .MuiDataGrid-columnHeader': {
             backgroundColor: '#093d77',  // Color de fondo de la cabecera
             color: '#fff',  // Color de texto de la cabecera
+            position: 'sticky',  // Hace que el encabezado sea sticky
+            top: 0,  // Posiciona el encabezado en la parte superior
+            zIndex: 1,  // Asegura que el encabezado se superponga al contenido
           },
           '& .MuiDataGrid-cell': {
             backgroundColor: '#f5f5f5',  // Color de fondo de las celdas
@@ -344,11 +464,10 @@ useEffect(() => {
           },
           '& .MuiDataGrid-selection': {
             backgroundColor: 'rgba(9, 61, 119, 0.5)',  // Color de selección de filas
-          }
+          },
         }}
         localeText={esES.components.MuiDataGrid.defaultProps.localeText} // Aplicar las traducciones al DataGrid
       />
-
       {/* Modal de creación de nueva bodega */}
       <Modal
         open={openCreateModal}
@@ -424,32 +543,39 @@ useEffect(() => {
         >
           <Box sx={style}>
  
-            <h2
-              id="parent-modal-title"
-              style={{
-                position: 'absolute',
-                top: -5,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                color: 'black',
-                zIndex: 1,
-                fontSize: '1.5rem'
-              }}
-            >
-              Ingresar a Bodega
-            </h2>
-            <div className="Raya"></div>
-  
-            {/* Contenedor que envuelve la tabla */}
+
             <Box
               sx={{
-                mt: 4, // Para dar un margen superior
+                mt: 1, // Para dar un margen superior
                 height: 'calc(100vh - 100px)', // Para asegurar que no se sobrepase la pantalla
                 overflowY: 'auto', // Permite desplazamiento si el contenido excede el tamaño
 
               }}
             >
               <TablaProductosBodegas />
+            </Box>
+          </Box>
+        </Modal>
+
+              {/* Modal para anadir un producto a bodega */}
+      <Modal
+        open={openSalidaBodegaModal}
+        onClose={handleCloseSalidaBodegaModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+        >
+          <Box sx={style}>
+ 
+
+            <Box
+              sx={{
+                mt: 1, // Para dar un margen superior
+                height: 'calc(100vh - 100px)', // Para asegurar que no se sobrepase la pantalla
+                overflowY: 'auto', // Permite desplazamiento si el contenido excede el tamaño
+
+              }}
+            >
+              <TablaSalidasBodegas />
             </Box>
           </Box>
         </Modal>
