@@ -20,7 +20,8 @@ import {
     Paper,
     Toolbar,
     Divider,
-    List
+    List,
+    IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -40,6 +41,10 @@ import { esES } from '@mui/x-data-grid/locales';
 import { TbTrolley } from "react-icons/tb";
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NestedModalSubirExcel from './subirexcel';
+import EditIcon from '@mui/icons-material/Edit';
+import CheckIcon from '@mui/icons-material/Check';
+import CancelIcon from '@mui/icons-material/Cancel';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 
 import { 
     AspectRatio,
@@ -48,6 +53,9 @@ import {
     CardContent,
     CardOverflow,
     CssVarsProvider,
+    Textarea,
+    IconButton as JoyIconButton,
+    Typography as JoyTypography
 } from '@mui/joy';
 
 const style = {
@@ -269,7 +277,7 @@ function InfoForm({
                         <Button
                             sx={{ m: 1, width: 115, height: 45, fontSize: 11, marginTop: 4}}
                             variant="contained"
-                            startIcon={<SyncAltIcon sx={{marginLeft: 1}}/>}
+                            startIcon={<SyncAltIcon sx={{marginLeft: 0}}/>}
                             color="negro"
                             onClick={handleChangeAgregarCategoria}
                         >
@@ -537,7 +545,38 @@ function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa
 
 //Modal de excel
 
-
+function Editar(param, ancho, color){
+    return(
+        <Textarea
+            minRows={2}
+            variant="soft"
+            value={param}
+            sx={{
+            borderBottom: '2px solid #d5951d',
+            borderColor: color,
+            borderRadius: 0,
+            width: ancho,
+            height: 35,
+            background: 'transparent',
+            color: color,
+            marginBottom: 1,
+            '&::before': {
+                border: '2px solid #d5951d',
+                transform: 'scaleX(0)',
+                left: 0,
+                right: 0,
+                bottom: '-2px',
+                top: 'unset',
+                transition: 'transform .15s cubic-bezier(0.1,0.9,0.2,1)',
+                borderRadius: 0,
+            },
+            '&:focus-within::before': {
+                transform: 'scaleX(1)',
+            },
+            }}
+        />
+    );
+}
 
 
 function Transforma(valor){
@@ -553,7 +592,7 @@ return(
 }
 
 //Modal de detalle
-function DetailModal({ open, handleClose, material }) {
+function DetailModal({ open, handleClose, material, handleSelectInfo, selectInfo, handleSelectPrecio, selectPrecio, handleSelectStock, selectStock, selectDescrip, handleSelectDescrip, selectTitulo, handleSelectTitulo}) {
     if (!material) return null;
     let descontinuado = false;
     if (material.valor === true) {descontinuado = true};    
@@ -574,10 +613,89 @@ function DetailModal({ open, handleClose, material }) {
               aria-labelledby="child-modal-title"
               aria-describedby="child-modal-description"
           >
-              <Box sx={{ ...style, width: 700 }}>
+              <Box 
+                sx={{ 
+                    ...style,
+                    width: { xs: '90%', sm: '83%', md: '59%', lg: '48%' },
+                    maxHeight: '90vh', // Limita la altura
+                    overflowY: 'auto', // Agrega scroll en caso de contenido extenso
+                    displey: 'flex',
+                    overflowX: 'auto'
+                }}
+            >
                 <Grid2 container alignItems="center" justifyContent="space-between">
                     <Grid2 item xs={4} style={{ textAlign: 'left' }}>
-                        <h2 id="parent-modal-title">{material.nombre_material} - {material.codigo}</h2>
+                    <CssVarsProvider>
+                        <JoyTypography level={selectTitulo ? "title-sm" : "title-lg"} component={selectTitulo ? "h6" : "h2"} sx={{ display: 'flex', alignItems: 'center', paddingBottom: 1}}>
+                            {selectTitulo ? 
+                            <>
+                                <JoyTypography sx={{ paddingTop: 1}}>
+                                    Nombre: &nbsp;
+                                </JoyTypography>
+                                {Editar(material.nombre_material, 200, 'black')}
+                                &nbsp;
+
+                                <JoyTypography sx={{ paddingTop: 1}}>
+                                Código: &nbsp;
+                                </JoyTypography>
+                                {Editar(material.codigo, 150, 'black')}
+                                </>
+                                :
+                                <>
+                                {material.nombre_material} - {material.codigo}
+                            </>
+                            }
+                            {selectTitulo ?
+                            <>
+                                <JoyIconButton
+                                    aria-label="Edit" 
+                                    sx={{
+                                        "--IconButton-size": "38px",
+                                        paddingLeft: 1,  
+                                        color: '#093d77',
+                                        '&:hover': {
+                                            color: 'green',
+                                            bgcolor: 'transparent'
+                                        },
+                                    }} 
+                                    onClick={handleSelectTitulo}
+                                >
+                                    <CheckIcon sx={{ color: 'inherit' }}/>
+                                </JoyIconButton>
+                                <JoyIconButton
+                                    aria-label="Edit" 
+                                    sx={{
+                                        "--IconButton-size": "38px",
+                                        color: '#093d77',
+                                        '&:hover': {
+                                            color: '#b5301b',
+                                            bgcolor: 'transparent'
+                                        },
+                                    }} 
+                                    onClick={handleSelectTitulo}
+                                >
+                                    <CancelIcon sx={{ color: 'inherit' }}/>
+                                </JoyIconButton>
+                            </>    
+                            : 
+                                <JoyIconButton
+                                    aria-label="Edit" 
+                                    sx={{
+                                        "--IconButton-size": "35px",
+                                        paddingLeft: 1,  
+                                        color: '#093d77', 
+                                        '&:hover': {
+                                            color: '#d5951d',
+                                            bgcolor: 'transparent'
+                                        },
+                                    }} 
+                                    onClick={handleSelectTitulo}
+                                >
+                                    <EditIcon sx={{ color: 'inherit' }}/>
+                                </JoyIconButton>
+                            }    
+                        </JoyTypography>
+                    </CssVarsProvider>
                     </Grid2>
 
                     <Grid2 item xs={4} style={{ textAlign: 'right' }}>
@@ -587,14 +705,98 @@ function DetailModal({ open, handleClose, material }) {
                     </Grid2>
                 </Grid2>
 
-                <Grid2 container alignItems="center" justifyContent="space-between">
-                    <Grid2 container style={{ textAlign: 'center',  justifyContent: 'center', alignItems: 'center' }}>
-                        <Grid2 item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
-                            <img src={logo} alt="foto" style={{ width: '140px', height: '150px', border: '2px solid #093d77'}} />
-                        </Grid2>             
-                        <Grid2 item xs={6} style={{ textAlign: 'left', paddingLeft:'12px' }}>
-                            <a>{material.codigo}</a>
-                        </Grid2>
+                <Grid2 item style={{ textAlign: 'center',  justifyContent: 'center', alignItems: 'center' }}>
+                    <Grid2 item xs={4} style={{ justifyContent: 'center' }}>
+                        <img src={logo} alt="foto" style={{ width: '140px', height: '150px', border: '2px solid #093d77'}} />
+                        {selectDescrip ? 
+                            <div style={{paddingTop: 8}}>
+                                <Button 
+                                    startIcon={
+                                        <ChangeCircleIcon 
+                                            style={{ fontSize: '16px', paddingTop: 3 }}
+                                        />
+                                    } 
+                                    variant="outlined" 
+                                    size="sm" 
+                                    color= '#daa520'
+                                    sx={{
+                                        color: '#daa520',
+                                        '&:hover': {
+                                            color: '#d5951d',
+                                        },
+                                    }}
+                                >
+                                    Cambiar foto
+                                </Button>
+                            </div>
+                        : ''}
+                    </Grid2>
+                    <Grid2 item xs={6} style={{ textAlign: 'center', paddingLeft:'12px', display:'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 2 }}>
+                        <CssVarsProvider>
+                            <JoyTypography sx={{ marginRight: 1 }}>Descripción:</JoyTypography>
+                            {selectDescrip ? 
+                            <>
+                                {Editar(material.codigo, 350, 'black')}
+                            </>
+                            : 
+                            <>
+                                {material.codigo}
+                            </>
+                            }
+                            {selectDescrip ?
+                            <>
+                                <JoyIconButton 
+                                    aria-label="Edit" 
+                                    sx={{
+                                        "--IconButton-size": "30px",
+                                        paddingLeft: 1,  
+                                        color: '#093d77',
+                                        mt: 0.5,
+                                        '&:hover': {
+                                            color: 'green',
+                                            bgcolor: 'transparent'
+                                        },
+                                    }} 
+                                    onClick={handleSelectDescrip}
+                                >
+                                    <CheckIcon sx={{ color: 'inherit' }}/>
+                                </JoyIconButton>
+                                <JoyIconButton 
+                                    aria-label="Edit" 
+                                    sx={{
+                                        "--IconButton-size": "26px",
+                                        color: '#093d77',
+                                        mt: 0.5,
+                                        '&:hover': {
+                                            color: '#b5301b',
+                                            bgcolor: 'transparent'
+                                        },
+                                    }} 
+                                    onClick={handleSelectDescrip}
+                                >
+                                    <CancelIcon sx={{ color: 'inherit' }}/>
+                                </JoyIconButton>
+                            </>
+                            : 
+                                <JoyIconButton 
+                                    aria-label="Edit" 
+                                    sx={{
+                                        "--IconButton-size": "24px",
+                                        paddingLeft: 1,  
+                                        paddingBottom: 1,
+                                        color: '#093d77', 
+                                        mt: 0.5,
+                                        '&:hover': {
+                                            color: '#d5951d',
+                                            bgcolor: 'transparent'
+                                        },
+                                    }} 
+                                    onClick={handleSelectDescrip}
+                                >
+                                    <EditIcon sx={{ color: 'inherit' }}/>
+                                </JoyIconButton>
+                            }
+                        </CssVarsProvider>
                     </Grid2>
 
                     <List sx={style2}>
@@ -636,9 +838,9 @@ function DetailModal({ open, handleClose, material }) {
                                     ratio="1"
                                     sx={{
                                         m: 'auto',
-                                        transform: 'translateY(-10%)', // Ajuste para que quede fuera del borde superior
+                                        transform: 'translateY(-20%)', // Ajuste para que quede fuera del borde superior
                                         borderRadius: '50%',
-                                        width: '60px',
+                                        width: '70px',
                                         boxShadow: 'sm',
                                         bgcolor: 'background.surface',
                                         position: 'absolute',
@@ -648,15 +850,106 @@ function DetailModal({ open, handleClose, material }) {
                                 >
                                     <InfoIcon sx={{color: '#daa520'}}/>
                                 </AspectRatio>
-                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white'}}>
+                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white', paddingLeft: 3, display: 'flex', alignItems: 'center'}}>
                                     Información
+                                    {selectInfo ?
+                                    <>
+                                        <JoyIconButton 
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "30px",
+                                                paddingLeft: 1,  
+                                                color: 'white',
+                                                mt: 0.5, 
+                                                '&:hover': {
+                                                    color: '#2fd407',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectInfo}
+                                        >
+                                            <CheckIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                        <JoyIconButton
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "26px",
+                                                color: 'white',
+                                                mt: 0.5, 
+                                                '&:hover': {
+                                                    color: '#b5301b',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectInfo}
+                                        >
+                                            <CancelIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                    </>
+                            
+                                    : 
+                                        <JoyIconButton 
+                                            aria-label="Edit" 
+                                                sx={{
+                                                    "--IconButton-size": "26px",
+                                                    paddingLeft: 1,  
+                                                    color: 'white', 
+                                                    mt: 0.5,
+                                                    '&:hover': {
+                                                        color: '#d5951d',
+                                                        bgcolor: 'transparent'
+                                                    },
+                                                }} 
+                                                onClick={handleSelectInfo}
+                                        >
+                                            <EditIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                    }
+
                                 </Typography>
                                 <CardContent sx={{ maxWidth: '40ch', color: 'white', fontSize: '14px' }}>
-                                    <a>Categoría: {material.categoria_material}</a>
-                                    <a>IVA: {material.codigo}%</a>
-                                    <a>Descontinuado: {Transforma(descontinuado)}</a>
-                                    <a>Se Compra: {Transforma(secompra)}</a>
-                                    <a>Se Vende: {Transforma(sevende)}</a>
+                                    {selectInfo ?
+                                    <>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Categoría:</Typography>
+                                            {Editar(material.categoria_material, 100, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>IVA:</Typography>
+                                            {Editar(material.codigo, 48, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Descontinuado:</Typography>
+                                            {Editar(Transforma(descontinuado), 48, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Se Compra:</Typography>
+                                            {Editar(Transforma(secompra), 48, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Se Vende:</Typography>
+                                            {Editar(Transforma(sevende), 48, 'white')}
+                                        </Box>
+                                    </>
+                                    : 
+                                    <>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Categoría: {material.categoria_material}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>IVA: {material.codigo}%</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Descontinuado: {Transforma(descontinuado)}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Se Compra: {Transforma(secompra)}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Se Vende: {Transforma(sevende)}</Typography>
+                                        </Box>
+                                    </>
+                                    }
                                 </CardContent>
                             </Card>
 
@@ -682,9 +975,9 @@ function DetailModal({ open, handleClose, material }) {
                                     ratio="1"
                                     sx={{
                                         m: 'auto',
-                                        transform: 'translateY(-10%)', // Ajuste para que quede fuera del borde superior
+                                        transform: 'translateY(-20%)', // Ajuste para que quede fuera del borde superior
                                         borderRadius: '50%',
-                                        width: '60px',
+                                        width: '70px',
                                         boxShadow: 'sm',
                                         bgcolor: 'background.surface',
                                         position: 'absolute',
@@ -694,17 +987,108 @@ function DetailModal({ open, handleClose, material }) {
                                 >
                                     <MonetizationOnIcon sx={{color: '#daa520'}}/>
                                 </AspectRatio>
-                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white'}}>
+                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white', paddingLeft: 3, display: 'flex', alignItems: 'center'}}>
                                     Precio
+                                    {selectPrecio ?
+                                    <>
+                                        <JoyIconButton 
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "30px",
+                                                paddingLeft: 1,  
+                                                color: 'white',
+                                                mt: 0.5, 
+                                                '&:hover': {
+                                                    color: '#2fd407',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectPrecio}
+                                        >
+                                            <CheckIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                        <JoyIconButton
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "26px",
+                                                color: 'white',
+                                                mt: 0.5, 
+                                                '&:hover': {
+                                                    color: '#b5301b',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectPrecio}
+                                        >
+                                            <CancelIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                    </>
+                            
+                                    : 
+                                        <JoyIconButton 
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "26px",
+                                                paddingLeft: 1,  
+                                                color: 'white', 
+                                                mt: 0.5,
+                                                '&:hover': {
+                                                    color: '#d5951d',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectPrecio}
+                                        >
+                                            <EditIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                    }
                                 </Typography>
                                 <CardContent sx={{ maxWidth: '40ch', color: 'white', fontSize: '14px'  }}>
-                                    <a>Tipo de moneda: {material.codigo}</a>
-                                    <a>Precio unitario: ${material.codigo}</a>
-                                    <a>Costo compra: ${material.codigo}</a>
-                                    <a>Modificable: {Transforma(modificable)}</a>
-                                    {modificable ? (
-                                    <a>Descuento Máximo: {material.codigo}%</a>
-                                    ): ''}
+                                    {selectPrecio ? 
+                                    <>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Tipo de moneda:</Typography>
+                                            {Editar(material.codigo, 48, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Precio unitario:</Typography>
+                                            {Editar(material.codigo, 70, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Costo compra:</Typography>
+                                            {Editar(material.codigo, 70, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Modificable:</Typography>
+                                            {Editar(Transforma(modificable), 48, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Descuento máximo:</Typography>
+                                            {Editar(material.codigo, 48, 'white')}
+                                        </Box>
+                                    </>
+                                    :
+                                    <>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Tipo de moneda: {material.codigo}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Precio unitario: ${material.codigo}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Costo compra: ${material.codigo}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Modificable: {Transforma(modificable)}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            {modificable ?
+                                                <Typography component="span" sx={{ mr: 1 }}>Descuento máximo: {material.codigo}%</Typography>
+                                            : ''                           
+                                            }
+                                        </Box>
+                                    </>
+                                    }
                                 </CardContent>
                             </Card>
 
@@ -728,9 +1112,10 @@ function DetailModal({ open, handleClose, material }) {
                                     variant="outlined"
                                     ratio="1"
                                     sx={{
-                                        transform: 'translateY(-10%)', // Ajuste para que quede fuera del borde superior
+                                        color: 'warning',
+                                        transform: 'translateY(-20%)', // Ajuste para que quede fuera del borde superior
                                         borderRadius: '50%',
-                                        width: '60px',
+                                        width: '70px',
                                         boxShadow: 'sm',
                                         bgcolor: 'background.surface',
                                         position: 'absolute',
@@ -738,22 +1123,121 @@ function DetailModal({ open, handleClose, material }) {
                                         zIndex: 10, // Asegura que el ícono esté por encima del card
                                     }}
                                 >
-                                    <TbTrolley />
+                                    <TbTrolley style={{color: '#daa520'}} />
                                 </AspectRatio>
-                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white'}}>
+                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white', paddingLeft: 3, display: 'flex', alignItems: 'center'}}>
                                     Stock
+                                    {selectStock ?
+                                    <>
+                                        <JoyIconButton 
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "30px",
+                                                paddingLeft: 1,  
+                                                color: 'white',
+                                                mt: 0.5, 
+                                                '&:hover': {
+                                                    color: '#2fd407',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectStock}
+                                        >
+                                            <CheckIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                        <JoyIconButton
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "26px",
+                                                color: 'white',
+                                                mt: 0.5, 
+                                                '&:hover': {
+                                                    color: '#b5301b',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectStock}
+                                        >
+                                            <CancelIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                    </>
+                                    : 
+                                        <JoyIconButton
+                                            aria-label="Edit" 
+                                            sx={{
+                                                "--IconButton-size": "26px",
+                                                paddingLeft: 1,  
+                                                color: 'white', 
+                                                mt: 0.5,
+                                                '&:hover': {
+                                                    color: '#d5951d',
+                                                    bgcolor: 'transparent'
+                                                },
+                                            }} 
+                                            onClick={handleSelectStock}
+                                        >
+                                            <EditIcon sx={{ color: 'inherit' }}/>
+                                        </JoyIconButton>
+                                    }
                                 </Typography>
                                 <CardContent sx={{ maxWidth: '40ch', color: 'white', fontSize: '14px'  }}>
-                                    <a>Unidad de medida: {material.codigo}</a>
-                                    <a>Unidad Alternativa: {material.codigo}</a>
-                                    <a>Factor: {material.codigo}</a>
-                                    <a>Afecto a stock: {Transforma(afecto)}</a>
-                                    {afecto ? (
-                                        <>
-                                            <a>Stock Máximo: {material.codigo}</a>
-                                            <a>Stock Mínimo: {material.codigo}</a>
-                                        </>
-                                    ): ''}
+                                    {selectStock ? 
+                                    <>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Unidad de medida:</Typography>
+                                            {Editar(material.codigo, 70, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Unidad alternativa:</Typography>
+                                            {Editar(material.codigo, 70, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Typography component="span" sx={{ mr: 1 }}>Factor:</Typography>
+                                                {Editar(material.codigo, 55, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Typography component="span" sx={{ mr: 1 }}>Afecto a stock:</Typography>
+                                                {Editar(Transforma(afecto), 48, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Typography component="span" sx={{ mr: 1 }}>Stock máximo:</Typography>
+                                                {Editar(material.codigo, 70, 'white')}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Typography component="span" sx={{ mr: 1 }}>Stock mínimo:</Typography>
+                                                {Editar(material.codigo, 70, 'white')}
+                                        </Box>
+                                    </>
+                                    :
+                                    <>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Unidad de medida: {material.codigo}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Unidad Alternativa: {material.codigo}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Factor: {material.codigo}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography component="span" sx={{ mr: 1 }}>Afecto a stock: {Transforma(afecto)}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            {afecto ? (
+                                            <>
+                                                <Typography component="span" sx={{ mr: 1 }}>Stock Máximo: {material.codigo}</Typography>
+                                            </>
+                                            ): ''}
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            {afecto ? (
+                                            <>
+                                                <Typography component="span" sx={{ mr: 1 }}>Stock Mínimo: {material.codigo}</Typography>
+                                            </>
+                                            ): ''}
+                                        </Box>
+                                    </>
+                                    }
 
                                 </CardContent>
                             </Card>
@@ -1040,56 +1524,6 @@ function ChildModal({ open, handleClose }) {
     const [mensaje, setMensaje] = useState({ texto: "", color: "" });
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
-
-    const [openSubirExcel, setOpenSubirExcel] = useState(false);
-    const handleOpenSubirExcel = () => setOpenSubirExcel(true);
-    const handleCloseSubirExcel = () => setOpenSubirExcel(false);
-    const [materiales, setMateriales] = useState([
-        
-            {
-                codigo: "abc1", 
-                nombre: "Tornillo1", 
-                iva: "19", 
-                categoria: "Tornillos", 
-                descripcion: "aaa", 
-                descontinuado: true, 
-                secompra: false, 
-                sevende: true, 
-                moneda: "clp", 
-                unitario: "1234", 
-                costo: "1234", 
-                modificable: true, 
-                dctoMax: "10", 
-                unidad_medida: "lts", 
-                unidad_alternativa: "cm3", 
-                factor: "0.1", 
-                afecto: true, 
-                stockMaximo: "1234", 
-                stockMinimo: "2345"
-            },
-            {
-                codigo: "abc2", 
-                nombre: "Tornillo2", 
-                iva: "19", 
-                categoria: "Tornillos", 
-                descripcion: "aaa", 
-                descontinuado: true, 
-                secompra: false, 
-                sevende: true, 
-                moneda: "clp", 
-                unitario: "1234", 
-                costo: "1234", 
-                modificable: false, 
-                dctoMax: "10", 
-                unidad_medida: "lts", 
-                unidad_alternativa: "cm3", 
-                factor: "0.1", 
-                afecto: false, 
-                stockMaximo: "1234", 
-                stockMinimo: "2345"
-            }
-        
-    ])
     const subirExcel = (e) => {
 
         e.preventDefault();
@@ -1113,7 +1547,6 @@ function ChildModal({ open, handleClose }) {
                     // Convertir el contenido a JSON y mostrar mensaje de éxito
                     const productos = xlsx.utils.sheet_to_json(worksheet);
                     console.log(productos);
-                    setMateriales(productos)
                     setMensaje({ texto: "Productos agregados exitosamente!", color: "success" });
                 } else {
                     setMensaje({ texto: "La plantilla no cuenta con el formato correcto", color: "error" });
@@ -1123,7 +1556,6 @@ function ChildModal({ open, handleClose }) {
                 setOpenSnackbar(true);
             };
             reader.readAsArrayBuffer(e.target.files[0]);
-            handleOpenSubirExcel()
         }
     };
 
@@ -1258,7 +1690,6 @@ function ChildModal({ open, handleClose }) {
 
                 </Box>
             </Modal>
-            <NestedModalSubirExcel open={openSubirExcel} handleClose={handleCloseSubirExcel} materiales={materiales}/>
         </React.Fragment>
     );
 }
@@ -1362,6 +1793,32 @@ export default function NestedModalProductos({open, handleClose}) {
         setBusqueda(event.target.value);
     };
 
+    const [selectInfo, setSelectInfo] = useState('');
+    const handleSelectInfo = () => {
+        setSelectInfo(prev => !prev);
+    };
+
+    const [selectPrecio, setSelectPrecio] = useState('');
+    const handleSelectPrecio = () => {
+        setSelectPrecio(prev => !prev);
+    };
+
+    const [selectStock, setSelectStock] = useState('');
+    const handleSelectStock = () => {
+        setSelectStock(prev => !prev);
+    };
+
+    const [selectDescrip, setSelectDescrip] = useState('');
+    const handleSelectDescrip = () => {
+        setSelectDescrip(prev => !prev);
+    };    
+    
+    const [selectTitulo, setSelectTitulo] = useState('');
+    const handleSelectTitulo = () => {
+        setSelectTitulo(prev => !prev);
+    };
+
+
   return (
     <div>
       <Modal
@@ -1370,7 +1827,16 @@ export default function NestedModalProductos({open, handleClose}) {
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
-        <Box sx={{ ...style, width: 600 }}>
+        <Box 
+            sx={{ 
+                ...style,
+                width: { xs: '90%', sm: '70%', md: '60%', lg: '42%' },
+                maxHeight: '90vh', // Limita la altura
+                overflowY: 'auto', // Agrega scroll en caso de contenido extenso
+                displey: 'flex',
+                overflowX: 'auto'
+            }}
+        >
             <Grid2 container alignItems="center" justifyContent="space-between">
                 <Grid2 item xs={4} style={{ textAlign: 'left' }}>
                     <h2 id="parent-modal-title">Productos</h2>
@@ -1456,7 +1922,21 @@ export default function NestedModalProductos({open, handleClose}) {
                 </Paper>
             </Box>
             <ChildModal open={childOpen} handleClose={handleChildClose} />
-            <DetailModal open={detailOpen} handleClose={handleDetailClose} material={materialSeleccionado}/>
+            <DetailModal 
+                open={detailOpen} 
+                handleClose={handleDetailClose} 
+                material={materialSeleccionado}
+                selectInfo={selectInfo}
+                handleSelectInfo={handleSelectInfo}
+                selectPrecio={selectPrecio}
+                handleSelectPrecio={handleSelectPrecio}
+                selectStock={selectStock}
+                handleSelectStock={handleSelectStock}
+                selectDescrip={selectDescrip}
+                handleSelectDescrip={handleSelectDescrip}
+                selectTitulo={selectTitulo}
+                handleSelectTitulo={handleSelectTitulo}
+            />
         </Box>
       </Modal>
     </div>
