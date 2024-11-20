@@ -17,20 +17,11 @@ import {
     NativeSelect,
     FormControlLabel,
     Checkbox,
-    MenuItem,
-    Select,
-    TableContainer,
     Paper,
-    Table,
-    TableHead,
-    TableRow,
-    TableBody,
-    TableCell,
     Toolbar,
     Divider,
     List
 } from '@mui/material';
-import { FixedSizeList } from 'react-window';
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -41,12 +32,23 @@ import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantity
 import { imageDb} from '../../firebase';
 import {uploadBytes, getDownloadURL, ref} from 'firebase/storage'
 import * as xlsx from "xlsx";
-import { TableVirtuoso } from 'react-virtuoso';
-import Chance from 'chance';
 import SearchIcon from '@mui/icons-material/Search';
 import logo from '../../images/LOGOrial.png'; // Ajusta la ruta de tu logo
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import { DataGrid } from '@mui/x-data-grid';
+import { esES } from '@mui/x-data-grid/locales';
+import { TbTrolley } from "react-icons/tb";
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import NestedModalSubirExcel from './subirexcel';
 
+import { 
+    AspectRatio,
+    Card,
+    CardActions,
+    CardContent,
+    CardOverflow,
+    CssVarsProvider,
+} from '@mui/joy';
 
 const style = {
     position: 'absolute',
@@ -368,13 +370,13 @@ const currencies = [
     },
 ];
 
-function PrecioForm({dctoMax, handleChangeDctoMax, moneda, unitario, coniva, costo, modificable, handleChangeMoneda, handleChangeUnitario, handleChangeConiva, handleChangeCosto, handleChangeModificable }) {
+function PrecioForm({dctoMax, handleChangeDctoMax, moneda, unitario, costo, modificable, handleChangeMoneda, handleChangeUnitario, handleChangeCosto, handleChangeModificable }) {
     return (
         <>
             <Box
                 component="form"
                 noValidate
-                sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr 1fr' }, gap: 3 }}
+                sx={{ display: 'grid', gridTemplateColumns: { sm: modificable ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr'}, gap: modificable ? 4 : 3 }}
             >
                 <FormControl sx={{ m: 1 }} variant="standard">
                     <InputLabel shrink htmlFor="demo-customized-select-label">
@@ -417,41 +419,39 @@ function PrecioForm({dctoMax, handleChangeDctoMax, moneda, unitario, coniva, cos
                         onChange={handleChangeCosto}
                     />
                 </FormControl>
-            </Box>
-            <Box component="form" noValidate>
-                <FormControlLabel
-                    sx={{ m: 1 }}
-                    id="modificaprecio"
-                    control={<Checkbox checked={modificable} onChange={handleChangeModificable} />}
-                    label="Se puede modificar precio"
-                />
-            </Box>
-            <Box>
-                    {modificable ? 
-                        <Box
-                            component="form"
-                            noValidate
-                            sx={{display: 'grid', gridTemplateColumns: { sm: '1fr 1fr' }, gap: 2 }}
-                        >
-                            <FormControl sx={{ m: 1 }} variant="standard">
-                                <InputLabel shrink htmlFor="bootstrap-input">
-                                    Descuento Maximo
-                                </InputLabel>
-                                <BootstrapInput id="dctoMax"
-                                value={dctoMax}
-                                onChange={handleChangeDctoMax} />
-                            </FormControl>
+                
+                {modificable ?
 
-                        </Box>
-                    : ''}
+                <Grid2 container alignItems="center" spacing={1}>
+                <Grid2 item>
+                    <FormControl sx={{ m: 1 }} variant="standard">
+                        <InputLabel shrink htmlFor="bootstrap-input">
+                            Descuento Máximo
+                        </InputLabel>
+                        <BootstrapInput 
+                            id="dctoMax"
+                            value={dctoMax}
+                            sx={{ width: 110}} 
+                            onChange={handleChangeDctoMax} 
+                        />
+                    </FormControl>  
+                </Grid2>
+                <Grid2 item>
+                    <Typography sx={{marginTop: 3 }}>%</Typography>
+                </Grid2>
+            </Grid2>
+            : '' }
 
-                </Box>
+            </Box>
+            <FormControlLabel
+                sx={{ m: 1, marginTop: 4, marginRight:8 }}
+                id="modificaprecio"
+                control={<Checkbox checked={modificable} onChange={handleChangeModificable} />}
+                label="Se puede modificar precio"
+            />
         </>
     );
 }
-
-
-
 
 //Formulacio de stock
 function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa, handleChangeUnidadAlternativa, factor, handleChangeFactor, afecto, handleChangeAfecto, 
@@ -491,9 +491,6 @@ function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa
                         value={factor}
                         onChange={handleChangeFactor} />
                     </FormControl>
-
-                    
-
                 </Box>
 
                 <Box>
@@ -543,6 +540,18 @@ function StockForm({ unidad_medida, handleChangeUnidadMedida, unidad_alternativa
 
 
 
+function Transforma(valor){
+    if (valor === true){
+        valor = 'Si';
+    }else{
+        valor = 'No'
+    }
+
+return(
+    valor
+);
+}
+
 //Modal de detalle
 function DetailModal({ open, handleClose, material }) {
     if (!material) return null;
@@ -552,6 +561,8 @@ function DetailModal({ open, handleClose, material }) {
     if (material.valor === true) {secompra = true};   
     let sevende = false;
     if (material.valor === true) {sevende = true};   
+    let modificable = false;
+    if (material.valor === true) {modificable = true}; 
     let afecto = false;
     if (material.valor === true) {afecto = true};  
 
@@ -563,10 +574,10 @@ function DetailModal({ open, handleClose, material }) {
               aria-labelledby="child-modal-title"
               aria-describedby="child-modal-description"
           >
-              <Box sx={{ ...style, width: 500 }}>
+              <Box sx={{ ...style, width: 700 }}>
                 <Grid2 container alignItems="center" justifyContent="space-between">
                     <Grid2 item xs={4} style={{ textAlign: 'left' }}>
-                        <h2 id="parent-modal-title">Detalles {material.nombre_material}</h2>
+                        <h2 id="parent-modal-title">{material.nombre_material} - {material.codigo}</h2>
                     </Grid2>
 
                     <Grid2 item xs={4} style={{ textAlign: 'right' }}>
@@ -577,140 +588,177 @@ function DetailModal({ open, handleClose, material }) {
                 </Grid2>
 
                 <Grid2 container alignItems="center" justifyContent="space-between">
-                    <Grid2 item xs={4}>
-                        <img src={logo} alt="foto" style={{ width: '150px', height: '200px', paddingRight: '25px', border: '2px solid #093d77'}} />
-                    </Grid2>
-
-                    <Grid2 item xs={8}>
-                        <Grid2 container spacing={5} justifyContent="center" alignItems="center">
-                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '4px' }}>Código</h4>
-                                <a>{material.codigo}</a>
-                            </Grid2>
-
-                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '4px' }}>Categoría</h4>
-                                <a>{material.categoria_material}</a>
-                            </Grid2>
-
-                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '4px' }}>IVA</h4>
-                                <a>{material.codigo} %</a>
-                            </Grid2>
-                        </Grid2>
-
-                        <List sx={style2}>
-                            <Divider component="li" />
-                        </List>
-
-                        <Grid2 container justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
-                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '4px' }}>Descripción</h4>
-                                <a>{material.codigo}</a>
-                            </Grid2>
-                        </Grid2>
-
-                        <List sx={style2}>
-                            <Divider component="li" />
-                        </List>
-
-                        <Grid2 container spacing={3} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
-                            <Grid2 item xs={6} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '4px' }}>Descontinuado</h4>
-                                {descontinuado ? 
-                                    <a>Si</a>
-                                : <a>No</a>
-                                }
-                            </Grid2>
-
-                            <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '4px' }}>Se compra</h4>
-                                {secompra ? 
-                                    <a>Si</a>
-                                : <a>No</a>
-                                }
-                            </Grid2>
-
-                            <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '4px' }}>Se vende</h4>
-                                {sevende ? 
-                                    <a>Si</a>
-                                : <a>No</a>
-                                }
-                            </Grid2>
+                    <Grid2 container style={{ textAlign: 'center',  justifyContent: 'center', alignItems: 'center' }}>
+                        <Grid2 item xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
+                            <img src={logo} alt="foto" style={{ width: '140px', height: '150px', border: '2px solid #093d77'}} />
+                        </Grid2>             
+                        <Grid2 item xs={6} style={{ textAlign: 'left', paddingLeft:'12px' }}>
+                            <a>{material.codigo}</a>
                         </Grid2>
                     </Grid2>
-                </Grid2>
 
-                <List sx={style2}>
-                    <Divider component="li" />
-                </List>
+                    <List sx={style2}>
+                        <Divider component="li" />
+                    </List>
 
-                <Grid2 container spacing={3} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Moneda</h4>
-                        <a>{material.codigo}</a>
-                    </Grid2>
-                    
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Precio unitario</h4>
-                        <a>${material.codigo}</a>
-                    </Grid2>
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',  // 3 cards per row
+                            gap: 6,  // space between cards
+                            paddingTop: 6,
+                            paddingBottom: 0,
+                            paddingLeft: 1,
+                            paddingRight: 6,
+                            overflow: 'hidden',  // Prevent overflow
+                        }}
+                    >
+                        <CssVarsProvider>
+                            <Card
+                                data-resizable
+                                sx={{
+                                    textAlign: 'center',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    overflow: 'visible',
+                                    '--icon-size': '100px',
+                                    boxShadow: 'md', // Optional, adjust the card shadow
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center', // Centers content in the card
+                                    position: 'relative', // Se añadió para poder posicionar el ícono encima
+                                    bgcolor: '#093d77',
+                                }}
+                            >
+                                <AspectRatio
+                                    variant="outlined"
+                                    color="warning"
+                                    ratio="1"
+                                    sx={{
+                                        m: 'auto',
+                                        transform: 'translateY(-10%)', // Ajuste para que quede fuera del borde superior
+                                        borderRadius: '50%',
+                                        width: '60px',
+                                        boxShadow: 'sm',
+                                        bgcolor: 'background.surface',
+                                        position: 'absolute',
+                                        top: '-30px',  // Ajusta para que la mitad del ícono salga del card
+                                        zIndex: 10, // Asegura que el ícono esté por encima del card
+                                    }}
+                                >
+                                    <InfoIcon sx={{color: '#daa520'}}/>
+                                </AspectRatio>
+                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white'}}>
+                                    Información
+                                </Typography>
+                                <CardContent sx={{ maxWidth: '40ch', color: 'white', fontSize: '14px' }}>
+                                    <a>Categoría: {material.categoria_material}</a>
+                                    <a>IVA: {material.codigo}%</a>
+                                    <a>Descontinuado: {Transforma(descontinuado)}</a>
+                                    <a>Se Compra: {Transforma(secompra)}</a>
+                                    <a>Se Vende: {Transforma(sevende)}</a>
+                                </CardContent>
+                            </Card>
 
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Costo compra</h4>
-                        <a>${material.codigo}</a>
-                    </Grid2>
+                            <Card
+                                data-resizable
+                                sx={{
+                                    textAlign: 'center',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    overflow: 'visible',
+                                    '--icon-size': '100px',
+                                    boxShadow: 'md', // Optional, adjust the card shadow
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center', // Centers content in the card
+                                    position: 'relative', // Se añadió para poder posicionar el ícono encima
+                                    bgcolor: '#093d77',
+                                }}
+                            >
+                                <AspectRatio
+                                    variant="outlined"
+                                    color="warning"
+                                    ratio="1"
+                                    sx={{
+                                        m: 'auto',
+                                        transform: 'translateY(-10%)', // Ajuste para que quede fuera del borde superior
+                                        borderRadius: '50%',
+                                        width: '60px',
+                                        boxShadow: 'sm',
+                                        bgcolor: 'background.surface',
+                                        position: 'absolute',
+                                        top: '-30px',  // Ajusta para que la mitad del ícono salga del card
+                                        zIndex: 10, // Asegura que el ícono esté por encima del card
+                                    }}
+                                >
+                                    <MonetizationOnIcon sx={{color: '#daa520'}}/>
+                                </AspectRatio>
+                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white'}}>
+                                    Precio
+                                </Typography>
+                                <CardContent sx={{ maxWidth: '40ch', color: 'white', fontSize: '14px'  }}>
+                                    <a>Tipo de moneda: {material.codigo}</a>
+                                    <a>Precio unitario: ${material.codigo}</a>
+                                    <a>Costo compra: ${material.codigo}</a>
+                                    <a>Modificable: {Transforma(modificable)}</a>
+                                    {modificable ? (
+                                    <a>Descuento Máximo: {material.codigo}%</a>
+                                    ): ''}
+                                </CardContent>
+                            </Card>
 
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Precio modificable</h4>
-                        <a>{material.codigo}</a>
-                    </Grid2> 
-                </Grid2>
+                            <Card
+                                data-resizable
+                                sx={{
+                                    textAlign: 'center',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    overflow: 'visible',
+                                    '--icon-size': '100px',
+                                    boxShadow: 'md', // Optional, adjust the card shadow
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center', // Centers content in the card
+                                    position: 'relative', // Se añadió para poder posicionar el ícono encima
+                                    bgcolor: '#093d77',
+                                }}
+                            >
+                                <AspectRatio
+                                    variant="outlined"
+                                    ratio="1"
+                                    sx={{
+                                        transform: 'translateY(-10%)', // Ajuste para que quede fuera del borde superior
+                                        borderRadius: '50%',
+                                        width: '60px',
+                                        boxShadow: 'sm',
+                                        bgcolor: 'background.surface',
+                                        position: 'absolute',
+                                        top: '-30px',  // Ajusta para que la mitad del ícono salga del card
+                                        zIndex: 10, // Asegura que el ícono esté por encima del card
+                                    }}
+                                >
+                                    <TbTrolley />
+                                </AspectRatio>
+                                <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 6)', color: 'white'}}>
+                                    Stock
+                                </Typography>
+                                <CardContent sx={{ maxWidth: '40ch', color: 'white', fontSize: '14px'  }}>
+                                    <a>Unidad de medida: {material.codigo}</a>
+                                    <a>Unidad Alternativa: {material.codigo}</a>
+                                    <a>Factor: {material.codigo}</a>
+                                    <a>Afecto a stock: {Transforma(afecto)}</a>
+                                    {afecto ? (
+                                        <>
+                                            <a>Stock Máximo: {material.codigo}</a>
+                                            <a>Stock Mínimo: {material.codigo}</a>
+                                        </>
+                                    ): ''}
 
-                <List sx={style2}>
-                    <Divider component="li" />
-                </List>
-
-                <Grid2 container spacing={2} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Unidad de medida</h4>
-                        <a>{material.codigo}</a>
-                    </Grid2>
-                    
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Unidad alternativa</h4>
-                        <a>{material.codigo}</a>
-                    </Grid2>
-
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Factor</h4>
-                        <a>{material.codigo}</a>
-                    </Grid2>
-
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Afecto a stock</h4>
-                        {afecto ? 
-                            <a>Si</a>
-                        : <a>No</a>
-                        }
-                    </Grid2>
-                </Grid2>
-
-                <List sx={style2}>
-                    <Divider component="li" />
-                </List>
-
-                <Grid2 container spacing={3} justifyContent="center" alignItems="center" sx={{ marginTop: '-15px' }}>
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Stock mínimo</h4>
-                        <a>{material.codigo}</a>
-                    </Grid2>
-                    
-                    <Grid2 item xs={4} style={{ textAlign: 'center' }}>
-                        <h4 style={{ marginBottom: '4px' }}>Stock Máximo</h4>
-                        <a>{material.codigo}</a>
-                    </Grid2>
+                                </CardContent>
+                            </Card>
+                        </CssVarsProvider>
+                    </Box>
                 </Grid2>
               </Box>
           </Modal>
@@ -729,7 +777,7 @@ function ChildModal({ open, handleClose }) {
     const [nombre, setNombre] = React.useState('');
     const [descripcion, setDescripcion] = React.useState('');
     const [codigo, setCodigo] = React.useState('');
-    const [categoria, setCategoria] = React.useState('');
+    const [categoria, setCategoria] = React.useState(categorias[0].value);
     const [descontinuado, setDescontinuado] = React.useState(false);
     const [secompra, setSecompra] = React.useState(false);
     const [sevende, setSevende] = React.useState(false);
@@ -739,7 +787,6 @@ function ChildModal({ open, handleClose }) {
     const [moneda, setMoneda] = React.useState('');
     const [iva, setIVA] = React.useState(19);
     const [unitario, setUnitario] = React.useState('');
-    const [coniva, setConiva] = React.useState('');
     const [costo, setCosto] = React.useState('');
     const [modificable, setModificable] = React.useState(false);
     const [dctoMax, setDctoMax] = useState(10);
@@ -819,16 +866,13 @@ function ChildModal({ open, handleClose }) {
     const handleChangeSecompra = () => setSecompra(prev => !prev);
     const handleChangeSevende = () => setSevende(prev => !prev);
 
-    const handleChangeAgregarCategoria = () => {
+    const handleChangeAgregarCategoria = (event) => {
         setAgregarCategoria(prev => !prev);
+        setCategoria(event.target.value)
     };
 
     const handleChangeUnitario = (event) => {
         setUnitario(event.target.value);
-    };
-
-    const handleChangeConiva = (event) => {
-        setConiva(event.target.value);
     };
 
     const handleChangeCosto = (event) => {
@@ -911,7 +955,6 @@ function ChildModal({ open, handleClose }) {
                 return <PrecioForm 
                     moneda={moneda}
                     unitario={unitario} 
-                    coniva={coniva} 
                     costo={costo} 
                     modificable={modificable} 
                     categoria = {categoria}
@@ -919,7 +962,6 @@ function ChildModal({ open, handleClose }) {
                     handleChangeCategoria = {handleChangeCategoria}
                     handleChangeMoneda={handleChangeMoneda} 
                     handleChangeUnitario={handleChangeUnitario} 
-                    handleChangeConiva={handleChangeConiva} 
                     handleChangeCosto={handleChangeCosto} 
                     handleChangeModificable={handleChangeModificable}
                     handleChangeDctoMax={handleChangeDctoMax}
@@ -994,14 +1036,74 @@ function ChildModal({ open, handleClose }) {
         }
     };
 
-    const columnasEsperadas = ["columna 1", "columna 2", "prueba"]; // Agrega los nombres de columnas esperados
+    const columnasEsperadas = ["codigo", "nombre_material", "categoria", "descripcion", "discontinuado", "se_compra", "se_vende", "precio", "moneda",
+         "costo_compra", "modificable", "descuento_maximo", "unidad_medida",
+          "unidad_alternativa", "factor", "valor_iva", "afecto", "stockMaximo", "stockMinimo"]; // Agrega los nombres de columnas esperados
     const [mensaje, setMensaje] = useState({ texto: "", color: "" });
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
+
+    const [openSubirExcel, setOpenSubirExcel] = useState(false);
+    const handleOpenSubirExcel = () => setOpenSubirExcel(true);
+    const handleCloseSubirExcel = () => setOpenSubirExcel(false);
+    const [materiales, setMateriales] = useState([
+        
+            {
+                codigo: "abc1", 
+                nombre_material: "Tornillo1", 
+                iva: "19", 
+                categoria: "Tornillos", 
+                descripcion: "aaa", 
+                descontinuado: true, 
+                secompra: false, 
+                sevende: true, 
+                moneda: "clp", 
+                unitario: "1234", 
+                costo: "1234", 
+                modificable: true, 
+                dctoMax: "10", 
+                unidad_medida: "lts", 
+                unidad_alternativa: "cm3", 
+                factor: "0.1", 
+                afecto: true, 
+                stockMaximo: "1234", 
+                stockMinimo: "2345"
+            },
+            {
+                codigo: "abc2", 
+                nombre_material: "Tornillo2", 
+                iva: "19", 
+                categoria: "Tornillos", 
+                descripcion: "aaa", 
+                descontinuado: true, 
+                secompra: false, 
+                sevende: true, 
+                moneda: "clp", 
+                unitario: "1234", 
+                costo: "1234", 
+                modificable: false, 
+                dctoMax: "10", 
+                unidad_medida: "lts", 
+                unidad_alternativa: "cm3", 
+                factor: "0.1", 
+                afecto: false, 
+                stockMaximo: "1234", 
+                stockMinimo: "2345"
+            }
+        
+    ])
+
+    const handleUpdateMaterial = (updatedMaterial) => {
+        setMateriales(prevState =>
+            prevState.map(material =>
+                material.codigo === updatedMaterial.codigo ? updatedMaterial : material
+            )
+        );
+    };
+
     const subirExcel = (e) => {
-
         e.preventDefault();
-
+    
         if (e.target.files) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -1010,19 +1112,34 @@ function ChildModal({ open, handleClose }) {
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const json = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-
+                console.log("json: ", json);
+    
                 // Obtener nombres de columnas del archivo
                 const nombresColumnas = json[0];
+                console.log(nombresColumnas);
                 
                 // Validar que las columnas coincidan con las esperadas
                 const esValido = columnasEsperadas.every((col) => nombresColumnas.includes(col));
-
+    
                 if (esValido) {
-                    // Convertir el contenido a JSON y mostrar mensaje de éxito
+                    // Convertir el contenido a JSON
                     const productos = xlsx.utils.sheet_to_json(worksheet);
-                    console.log(productos);
+    
+                    // Agregar la columna "id" auto incremental
+                    const productosConId = productos.map((producto, index) => ({
+                        ...producto,
+                        id: index + 1,  // Asignar un id incremental
+                    }));
+                    
+                    console.log(productosConId); // Ver los productos con el nuevo id
+                    
+                    // Actualizar los materiales
+                    setMateriales(productosConId);
+                    
+                    // Mostrar mensaje de éxito
                     setMensaje({ texto: "Productos agregados exitosamente!", color: "success" });
                 } else {
+                    console.log("no valido");
                     setMensaje({ texto: "La plantilla no cuenta con el formato correcto", color: "error" });
                 }
                 
@@ -1030,9 +1147,10 @@ function ChildModal({ open, handleClose }) {
                 setOpenSnackbar(true);
             };
             reader.readAsArrayBuffer(e.target.files[0]);
+            handleOpenSubirExcel();
         }
     };
-
+    
     const handleBack = () => {
         if (value === 'precio') {
             setValue('info');
@@ -1055,6 +1173,15 @@ function ChildModal({ open, handleClose }) {
             subirExcel(file);
         }
     };
+
+    const actualizarMaterial = (id, campo, valor) => {
+        setMateriales(prevMateriales => 
+            prevMateriales.map(material => 
+                material.id === id ? { ...material, [campo]: valor } : material
+            )
+        );
+    };
+
 
 
     const isLastTab = value === 'stock';
@@ -1151,19 +1278,20 @@ function ChildModal({ open, handleClose }) {
                                         />
                                     </>
                                 ) : (
-                                    <Button variant="contained" onClick={handleBack} color="amarillo">
+                                    <Button variant="contained" onClick={handleBack} color="amarilloamarillo">
                                         Anterior
                                     </Button>
                                 )}
 
                                 {/* Botón derecho */}
-                                <Button variant="contained" onClick={handleNext} color={isLastTab ? "success" : "amarillo"}>
+                                <Button variant="contained" onClick={handleNext} color={isLastTab ? "success" : "amarilloamarillo"}>
                                     {isLastTab ? "Guardar" : "Siguiente"}
                                 </Button>
                         </Box>
 
                 </Box>
             </Modal>
+            <NestedModalSubirExcel open={openSubirExcel} handleClose={handleCloseSubirExcel} materiales={materiales} handleChangeMateriales = {actualizarMaterial}/>
         </React.Fragment>
     );
 }
@@ -1171,13 +1299,13 @@ function ChildModal({ open, handleClose }) {
 //Modal principal
 export default function NestedModalProductos({open, handleClose}) {
     const materiales = [
-        {codigo: "abc1", nombre_material: "Torinillo1", categoria_material: "Tornillos", valor: true},
-        {codigo: "abc2", nombre_material: "Torinillo2", categoria_material: "Tornillos", valor: true},
-        {codigo: "abc3", nombre_material: "Torinillo3", categoria_material: "Tornillos", valor: false},
-        {codigo: "abc4", nombre_material: "Torinillo4", categoria_material: "Tornillos", valor: true},
-        {codigo: "abc5", nombre_material: "Torinillo5", categoria_material: "Tornillos", valor: false},
-        {codigo: "abc6", nombre_material: "Torinillo6", categoria_material: "Tornillos", valor: false},
-        {codigo: "abc7", nombre_material: "Torinillo7", categoria_material: "Tornillos", valor: true},
+        {id: 1, codigo: "abc1", nombre_material: "Torinillo1", categoria_material: "Tornillos", valor: true},
+        {id: 2, codigo: "abc2", nombre_material: "Torinillo2", categoria_material: "Tornillos", valor: true},
+        {id: 3, codigo: "abc3", nombre_material: "Torinillo3", categoria_material: "Tornillos", valor: false},
+        {id: 4, codigo: "abc4", nombre_material: "Torinillo4", categoria_material: "Tornillos", valor: true},
+        {id: 5, codigo: "abc5", nombre_material: "Torinillo5", categoria_material: "Tornillos", valor: false},
+        {id: 6, codigo: "abc6", nombre_material: "Torinillo6", categoria_material: "Tornillos", valor: false},
+        {id: 7, codigo: "abc7", nombre_material: "Torinillo7", categoria_material: "Tornillos", valor: true},
     ];
 
     const [material, setMateriales] = useState(materiales);
@@ -1191,6 +1319,8 @@ export default function NestedModalProductos({open, handleClose}) {
     const [detailOpen, setDetailOpen] = React.useState(false);
     const handleDetailOpen = (material) => {
         setMaterialSeleccionado(material);
+
+        console.log(material)
         setDetailOpen(true);
 
     };
@@ -1199,137 +1329,79 @@ export default function NestedModalProductos({open, handleClose}) {
         setMaterialSeleccionado(null);
     };
 
-    const [ordenarPor, setOrdenarPor] = useState('nombre');
-
-    const ordenarMateriales = (materiales) => {
-        return [...materiales].sort((a, b) => {
-            if (ordenarPor === 'nombre') {
-                return a.nombre_material.localeCompare(b.nombre_material);
-            } else if (ordenarPor === 'categoria') {
-                return a.tipo_material.localeCompare(b.tipo_material);
-            }
-            return 0;
-        });
-    };
-
     const columns = [
-        {
-          width: 60,
-          label: 'Código',
-          dataKey: 'codigo',
+        { 
+            field: 'codigo', 
+            headerName: 'Código', 
+            width: 100 
         },
-        {
-          width: 120,
-          label: 'Nombre',
-          dataKey: 'nombre_material',
+        { 
+            field: 'nombre_material', 
+            headerName: 'Nombre', 
+            width: 190
         },
-        {
-          width: 120,
-          label: 'Tipo de Material',
-          dataKey: 'categoria_material',
+        { 
+            field: 'categoria_material', 
+            headerName: 'Tipo de Material', 
+            width: 189
         },
-        {
-          width: 90,
-          label: 'Ver más',
-          dataKey: 'vermas',
-        },
+        { 
+            field: 'vermas', 
+            headerName: 'Ver más', 
+            width: 120, 
+            renderCell: (params) => (
+                <Fab
+                    aria-label="comment"
+                    size="small"
+                    variant="extended"
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        handleDetailOpen(params.row);
+                    }}
+                    color="azulamarillo"
+                    sx={{fontSize: '12px', zIndex: 1 }}
+                >
+                    <MoreHorizIcon /> Ver más
+                </Fab>
+        ) },
     ];
-
-    const VirtuosoTableComponents = {
-        Scroller: React.forwardRef((props, ref) => (
-        <TableContainer component={Paper} {...props} ref={ref} />
-        )),
-        Table: (props) => (
-        <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
-        ),
-        TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
-        TableRow,
-        TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
-    };
-
-    function fixedHeaderContent() {
-        return (
-            <TableRow>
-                {columns.map((column) => (
-                    <TableCell
-                        key={column.dataKey}
-                        variant="head"
-                        align={'left'}
-                        style={{
-                            width: column.width,
-                            backgroundColor: '#093d77',
-                            color: '#daa520',
-                            zIndex: 2,
-                        }}
-                    >
-                    {column.label}
-                    </TableCell>
-                ))}
-            </TableRow>
-        )
-    }
-
-    function rowContent(_index, row){
-        return (
-            <React.Fragment>
-                {columns.map((column) => (
-                    <TableCell
-                        key={column.dataKey}
-                        align={'left'}
-                        
-                    >
-                        {column.dataKey === 'vermas' ? (
-                            <Fab
-                                aria-label="comment"
-                                size="small"
-                                variant="extended"
-                                onClick={() => handleDetailOpen(row)}
-                                color="azulamarillo"
-                                sx={{fontSize: '12px', zIndex: 1 }}
-                            >
-                                <MoreHorizIcon /> Ver más
-                            </Fab>
-                        ) : (
-                            row[column.dataKey]
-                        )}
-                        
-                    </TableCell>
-                ))}
-            </React.Fragment>
-        );
-    }
    
     const token = localStorage.getItem('token');
 
-
         // Función para obtener la lista de materiales cuando se abre el modal
-    useEffect(() => {
-        console.log(token)
-        if (open && token) {
-            console.log("enviando get")
-            axios.get('http://localhost:8081/materiales/verMateriales', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            .then(response => setMateriales(response.data.materiales))
-            .catch(error => console.error('Error al obtener materiales:', error));
-        }
-    }, [open]);
-
+        useEffect(() => {
+            console.log(token);
+            if (open && token) {
+                console.log("enviando get");
+                axios.get('http://localhost:8081/materiales/verMaterialesAll', {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                .then(response => {
+                    setMateriales(response.data.materiales);
+                    console.log('Materiales obtenidos:', response.data.materiales);  // Agregado aquí
+                })
+                .catch(error => console.error('Error al obtener materiales:', error));
+            }
+        }, [open]);
+        
     useEffect(() => {
         console.log("Materiales actualizados:", materiales);
     }, [materiales]); // Este efecto se ejecutará cada vez que 'materiales' cambie
 
     const [busqueda, setBusqueda] = useState('');
-    const materialesFiltrados = materiales.filter(
+    const materialesFiltrados = material.filter(
         (material) => 
-            material.nombre_material.toLowerCase().includes(busqueda.toLowerCase()) || 
+            material.codigo.toLowerCase().includes(busqueda.toLowerCase()) || 
+            material.nombre_material.toLowerCase().includes(busqueda.toLowerCase()) ||
             material.categoria_material.toLowerCase().includes(busqueda.toLowerCase())
     );
+
     const handleChangeBusqueda = (event) => {
         setBusqueda(event.target.value);
     };
 
-    const materialesOrdenados = ordenarMateriales(materialesFiltrados);
+
+
 
   return (
     <div>
@@ -1354,7 +1426,7 @@ export default function NestedModalProductos({open, handleClose}) {
 
             <Grid2 container alignItems="center" justifyContent="space-between">
                 <Grid2 item xs={4} style={{ textAlign: 'left' }}>
-                    <Fab color="amarillo" aria-label="add" variant="extended" onClick={handleChildOpen}>
+                    <Fab color="amarilloamarillo" aria-label="add" variant="extended" onClick={handleChildOpen}>
                         <AddIcon/>Agregar
                     </Fab>
                 </Grid2>
@@ -1379,27 +1451,48 @@ export default function NestedModalProductos({open, handleClose}) {
             <Box
                 sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 600, bgcolor: '#e5e5e5' }}
             >
-                <FormControl variant="standard">
-                    <InputLabel htmlFor="ordenar-select">Ordenar por</InputLabel>
-                    <Select
-                        value={ordenarPor}
-                        onChange={(e) => setOrdenarPor(e.target.value)}
-                        inputProps={{ id: 'ordenar-select' }}
-                    >
-                        <MenuItem value="nombre">Nombre</MenuItem>
-                        <MenuItem value="categoria">Categoría</MenuItem>
-                    </Select>
-                </FormControl>
-
-                <Paper style={{  marginTop:10, height: 350, width: '100%' }} elevation={0}>
-                    <TableVirtuoso
-                        data={material}
-                        components={VirtuosoTableComponents}
-                        fixedHeaderContent={fixedHeaderContent}
-
-                        //contenido de la tabla
-                        itemContent={rowContent}                        
-                        sx={{bgcolor: '#e5e5e5', overflow: 'auto'}}
+                <Paper style={{  marginTop:10, height: 420, width: '100%' }} elevation={0}>
+                    <DataGrid
+                        headerHeight={50}
+                        rowHeight={50}
+                        rows={materialesFiltrados} 
+                        columns={columns.map((column) => ({
+                            ...column,
+                            headerAlign: 'left',  
+                            align: 'left',       
+                            width: column.width   
+                        }))}
+                        checkboxSelection={false}
+                        disableSelectionOnClick
+                        disableColumnSelector 
+                        pagination={false}
+                        hideFooter={true}  
+                        sx={{
+                            bgcolor: '#e5e5e5',
+                        '& .MuiDataGrid-columnHeader': {
+                            backgroundColor: '#093d77', 
+                            color: '#daa520',           
+                            fontSize: '1rem',
+                            textAlign: 'left',
+                            borderRight: 'none',
+                        },
+                        '& .MuiDataGrid-cell': {
+                            backgroundColor: '#e5e5e5',  
+                            color: '#000',          
+                            paddingLeft: '8px',        
+                            fontSize: '0.9rem'
+                        },
+                        '& .MuiDataGrid-row:hover': {
+                            backgroundColor: '#d6e3f1'  
+                        },
+                        '& .MuiDataGrid-row': {
+                            borderBottom: '1px solid #e0e0e0' 
+                        },
+                        '& .MuiDataGrid-columnSeparator': {
+                            display: 'none', 
+                        },
+                        }}
+                        localeText={esES.components.MuiDataGrid.defaultProps.localeText} 
                     />
                 </Paper>
             </Box>
@@ -1410,3 +1503,5 @@ export default function NestedModalProductos({open, handleClose}) {
     </div>
   );
 }
+
+

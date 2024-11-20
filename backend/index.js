@@ -187,6 +187,64 @@ app.post('/materiales/crearMaterial', verifyToken, (req, res) => {
 });
 
 // Ruta para obtener todos los materiales con sus 9 características
+app.get('/materiales/verMaterialesAll', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    console.log("materiales");
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es adecuado para ver materiales
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para ver los materiales' });
+        }
+
+        // Consulta para obtener todos los materiales con sus 9 características
+        const q3 = `
+            SELECT *
+            FROM materiales 
+        `;
+        
+        db.query(q3, (err, materiales) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Error al obtener materiales', error: err });
+            }
+
+            // Modificar los nombres de las variables en la respuesta
+            const materialesModificados = materiales.map(material => {
+                return {
+                    id: material.id_materiales,
+                    codigo: material.codigo_material, // Cambiar el nombre de 'codigo_material' a 'codigo'
+                    nombre_material: material.nombre_material, // Cambiar el nombre de 'nombre_material' a 'nombre'
+                    categoria_material: material.tipo_material, // Cambiar 'cantidad' a 'stock'
+                    stockComprometido: material.cantidad_comprometida, // Cambiar 'cantidad_comprometida' a 'stockComprometido'
+                    valor: material.valor
+                };
+            });
+
+            // Retornar los materiales con los nombres modificados
+            console.log(materialesModificados);
+            return res.json({ message: 'Materiales obtenidos exitosamente', materiales: materialesModificados });
+        });
+    });
+});
+
+
+// Ruta para obtener todos los materiales con sus 9 características
 app.get('/materiales/verMateriales', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)
     const correo = req.user.correo;
@@ -225,6 +283,7 @@ app.get('/materiales/verMateriales', verifyToken, (req, res) => {
             }
 
             // Retornar los materiales en la respuesta
+            console.log(data)
             return res.json({ message: 'Materiales obtenidos exitosamente', materiales: data });
         });
     });
@@ -322,24 +381,64 @@ app.post('/materiales/crearMateriales', verifyToken, (req, res) => {
             return res.status(400).json({ message: 'Debe proporcionar una lista de materiales para insertar' });
         }
 
+        // Procesar los materiales para hacer las conversiones necesarias
+        const processedMateriales = materiales.map(material => {
+            // Convertir "Si" y "No" a booleanos
+            const seCompra = material.seCompra === 'Si';
+            const seVende = material.seVende === 'Si';
+            const afecto = material.afecto === 'Si';
+            const modificable = material.modificable === 'Si';
+
+            // Si "afecto" es "No", setear stockMaximo y stockMinimo a 0
+            if (!afecto) {
+                material.stockMaximo = 0;
+                material.stockMinimo = 0;
+            }
+
+            // Si "modificable" es "No", setear descuentoMaximo a 0
+            if (!modificable) {
+                material.descuentoMaximo = 0;
+            }
+
+            // Retornar el material procesado con los valores convertidos y las modificaciones aplicadas
+            return {
+                ...material,
+                seCompra,
+                seVende,
+                afecto,
+                modificable
+            };
+        });
+
         const q2 = `
-            INSERT INTO materiales (codigo_material, nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo) 
+            INSERT INTO materiales (codigo_material, nombre_material, descripcion_material, tipo_material, precio_material, foto_material, modificar_precio, valor_iva, descuento_maximo, stockMaximo, stockMinimo, unidad_alternativa, unidad_medida, factor, seCompra, seVende, moneda, afecto, costo) 
             VALUES ?
         `;
 
-        // Transformar cada material en un array de valores
-        const values = materiales.map(material => [
-            material.codigo_material,
+        // Transformar cada material procesado en un array de valores
+        const values = processedMateriales.map(material => [
+            codigo_material = material.codigo,
             material.nombre_material,
-            material.descripcion_material,
-            material.tipo_material,
-            material.precio_material,
+            descripcion_material = material.descripcion,
+            tipo_material = material.categoria,
+            precio_material = material.precio,
             material.foto_material,
-            material.modificar_precio,
+            modificar_precio = material.modificable,
             material.valor_iva,
-            material.descuento_maximo
+            material.descuento_maximo,
+            material.stockMaximo,
+            material.stockMinimo,
+            material.unidad_alternativa,
+            material.unidad_medida,
+            material.factor,
+            material.seCompra,
+            material.seVende,
+            material.moneda,
+            material.afecto,
+            material.costo_compra
         ]);
 
+        // Ejecutar la consulta para insertar los materiales
         db.query(q2, [values], (err, result) => {
             if (err) {
                 console.log(err);
@@ -350,6 +449,7 @@ app.post('/materiales/crearMateriales', verifyToken, (req, res) => {
         });
     });
 });
+
 
 
 
