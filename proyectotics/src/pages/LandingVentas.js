@@ -14,7 +14,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
-import NestedModalClientes from '../components/Modals/clientes';
+import NestedModalClientes from '../components/Modals/Clientes/clientes';
 
 export default function LandingVetas() {
   const [openClientes, setOpenClientes] = useState(false);

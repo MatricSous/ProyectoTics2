@@ -173,17 +173,6 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
 
   const categorias = [
     { label: "Tornillos", value: "Tornillos" },
@@ -2010,6 +1999,7 @@ export default function NestedModalProductos({open, handleClose}) {
                         }}
                         localeText={esES.components.MuiDataGrid.defaultProps.localeText} 
                     />
+                    
                 </Paper>
             </Box>
             <ChildModal open={childOpen} handleClose={handleChildClose} />
