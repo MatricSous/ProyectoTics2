@@ -14,8 +14,26 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import VentasModal from '../components/Modals/Ventas.ventas/VentasModal';
 
 export default function LandingProduccion() {
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 1000,
+    height: 500,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
+  
+  const [openVentas, setOpenVentas] = useState(false);
+  const handleOpenVentas = () => setOpenVentas(true);
+  const handleCloseVentas = () => setOpenVentas(false);
 
 
     return (
@@ -27,9 +45,11 @@ export default function LandingProduccion() {
           
           {/* Botón superior */}
           <Grid item xs={12} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}>
-            <Button className='botonGrande'  variant="contained" startIcon={<PointOfSaleIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px' , fontSize:'30px' }} color="amarillohoverblanco">
+            <Button className='botonGrande' onClick={handleOpenVentas} variant="contained" startIcon={<PointOfSaleIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px' , fontSize:'30px' }} color="amarillohoverblanco">
             Ventas
             </Button>
+            <VentasModal open={openVentas} handleClose={handleCloseVentas} handleOpen={handleOpenVentas} />
+            
           </Grid>
             
           {/* Botón inferior */}
