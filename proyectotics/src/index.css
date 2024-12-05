@@ -21,4 +21,26 @@ code {
   height: 60px;
 }
 
+.Raya{
+  width: 100%; /* Ocupa todo el ancho del modal */
+  border-top: 2px solid black; /* Cambia el color y el grosor según lo necesites */
+  margin: 20px 0; /* Espacio superior e inferior */
+}
 
+.Raya2 {
+  display: flex;
+  align-items: center; /* Centra el contenido verticalmente */
+  width: 100%; /* Asegura que ocupe todo el ancho disponible */
+  margin: 20px 0; /* Espacio superior e inferior */
+}
+
+.Raya2::before,
+.Raya2::after {
+  content: "";
+  flex-grow: 1; /* Permite que las líneas se estiren hacia los lados */
+  border-top: 2px solid black; /* La línea visible */
+}
+
+.Raya2 span {
+  margin: 0 60px; /* Espacio alrededor del texto en el centro */
+}

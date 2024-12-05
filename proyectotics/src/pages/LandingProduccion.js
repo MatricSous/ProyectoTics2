@@ -1,13 +1,9 @@
 import React, {useState} from 'react';
 import Axios from 'axios';
 
-import { Container, Grid2, Button } from '@mui/material';
-import '../index.css';
+import { Container, Grid, Grid2, Button } from '@mui/material';
+import RecipeModal from '../components/Modals/Recetas/RecipeModal'; // Ajusta la ruta según sea necesario
 import SettingsIcon from '@mui/icons-material/Settings';
-import StoreIcon from '@mui/icons-material/Store';
-import ConstructionIcon from '@mui/icons-material/Construction';
-import LocalMallIcon from '@mui/icons-material/LocalMall';
-import PlumbingIcon from '@mui/icons-material/Plumbing';
 import CategoryIcon from '@mui/icons-material/Category';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -16,6 +12,8 @@ import NestedModalProductos from '../components/Modals/productos';
 import NestedModalBodega from '../components/Modals/bodega';
 import NestedModalRecetas from '../components/Modals/recetas';
 
+
+import NestedModal from '../components/Modals/productos';
 
 export default function LandingProduccion() {
   const [openProductos, setOpenProductos] = useState(false);
@@ -29,6 +27,10 @@ export default function LandingProduccion() {
   const [openBodega, setOpenBodega] = useState(false);
   const handleOpenBodega = () => setOpenBodega(true);
   const handleCloseBodega = () => setOpenBodega(false);
+
+  const [openReceta, setOpenReceta] = useState(false);
+  const handleOpenReceta = () => setOpenReceta(true);
+  const handleCloseReceta = () => setOpenReceta(false);
 
   return (
 <div 
