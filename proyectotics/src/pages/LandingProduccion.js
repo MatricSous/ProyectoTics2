@@ -89,7 +89,7 @@ export default function LandingProduccion() {
         onClick={handleOpenRecetas}>
           Recetas
         </Button>
-        <NestedModalRecetas open={openRecetas} handleClose={handleCloseRecetas} handleOpen={handleOpenRecetas} />
+        <RecipeModal open={openRecetas} handleClose={handleCloseRecetas} handleOpen={handleOpenRecetas} />
       </Grid2>
       
     </Grid2>

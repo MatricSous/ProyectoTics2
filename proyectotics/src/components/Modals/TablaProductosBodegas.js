@@ -388,4 +388,5 @@ useEffect(() => {
   );
 }
 
+
 export default TablaProductosBodegas;

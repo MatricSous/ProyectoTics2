@@ -89,4 +89,6 @@ function TablaRecipes({ rows }) {
   );
 }
 
+
+
 export default TablaRecipes;
