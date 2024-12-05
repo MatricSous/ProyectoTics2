@@ -61,6 +61,7 @@ function AnadirReceta({ rows, onClose, material }) {
     textAlign: 'center',
   };
 
+  
 
   const columns = [
     { field: 'id_materiales', headerName: 'ID', width: 70 },
@@ -116,10 +117,10 @@ function AnadirReceta({ rows, onClose, material }) {
   };
 
   const columns2 = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'nombre', headerName: 'Nombre del Material', width: 200 },
-    { field: 'cantidad', headerName: 'Cantidad', type: 'number', width: 100 },
-    { field: 'detalle', headerName: 'Detalle del Material', width: 300 },
+    { field: 'id_materiales', headerName: 'ID', width: 70 },
+    { field: 'nombre_material', headerName: 'Nombre del Material', width: 200 },
+    { field: 'cantidad_material', headerName: 'Cantidad', type: 'number', width: 100 },
+    { field: 'descripcion_material', headerName: 'Detalle del Material', width: 300 },
     {
       field: 'select',
       headerName: '',
