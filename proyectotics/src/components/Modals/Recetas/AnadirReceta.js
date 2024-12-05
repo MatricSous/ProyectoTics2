@@ -67,7 +67,7 @@ function AnadirReceta({ rows, onClose, material }) {
     { field: 'id_materiales', headerName: 'ID', width: 70 },
     { field: 'nombre_material', headerName: 'Nombre del Material', width: 200 },
     { field: 'cantidad_material', headerName: 'Cantidad', type: 'number', width: 100 },
-    { field: 'descripción_material', headerName: 'Detalle del Material', width: 300 },
+    { field: 'descripcion_material', headerName: 'Detalle del Material', width: 300 },
     {
       field: 'select',
       headerName: '',
