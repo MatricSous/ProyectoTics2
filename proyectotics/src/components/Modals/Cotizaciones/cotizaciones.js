@@ -10,7 +10,7 @@ import {
     alpha, 
     InputBase,
     Paper,
-    Toolbar,
+    Toolbar
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -86,10 +86,150 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function NestedModalCotizaciones({open, handleClose}) {
     //Arreglos falsos
     const cotizaciones = [
-        {id: 1, numero: 19, fecha_cotizacion: '12-09-2023 10:00:00', id_cliente: 3, id_usuario: 2, productos: [{id_producto: '1', cantidad: 3, precio_producto: 735}, {id_producto: '2', cantidad: 2, precio_producto: 298}], forma_pago: 'tarjeta'},
-        {id: 2, numero: 22, fecha_cotizacion: '13-09-2023 15:00:00', id_cliente: 3, id_usuario: 2, productos: [{id_producto: '1', cantidad: 6, precio_producto: 2834}, {id_producto: '2', cantidad: 45, precio_producto: 2986}], forma_pago: 'crédito'},
-
-    ];
+        { 
+          id: 1, 
+          numero: 1, 
+          fecha_cotizacion: '01-12-2023 10:00:00', 
+          id_cliente: 1, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 15, precio_producto: 20000 },
+            { id_producto: '2', cantidad: 500, precio_producto: 1500 },
+            { id_producto: '3', cantidad: 12, precio_producto: 5000 }
+          ], 
+          forma_pago: 'efectivo' 
+        },
+        { 
+          id: 2, 
+          numero: 2, 
+          fecha_cotizacion: '02-12-2023 11:00:00', 
+          id_cliente: 2, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 10, precio_producto: 25000 },
+            { id_producto: '2', cantidad: 200, precio_producto: 3000 },
+            { id_producto: '3', cantidad: 5, precio_producto: 10000 }
+          ], 
+          forma_pago: 'tarjeta' 
+        },
+        { 
+          id: 3, 
+          numero: 3, 
+          fecha_cotizacion: '03-12-2023 12:00:00', 
+          id_cliente: 3, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 20, precio_producto: 40000 },
+            { id_producto: '2', cantidad: 4, precio_producto: 15000 },
+            { id_producto: '3', cantidad: 300, precio_producto: 2000 }
+          ], 
+          forma_pago: 'transferencia' 
+        },
+        { 
+          id: 4, 
+          numero: 4, 
+          fecha_cotizacion: '04-12-2023 13:00:00', 
+          id_cliente: 4, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 25, precio_producto: 15000 },
+            { id_producto: '2', cantidad: 400, precio_producto: 2000 },
+            { id_producto: '3', cantidad: 5, precio_producto: 5000 }
+          ], 
+          forma_pago: 'crédito' 
+        },
+        { 
+          id: 5, 
+          numero: 5, 
+          fecha_cotizacion: '05-12-2023 14:00:00', 
+          id_cliente: 5, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 10, precio_producto: 15000 },
+            { id_producto: '2', cantidad: 4, precio_producto: 12000 },
+            { id_producto: '3', cantidad: 6, precio_producto: 3000 }
+          ], 
+          forma_pago: 'efectivo' 
+        },
+        { 
+          id: 6, 
+          numero: 6, 
+          fecha_cotizacion: '06-12-2023 15:00:00', 
+          id_cliente: 6, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 12, precio_producto: 20000 },
+            { id_producto: '2', cantidad: 100, precio_producto: 1500 },
+            { id_producto: '3', cantidad: 10, precio_producto: 10000 }
+          ], 
+          forma_pago: 'transferencia' 
+        },
+        { 
+          id: 7, 
+          numero: 7, 
+          fecha_cotizacion: '07-12-2023 16:00:00', 
+          id_cliente: 7, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 15, precio_producto: 12000 },
+            { id_producto: '2', cantidad: 300, precio_producto: 2500 },
+            { id_producto: '3', cantidad: 2, precio_producto: 5000 }
+          ], 
+          forma_pago: 'tarjeta' 
+        },
+        { 
+          id: 8, 
+          numero: 8, 
+          fecha_cotizacion: '08-12-2023 17:00:00', 
+          id_cliente: 8, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 8, precio_producto: 25000 },
+            { id_producto: '2', cantidad: 5, precio_producto: 7000 },
+            { id_producto: '3', cantidad: 100, precio_producto: 1500 }
+          ], 
+          forma_pago: 'crédito' 
+        },
+        { 
+          id: 9, 
+          numero: 9, 
+          fecha_cotizacion: '09-12-2023 18:00:00', 
+          id_cliente: 9, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 10, precio_producto: 15000 },
+            { id_producto: '2', cantidad: 1, precio_producto: 25000 },
+            { id_producto: '3', cantidad: 50, precio_producto: 1000 }
+          ], 
+          forma_pago: 'efectivo' 
+        },
+        { 
+          id: 10, 
+          numero: 10, 
+          fecha_cotizacion: '10-12-2023 19:00:00', 
+          id_cliente: 10, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 20, precio_producto: 35000 },
+            { id_producto: '2', cantidad: 4, precio_producto: 15000 },
+            { id_producto: '3', cantidad: 6, precio_producto: 3000 }
+          ], 
+          forma_pago: 'transferencia' 
+        },
+        { 
+          id: 11, 
+          numero: 11, 
+          fecha_cotizacion: '11-12-2023 20:00:00', 
+          id_cliente: 11, 
+          id_usuario: 1, 
+          productos: [
+            { id_producto: '1', cantidad: 20, precio_producto: 35000 },
+            { id_producto: '2', cantidad: 4, precio_producto: 15000 },
+            { id_producto: '3', cantidad: 6, precio_producto: 3000 }
+          ], 
+          forma_pago: 'tarjeta' 
+        }
+      ];
 
     const materiales = [
         {id: 1, codigo: "abc1", nombre_material: "Torinillo1", categoria_material: "Tornillos", valor: 234, moneda: 'CLP'},
@@ -102,11 +242,21 @@ export default function NestedModalCotizaciones({open, handleClose}) {
     ];
 
     const clientes = [
-        {id: 3, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'}
-    ];
+        { id: 1, rut_cliente: null, nombre_cliente: 'Juan', apellido_cliente: 'Pérez', telefono_cliente: 912345678, correo_cliente: null, direccion_cliente: 'Avenida Providencia 1234' },
+        { id: 2, rut_cliente: null, nombre_cliente: 'Ana', apellido_cliente: 'Martínez', telefono_cliente: 923456789, correo_cliente: null, direccion_cliente: 'Calle Apoquindo 1011' },
+        { id: 3, rut_cliente: null, nombre_cliente: 'Carlos', apellido_cliente: 'García', telefono_cliente: 934567890, correo_cliente: null, direccion_cliente: 'Calle La Florida 2450' },
+        { id: 4, rut_cliente: null, nombre_cliente: 'María', apellido_cliente: 'López', telefono_cliente: 945678901, correo_cliente: null, direccion_cliente: 'Avenida Bellavista 123' },
+        { id: 5, rut_cliente: null, nombre_cliente: 'Luis', apellido_cliente: 'Ramírez', telefono_cliente: 956789012, correo_cliente: null, direccion_cliente: 'Calle 5 de Abril 879' },
+        { id: 6, rut_cliente: null, nombre_cliente: 'Pedro', apellido_cliente: 'González', telefono_cliente: 967890123, correo_cliente: null, direccion_cliente: 'Calle San Francisco 432' },
+        { id: 7, rut_cliente: null, nombre_cliente: 'Elena', apellido_cliente: 'Pérez', telefono_cliente: 978901234, correo_cliente: null, direccion_cliente: 'Avenida Los Leones 600' },
+        { id: 8, rut_cliente: null, nombre_cliente: 'Jorge', apellido_cliente: 'Martínez', telefono_cliente: 989012345, correo_cliente: null, direccion_cliente: 'Calle Vicuña Mackenna 543' },
+        { id: 9, rut_cliente: null, nombre_cliente: 'Sofía', apellido_cliente: 'Herrera', telefono_cliente: 990123456, correo_cliente: null, direccion_cliente: 'Calle Colón 125' },
+        { id: 10, rut_cliente: null, nombre_cliente: 'Ricardo', apellido_cliente: 'Sánchez', telefono_cliente: 901234567, correo_cliente: null, direccion_cliente: 'Avenida Central 999' },
+        { id: 11, rut_cliente: null, nombre_cliente: 'Benjamín', apellido_cliente: 'Cofré', telefono_cliente: 901234567, correo_cliente: null, direccion_cliente: 'Avenida Central 999' },
+      ];
 
     const usuarios= [
-        {id: 2, rut_usuario: '12345678-9', nombre_usuario: 'bbbbbbbbb', apellido_usuario: 'bbbbbbbbb', telefono_usuario: 912345678, correo_usuario:'abcd@abcd.cl', direccion_usuario: 'bbbbbbb 1234, bbbbbb'}
+        {id: 1, rut_usuario: '12345678-9', nombre_usuario: 'Waton', apellido_usuario: null, telefono_usuario: 912345678, correo_usuario:'abcd@abcd.cl', direccion_usuario: 'bbbbbbb 1234, bbbbbb'}
     ];
 
     // Extraer datos de los arreglos
@@ -116,7 +266,7 @@ export default function NestedModalCotizaciones({open, handleClose}) {
             ...prod,
             nombre_producto: productos.find(producto => producto.id === parseInt(prod.id_producto))?.nombre_producto || 'Producto Desconocido',
             precio_producto: productos.find(producto => producto.id === parseInt(prod.id_producto))?.precio_producto || 0,
-            total_producto: prod.cantidad * prod.precio_producto,
+            total_producto:  prod.precio_producto,
             nombres_materiales: prod.materiales
                 ? prod.materiales.map(mat => 
                     materiales.find(material => material.id === parseInt(mat.id_material))?.nombre_material || 'Material Desconocido'
