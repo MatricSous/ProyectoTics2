@@ -13,7 +13,7 @@ import NestedModalBodega from '../components/Modals/bodega';
 import NestedModalRecetas from '../components/Modals/recetas';
 
 
-import NestedModal from '../components/Modals/productos';
+
 
 export default function LandingProduccion() {
   const [openProductos, setOpenProductos] = useState(false);

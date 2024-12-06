@@ -350,6 +350,93 @@ app.get('/materiales/verMaterial/:codigo_material', verifyToken, (req, res) => {
 });
 
 
+app.post('/clientes/crearCliente', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario es 0
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para crear clientes' });
+        }
+
+        // Extraer los datos del cliente desde el cuerpo de la solicitud
+        const { razon_social, correo: correo_cliente, telefono, direccion, RUT } = req.body;
+
+        // Validar que todos los campos necesarios estén presentes
+        if (!razon_social || !correo_cliente || !telefono || !direccion || !RUT) {
+            return res.status(400).json({ message: 'Todos los campos (razon_social, correo, telefono, direccion, RUT) son obligatorios' });
+        }
+
+        // Consulta SQL para insertar un nuevo cliente
+        const q2 = `
+            INSERT INTO clientes (razon_social, correo, telefono, direccion, RUT) 
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        db.query(q2, [razon_social, correo_cliente, telefono, direccion, RUT], (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Hubo un error al ingresar el cliente', error: err });
+            }
+
+            return res.json({ message: 'Cliente ingresado exitosamente', insertedId: result.insertId });
+        });
+    });
+});
+
+
+app.get('/clientes', verifyToken, (req, res) => {
+    // Extraer el correo del token decodificado (asumimos que está en req.user)
+    const correo = req.user.correo;
+
+    // Consulta SQL para buscar al usuario por correo y verificar el rol
+    const q = "SELECT * FROM usuarios WHERE correo = ?";
+
+    db.query(q, [correo], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el usuario en la base de datos', error: err });
+        }
+
+        // Verificar si el usuario existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar si el rol del usuario tiene acceso a listar clientes
+        const user = data[0];
+        if (user.rol_usuario !== 0) {
+            return res.status(403).json({ message: 'Acceso denegado: no tienes permisos para ver clientes' });
+        }
+
+        // Consulta SQL para obtener todos los clientes
+        const q2 = "SELECT * FROM clientes";
+
+        db.query(q2, (err, data) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Hubo un error al obtener los clientes', error: err });
+            }
+
+            return res.json({ message: 'Clientes obtenidos exitosamente', clientes: data });
+        });
+    });
+});
+
+
 
 app.post('/materiales/crearMateriales', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado (asumimos que está en req.user)

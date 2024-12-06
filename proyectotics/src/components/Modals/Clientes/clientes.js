@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
     Grid2, 
@@ -24,15 +24,15 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
     bgcolor: '#e5e5e5',
     border: '3px solid #093d77',
     boxShadow: 24,
-    borderRadius: 3,
+
+    width: 1500,
     pt: 2,
     px: 4,
     pb: 3,
-};
+  };
 
 //Barra de búsqueda
 const Search = styled('div')(({ theme }) => ({
@@ -82,21 +82,26 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function NestedModalClientes({open, handleClose}) {
     const clientes = [
-        {id: 1, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 2, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 3, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 4, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 5, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 6, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 7, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 8, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 9, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
-        {id: 10, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa', apellido_cliente: 'aaaaaaaaaa', telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 1, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 2, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 3, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 4, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 5, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 6, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 7, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 8, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 9, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
+        {id: 10, rut_cliente: '12345678-9', nombre_cliente: 'aaaaaaaa',  telefono_cliente: 912345678, correo_cliente:'abcd@abcd.cl', direccion_cliente: 'aaaaaa 1234, aaaaaa'},
 
     ];
 
     const [cliente, setCliente] = useState(clientes);
     const [clienteSelect, setClienteSelect] = useState(null);
+    const [actualizar, setActualizar] = useState(false);
+
+    const toggleActualizar = () => {
+        setActualizar(prevValue => !prevValue); // Cambia al opuesto
+      };
    
 
     const [childOpen, setChildOpen] = React.useState(false);
@@ -137,7 +142,7 @@ export default function NestedModalClientes({open, handleClose}) {
         { 
             field: 'rut_cliente', 
             headerName: 'Rut', 
-            width: 97,
+            width: 150,
             renderCell: (params) => (
                 <div style={{ 
                     display: 'flex',
@@ -156,26 +161,7 @@ export default function NestedModalClientes({open, handleClose}) {
         { 
             field: 'nombre_cliente', 
             headerName: 'Nombre', 
-            width: 100,
-            renderCell: (params) => (
-                <div style={{ 
-                    display: 'flex',
-                    alignItems: 'center', 
-                    justifyContent: 'left', 
-                    whiteSpace: 'normal',
-                    wordBreak: 'break-word',
-                    textAlign: 'center',
-                    height: '100%',
-                    lineHeight: '1.2'
-                }}>
-                    {params.value}
-                </div>
-            )
-        },
-        { 
-            field: 'apellido_cliente', 
-            headerName: 'Apellido', 
-            width: 100,
+            width: 250,
             renderCell: (params) => (
                 <div style={{ 
                     display: 'flex',
@@ -194,7 +180,7 @@ export default function NestedModalClientes({open, handleClose}) {
         { 
             field: 'telefono_cliente', 
             headerName: 'Teléfono', 
-            width: 92,
+            width: 120,
             renderCell: (params) => (
                 <div style={{ 
                     display: 'flex',
@@ -213,7 +199,7 @@ export default function NestedModalClientes({open, handleClose}) {
         { 
             field: 'correo_cliente', 
             headerName: 'Correo', 
-            width: 200,
+            width: 250,
             renderCell: (params) => (
                 <div style={{ 
                     display: 'flex',
@@ -232,7 +218,7 @@ export default function NestedModalClientes({open, handleClose}) {
         {
             field: 'direccion_cliente',
             headerName: 'Dirección',
-            width: 210,
+            width: 310,
             renderCell: (params) => (
                 <div style={{ 
                     display: 'flex',
@@ -251,25 +237,60 @@ export default function NestedModalClientes({open, handleClose}) {
         },
     ];
    
-/*    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
-        // Función para obtener la lista de materiales cuando se abre el modal
-    useEffect(() => {
-        console.log(token)
-        if (open && token) {
-            console.log("enviando get")
-            axios.get('http://localhost:8081/materiales/verMateriales', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            .then(response => setCliente(response.data.clientes))
-            .catch(error => console.error('Error al obtener cliente:', error));
-        }
-    }, [open]);
+  useEffect(() => {
+    console.log(token);
+    if (open && token) {
+        console.log("enviando get");
+        axios.get('http://localhost:8081/clientes', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => {
+            // Mapeo para cambiar los nombres de las columnas
+            console.log(response.data.clientes)
+            const transformedClientes = response.data.clientes.map(cliente => ({
+                id: cliente.idcliente,
+                rut_cliente: cliente.rut,
+                nombre_cliente: cliente.razon_social,
+                telefono_cliente: cliente.telefono,
+                correo_cliente: cliente.correo,
+                direccion_cliente: cliente.direccion // Mantén las columnas que no cambian igual
+            }));
+            setCliente(transformedClientes);
+        })
+        .catch(error => console.error('Error al obtener cliente:', error));
+    }
+}, [open]);
+
+useEffect(() => {
+    console.log(token);
+    if (open && token) {
+        console.log("enviando get");
+        axios.get('http://localhost:8081/clientes', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => {
+            // Mapeo para cambiar los nombres de las columnas
+            console.log(response.data.clientes)
+            const transformedClientes = response.data.clientes.map(cliente => ({
+                id: cliente.idcliente,
+                rut_cliente: cliente.rut,
+                nombre_cliente: cliente.razon_social,
+                telefono_cliente: cliente.telefono,
+                correo_cliente: cliente.correo,
+                direccion_cliente: cliente.direccion // Mantén las columnas que no cambian igual
+            }));
+            setCliente(transformedClientes);
+        })
+        .catch(error => console.error('Error al obtener cliente:', error));
+    }
+}, [actualizar]);
 
     useEffect(() => {
         console.log("Clientes actualizados:", cliente);
     }, [cliente]); // Este efecto se ejecutará cada vez que 'materiales' cambie
-*/
+
     const [busqueda, setBusqueda] = useState('');
     const clientesFiltrados = cliente.filter(
         (cliente) => 
@@ -296,11 +317,12 @@ export default function NestedModalClientes({open, handleClose}) {
             width: { xs: '90%', sm: '70%', md: '60%', lg: '57%' },
             maxHeight: '90vh', // Limita la altura
             overflowY: 'auto', // Agrega scroll en caso de contenido extenso
-            displey: 'flex',
+            disply: 'flex',
             overflowX: 'auto'
          }}>
+
             <Grid2 container alignItems="center" justifyContent="space-between">
-                <Grid2 item xs={4} style={{ textAlign: 'left' }}>
+                <Grid2 item xs={4} style={{ textAlign: 'center' }}>
                     <h2 id="parent-modal-title">Clientes</h2>
                 </Grid2>
 
@@ -336,7 +358,7 @@ export default function NestedModalClientes({open, handleClose}) {
             </Grid2>
 
             <Box
-                sx={{ width: '100%', marginTop:2, height: 400, maxWidth: 800, bgcolor: '#e5e5e5' }}
+                sx={{ width: '100%', marginTop:2, height: 400,  bgcolor: '#e5e5e5' }}
             >
                 <Paper style={{  marginTop:10, height: 420, width: '100%' }} elevation={0}>
                     <DataGrid
@@ -388,7 +410,6 @@ export default function NestedModalClientes({open, handleClose}) {
                 handleClose={handleChildClose} 
                 nombre={nombre}
                 handleChangeNombre={handleChangeNombre}
-                apellido={apellido}
                 handleChangeApellido={handleChangeApellido}
                 rut={rut}
                 handleChangeRut={handleChangeRut}
@@ -398,6 +419,8 @@ export default function NestedModalClientes({open, handleClose}) {
                 handleChangeCorreo={handleChangeCorreo}
                 direccion={direccion}
                 handleChangeDireccion={handleChangeDireccion}
+                actualizar={actualizar}
+                toggleActualizar={toggleActualizar}
             />
         </Box>
       </Modal>

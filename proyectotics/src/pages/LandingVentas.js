@@ -1,7 +1,7 @@
 import React from 'react';
 //import Axios from 'axios';
 import { useState } from 'react';
-import { Container, Grid2, Button } from '@mui/material';
+import { Container, Grid, Button, Grid2 } from '@mui/material';
 import '../index.css';
 import SettingsIcon from '@mui/icons-material/Settings';
 import StoreIcon from '@mui/icons-material/Store';
@@ -15,6 +15,7 @@ import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import VentasModal from '../components/Modals/Ventas.ventas/VentasModal';
+import NestedModalClientes from '../components/Modals/Clientes/clientes';
 
 export default function LandingProduccion() {
   const style = {
@@ -30,6 +31,10 @@ export default function LandingProduccion() {
     p: 4,
   };
 
+  const [openClientes, setOpenClientes] = useState(false);
+  const handleOpenClientes = () => setOpenClientes(true);
+  const handleCloseClientes= () => setOpenClientes(false);
+
   
   const [openVentas, setOpenVentas] = useState(false);
   const handleOpenVentas = () => setOpenVentas(true);
@@ -41,10 +46,10 @@ export default function LandingProduccion() {
         style={{backgroundColor: '#e5e5e5' , }}>
         
         <Container bmaxWidth="sm" style={{ height: '100vh',paddingTop:'120px' ,display: 'flex', alignItems: 'center', justifyContent: 'center',}}>
-        <Grid2 container style={{ position: 'relative', height: '400px', width: '300px' }}>
+        <Grid container style={{ position: 'relative', height: '400px', width: '300px' }}>
           
           {/* Botón superior */}
-          <Grid2 item xs={12} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}>
+          <Grid item xs={12} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}>
             <Button className='botonGrande' onClick={handleOpenVentas} variant="contained" startIcon={<PointOfSaleIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px' , fontSize:'30px' }} color="amarillohoverblanco">
             Ventas
             </Button>
@@ -53,9 +58,10 @@ export default function LandingProduccion() {
           </Grid>
             
           {/* Botón inferior */}
-          <Grid2 item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
+          <Grid item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
             <Button variant="contained" color="azul" startIcon={<SettingsIcon />} >Ajustes</Button>
-          </Grid2>
+          </Grid>
+  
   
           {/* Botón izquierdo */}
           <Grid2 item xs={12}  style={{ position: 'absolute', top: '50%', left: '-90%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
@@ -79,13 +85,12 @@ export default function LandingProduccion() {
             </Button>
             <NestedModalClientes open={openClientes} handleClose={handleCloseClientes} handleOpen={handleOpenClientes} />
           </Grid2>
-  
           {/* Botón derecho */}
-          <Grid2 item xs={12} style={{ position: 'absolute', top: '50%', right: '-90%', transform: 'translateY(-50%)' }}>
+          <Grid item xs={12} style={{ position: 'absolute', top: '50%', right: '-90%', transform: 'translateY(-50%)' }}>
             <Button variant="contained" color="amarillohoverblanco" startIcon={<RequestQuoteIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px', fontSize:'30px'  }}>Cotización</Button>
-          </Grid2>
+          </Grid>
           
-        </Grid2>
+        </Grid>
       </Container>
       </div>
       );
