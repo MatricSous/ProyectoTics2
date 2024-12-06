@@ -1,5 +1,6 @@
 import React, { useState ,useEffect } from 'react';
-import { Box, Button, Modal, TextField, Typography, Grid2, Grid, item, MenuItem, Popover, List, ListItem, ListItemText, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Box, Button, Modal, TextField, Typography, Grid2, Grid, item, MenuItem, Popover, List, ListItem, 
+    ListItemText, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { esES } from '@mui/x-data-grid/locales';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -20,7 +21,7 @@ function AnadirVenta({ open, onClose }) {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 900,
-    height: 640,
+    height: 660,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -48,22 +49,27 @@ function AnadirVenta({ open, onClose }) {
   
   const despachador = [
     {
-      value: 'Yailin',
-      label: 'Yailin',
+        value: 'Francisco Soto',
+        label: 'Francisco Soto'
     },
     {
-      value: 'Fernin',
-      label: 'Fernin',
+        value: 'Joaquín Pérez',
+        label: 'Joaquín Pérez'
     },
     {
-      value: 'Miguel',
-      label: 'Miguel',
+        value: 'Mateo González',
+        label: 'Mateo González'
     },
     {
-      value: 'Yarden',
-      label: 'Yarden',
+        value: 'Gabriel Rivas',
+        label: 'Gabriel Rivas'
     },
-  ];
+    {
+        value: 'Santiago Martínez',
+        label: 'Santiago Martínez'
+    }
+];
+
     
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCotizacion, setSelectedCotizacion] = useState(null);
@@ -76,9 +82,7 @@ function AnadirVenta({ open, onClose }) {
   const [costo, setCosto] = useState('');
   const [horario, setHorario] = useState('');
   const [openAgregarCliente, setOpenAgregarCliente] = useState(false);
-
   
-  const [deliveryDateRange, setDeliveryDateRange] = useState({ startDate: '', endDate: '' });
 
     // Actualizar el rango de fechas en el estado
     useEffect(() => {
@@ -208,7 +212,106 @@ function AnadirVenta({ open, onClose }) {
         { id: 3, nombre: 'Visagras', cantidad: 6, detalle: 'Visagras para puertas', precio: 3000 },
       ]
     }
+    ,
+    { 
+        id: 11, 
+        cliente: 'Benjamín Cofré', 
+        detalle: 'Mueble de comedor', 
+        direccion: 'Avenida Central 999', 
+        telefono: '+56 9 0123 4567',
+        rows: [ 
+          { id: 1, nombre: 'Madera de Cedro', cantidad: 20, detalle: 'Madera de cedro para la estructura', precio: 35000 },
+          { id: 2, nombre: 'Patas Metálicas', cantidad: 4, detalle: 'Patas metálicas para el mueble', precio: 15000 },
+          { id: 3, nombre: 'Visagras', cantidad: 6, detalle: 'Visagras para puertas', precio: 3000 },
+        ]
+      }
+];  
+const materiales = [
+    { id: 1, nombre: 'Madera de Cedro', cantidad: 1, detalle: 'Madera de cedro para la estructura', precio: 2000, bodega: 'Bodega 2' },
+    { id: 2, nombre: 'Cemento Portland', cantidad: 10, detalle: 'Cemento para construcción resistente', precio: 500, bodega: 'Bodega 2' },
+    { id: 3, nombre: 'Arena Fina', cantidad: 5, detalle: 'Arena para mezcla de concreto', precio: 300, bodega: 'Bodega 2' },
+    { id: 4, nombre: 'Ladrillos Rojos', cantidad: 500, detalle: 'Ladrillos para paredes', precio: 150, bodega: 'Bodega 2' },
+    { id: 5, nombre: 'Tubos PVC', cantidad: 20, detalle: 'Tubos para plomería', precio: 800, bodega: 'Bodega 2' },
+    { id: 6, nombre: 'Vidrios Templados', cantidad: 15, detalle: 'Vidrios para ventanas', precio: 2500, bodega: 'Bodega 2' },
+    { id: 7, nombre: 'Clavos de Acero', cantidad: 1000, detalle: 'Clavos resistentes a la oxidación', precio: 50, bodega: 'Bodega 1' },
+    { id: 8, nombre: 'Pintura Blanca', cantidad: 2, detalle: 'Pintura de alta cobertura', precio: 900, bodega: 'Bodega 1' },
+    { id: 9, nombre: 'Alambre Galvanizado', cantidad: 30, detalle: 'Alambre para cercas', precio: 400, bodega: 'Bodega 2' },
+    { id: 10, nombre: 'Tejas de Arcilla', cantidad: 50, detalle: 'Tejas para techos rústicos', precio: 180, bodega: 'Bodega 2' },
+    { id: 11, nombre: 'Puerta de Madera', cantidad: 1, detalle: 'Puerta de madera maciza', precio: 3000, bodega: 'Bodega 2' },
+    { id: 12, nombre: 'Ventilador de Techo', cantidad: 2, detalle: 'Ventiladores para ventilación interna', precio: 2200, bodega: 'Bodega 1' },
+    { id: 13, nombre: 'Interruptores Eléctricos', cantidad: 10, detalle: 'Interruptores de alta calidad', precio: 250, bodega: 'Bodega 1' },
+    { id: 14, nombre: 'Cableado Eléctrico', cantidad: 50, detalle: 'Cableado para conexiones eléctricas', precio: 1000, bodega: 'Bodega 2' },
+    { id: 15, nombre: 'Azulejos Cerámicos', cantidad: 20, detalle: 'Azulejos para baños y cocinas', precio: 300, bodega: 'Bodega 2' },
+    { id: 16, nombre: 'Tornillos Autorroscantes', cantidad: 500, detalle: 'Tornillos para metal y madera', precio: 120, bodega: 'Bodega 1' },
+    { id: 17, nombre: 'Planchas de Yeso', cantidad: 10, detalle: 'Planchas para tabiques', precio: 450, bodega: 'Bodega 2' },
+    { id: 18, nombre: 'Malla Electrosoldada', cantidad: 10, detalle: 'Malla para refuerzos de concreto', precio: 600, bodega: 'Bodega 2' },
+    { id: 19, nombre: 'Láminas de Aluminio', cantidad: 5, detalle: 'Láminas para cubiertas ligeras', precio: 1500, bodega: 'Bodega 2' },
+    { id: 20, nombre: 'Impermeabilizante Líquido', cantidad: 1, detalle: 'Impermeabilizante para techos', precio: 2800, bodega: 'Bodega 2' },
 ];
+
+  
+  const [open2, setOpen2] = useState(false); // Estado del modal
+  const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
+  const [selectedMaterial, setSelectedMaterial] = useState(null); // Estado para el material seleccionado
+  const [quantity, setQuantity] = useState(0); // Para almacenar la cantidad seleccionada
+
+  
+  const [deliveryDateRange, setDeliveryDateRange] = useState({ startDate: '', endDate: '' });
+  const handleMaterialClick = (material) => {
+    // Cambiar el material seleccionado
+    setSelectedMaterial(material);
+    handleSelectMaterial(material);
+};  
+
+
+
+  // Filtrar materiales por nombre según la búsqueda
+  const filteredMaterials = materiales.filter((materiales) =>
+    materiales.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleOpen2 = () => {
+    setOpen2(true);
+  };
+
+  const handleClose2 = () => {
+    setOpen2(false);
+    setSearchQuery(''); // Limpiar la búsqueda al cerrar
+  };
+
+  
+  // Función que maneja la selección del material
+  const handleSelectMaterial = (material) => {
+    setSelectedMaterial(material);
+  };
+
+  // Función que maneja el cambio de cantidad
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value); // Actualiza la cantidad
+  };
+
+  // Función que maneja el confirmando la selección y cantidad
+  const handleConfirm2 = () => {
+    
+        if (selectedMaterial && quantity > 0) {
+            const precioTotal = selectedMaterial.precio * quantity;
+        const newRow = {
+            id: selectedMaterial.id, // Genera un ID único
+            nombre: selectedMaterial.nombre,
+            cantidad: quantity,
+            detalle:selectedMaterial.detalle,
+            precio: precioTotal,
+        };
+
+        // Agregar la nueva fila al estado de rows
+        setRows((prevRows) => [...prevRows, newRow]);
+
+        // Cerrar el modal después de agregar el material
+        handleClose2();
+    } else {
+        alert('Por favor, selecciona un material y cantidad válidos.');
+    }
+};
 
 
     const handleOpenAgregarCliente = () => {
@@ -224,10 +327,12 @@ function AnadirVenta({ open, onClose }) {
   const handleClosePopover = () => {
       setAnchorEl(null);
   };
-
+  const [selectedCliente, setSelectedCliente] = useState('');
+  
   const handleSelectCotizacion = (cotizacion) => {
     setCotizacionId(cotizacion.id); // Actualiza el ID en el TextField de Cotizaciones
     setSelectedCotizacion(cotizacion);
+    setSelectedCliente(cotizacion.cliente);  // Actualiza el nombre del cliente
     setCotizaciondir(cotizacion.direccion);
     setCotizacionText(`${cotizacion.cliente}`);
     setIsDisabled(false); // Habilitar el TextField
@@ -272,7 +377,7 @@ function AnadirVenta({ open, onClose }) {
 
   const openPopover = Boolean(anchorEl);
   const popoverId = openPopover ? 'cotizacion-popover' : undefined;
-
+  
   
     // Estado para controlar la visibilidad del modal
     const [openDialog, setOpenDialog] = useState(false);
@@ -318,7 +423,28 @@ function AnadirVenta({ open, onClose }) {
         }, 1000); // Simula un pequeño retraso antes de mostrar el mensaje
       };
 
+      const [searchTerm, setSearchTerm] = useState('');
 
+        const filteredCotizaciones = cotizaciones.filter(
+        (cotizacion) =>
+            cotizacion.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cotizacion.detalle.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    
+        const calcularTotal = () => {
+            return rows.reduce((total, row) => total + row.precio, 0);
+          };
+        
+          const totalMateriales = calcularTotal();
+    
+          const handleSaveChanges = (updatedMaterial) => {
+            setRows((prevRows) =>
+              prevRows.map((row) =>
+                row.id === updatedMaterial.id ? updatedMaterial : row
+              )
+            );
+          };
+        
     return(
         <Box sx={style}>
             <Button onClick={onClose} sx={{ position: 'absolute', top: 10, right: 10, color: 'black', zIndex: 1 }}>
@@ -359,36 +485,64 @@ function AnadirVenta({ open, onClose }) {
                     <SearchIcon color='amarillo'/>
                     </Button>
 
-                     {/* Popover para mostrar cotizaciones */}
-                    <Popover
-                        id={popoverId}
-                        open={openPopover}
-                        anchorEl={anchorEl}
-                        onClose={handleClosePopover}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'center',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center',
-                        }}
-                    >
-                        <List>
-                            {cotizaciones.map((cotizacion) => (
-                                <ListItem
-                                    button
-                                    key={cotizacion.id}
-                                    onClick={() => handleSelectCotizacion(cotizacion)}
-                                >
-                                    <ListItemText
-                                        primary={cotizacion.cliente}
-                                        secondary={cotizacion.detalle}
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Popover>
+                    {/* Popover para mostrar cotizaciones */}
+                        <Popover
+                            id={popoverId}
+                            open={openPopover}
+                            anchorEl={anchorEl}
+                            onClose={handleClosePopover}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'center',
+                            }}
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'center',
+                            }}
+                        >
+                            <Box sx={{ p: 2 }}>
+                                {/* Input de búsqueda */}
+                                <TextField
+                                    fullWidth
+                                    placeholder="Buscar cotización por ID o cliente..."
+                                    variant="outlined"
+                                    value={cotizacionText}
+                                    onChange={(e) => setCotizacionText(e.target.value)}
+                                />
+                            </Box>
+
+                            {/* Lista de cotizaciones filtrada */}
+                            <List>
+                                {cotizaciones
+                                    .filter((cotizacion) =>
+                                        cotizacion.cliente.toLowerCase().includes(cotizacionText.toLowerCase()) ||
+                                        cotizacion.detalle.toLowerCase().includes(cotizacionText.toLowerCase()) ||
+                                        cotizacion.id.toString().includes(cotizacionText)
+                                    )
+                                    .map((cotizacion) => (
+                                        <ListItem
+                                            button
+                                            key={cotizacion.id}
+                                            onClick={() => handleSelectCotizacion(cotizacion)}
+                                        >
+                                            <ListItemText
+                                                primary={`Cliente: ${cotizacion.cliente}`}
+                                                secondary={`N° de Cotización: ${cotizacion.id}`}
+                                            />
+                                        </ListItem>
+                                    ))}
+                            </List>
+
+                            {/* Mostrar cliente seleccionado */}
+                            {selectedCliente && (
+                                <Box sx={{ mt: 2, p: 2, bgcolor: '#f1f1f1', borderRadius: 4 }}>
+                                    <Typography variant="h6">
+                                        Cliente Seleccionado: {selectedCliente}
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Popover>
+
         
                     </Grid2>
                     
@@ -538,33 +692,51 @@ function AnadirVenta({ open, onClose }) {
             </item>
         </Grid2>
         <div className='Raya'></div>
-        <TablaAnadir rows={selectedCotizacion ? selectedCotizacion.rows : []} />
+       
+        <TablaAnadir rows={rows} setRows={setRows} onSaveChanges={handleSaveChanges} />
+
         
-        <Button
-            sx={{
-                backgroundColor: 'green',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '8px',
-                marginTop:'10px',
-                marginLeft:'363px',
-                padding: '12px 24px 10px',
-                fontWeight: 'bold',
-                '&:hover': {
-                backgroundColor: '#388e3c', // Un verde más oscuro para el hover
-                },
-            }}
-            onClick={handleOpenDialog}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            {/* Botón de Agregar Material */}
+            <Button
+                variant='contained'
+                onClick={handleOpen2}
+                color="amarillo"
+                sx={{
+                    marginTop: '10px',
+                }}
             >
-            <ConfirmationNumberIcon sx={{ marginRight: '8px' }} /> {/* Ícono de ticket */}
-            Confirmar
-        </Button>
+                Agregar Material
+            </Button>
+            <h2>Total de la Compra: ${totalMateriales}</h2>
+            {/* Botón de Confirmar */}
+            <Button
+                sx={{
+                    backgroundColor: 'green',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '8px',
+                    marginTop: '10px',
+                    padding: '12px 24px 10px',
+                    fontWeight: 'bold',
+                    '&:hover': {
+                        backgroundColor: '#388e3c', // Un verde más oscuro para el hover
+                    },
+                }}
+                onClick={handleOpenDialog}
+            >
+                <ConfirmationNumberIcon sx={{ marginRight: '8px' }} /> {/* Ícono de ticket */}
+                Confirmar
+            </Button>
+        </Box>
+
+
         <Dialog open={openDialog} onClose={handleCloseDialog}>
             <DialogTitle>¿Estás seguro de confirmar la compra?</DialogTitle>
             <DialogContent>
-            <p>Esta acción no se puede deshacer. ¿Quieres continuar con la compra?</p>
+            <p>¿Quieres continuar con la compra de ${totalMateriales}? </p>
             </DialogContent>
             <DialogActions>
             <Button onClick={handleCloseDialog} color="amarillo">
@@ -576,11 +748,84 @@ function AnadirVenta({ open, onClose }) {
             </DialogActions>
         </Dialog>
         
-            {ventaRealizada && (
-            <Typography variant="h6" color="success.main" sx={{ textAlign: 'center', marginTop: '20px' }}>
-                ¡Venta realizada con éxito!
-            </Typography>
+        {/* Modal*/}
+        <Modal open={open2} onClose={handleClose2}>
+        <Box sx={{ width: 400, position: 'absolute', height: 580, top: '50%', left: '50%', padding: 2, bgcolor: 'white', borderRadius: '8px', transform: 'translate(-50%, -50%)' }}>
+            <Button onClick={() => handleClose2()} style={{ position: 'absolute', top: 10, right: 10 }}>
+                <HighlightOffIcon style={{ color: '#b71c1c' }} />
+            </Button>
+            <h2>Seleccionar Material</h2>
+
+            {/* Campo de búsqueda */}
+            <TextField
+                label="Buscar Material"
+                variant="outlined"
+                color='amarillo'
+                fullWidth
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)} // Actualizar la búsqueda
+                sx={{ marginBottom: 2 }}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                    ),
+                }}
+            />
+
+            <Box sx={{ maxHeight: '300px', overflowY: 'auto' }}>
+                {/* Lista de materiales filtrada */}
+                <List>
+                    {filteredMaterials.map((material) => (
+                        <ListItem
+                            button
+                            key={material.id}
+                            onClick={() => handleMaterialClick(material)}
+                            sx={{
+                                backgroundColor: selectedMaterial?.id === material.id ? 'rgba(0, 0, 0, 0.1)' : 'transparent', // Color más oscuro cuando se selecciona
+                                '&:hover': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.2)', // Hover color
+                                },
+                            }}
+                        >
+                            <ListItemText
+                                color='amarillo'
+                                primary={material.nombre}
+                                secondary={`Cantidad: ${material.cantidad}, Precio: $${material.precio}, ${material.bodega}` }
+                            />
+                        </ListItem>
+                    ))}
+                </List>
+            </Box>
+
+            {/* Mostrar la cantidad para el material seleccionado */}
+            {selectedMaterial && (
+                <Box sx={{ marginTop: 2 }}>
+                    <TextField
+                        label="Cantidad"
+                        color='amarillo'
+                        type="number"
+                        value={quantity}
+                        onChange={handleQuantityChange}
+                        fullWidth
+                        variant="outlined"
+                    />
+                </Box>
             )}
+
+            {/* Botón para confirmar la selección */}
+            <Button
+                variant="contained"
+                color="amarillo"
+                sx={{ marginTop: 2 }}
+                onClick={handleConfirm2} // Agregar el material seleccionado a las filas
+            >
+                Confirmar
+            </Button>
+        </Box>
+    </Modal>
+        
         
             
 

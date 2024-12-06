@@ -1,125 +1,133 @@
-import React, { useState ,useEffect } from 'react';
-import { Box, Button, Modal, TextField, Typography, Grid2, Grid, item, MenuItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, Modal, TextField, Typography, Grid2, Grid, MenuItem } from '@mui/material';
 
-
-
-
-function EditarVenta({material , open, onClose }) {
-    
-    const style = {
+function EditarVenta({ material, open, onClose, onSaveChanges }) {
+  const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
-    height: 400,
+    height: 370,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
-    
   };
 
-const [materialDetails, setMaterialDetails] = useState([]); // Estado para los materiales relacionados
-const [loading, setLoading] = useState(true);
-useEffect(() => {
-    // Simulamos la obtención de materiales desde una base de datos.
-    const fetchMaterialDetails = async () => {
-    // AQUI SE REMPLAZA LA BASE DE DATOS POR LA QUE ESTAMOS BUSCANDO
-      const associatedMaterials = [
-        { id: 1, nombre: 'Material A', cantidad: 10, detalle: 'Detalle del Material A' },
-        { id: 2, nombre: 'Material B', cantidad: 5, detalle: 'Detalle del Material B' },
-        { id: 2, nombre: 'Material B', cantidad: 5, detalle: 'Detalle del Material B' },
-        { id: 2, nombre: 'Material B', cantidad: 5, detalle: 'Detalle del Material B' },
-        { id: 2, nombre: 'Material B', cantidad: 5, detalle: 'Detalle del Material B' },
-        { id: 2, nombre: 'Material B', cantidad: 5, detalle: 'Detalle del Material B' },
-        { id: 2, nombre: 'Material B', cantidad: 5, detalle: 'Detalle del Material B' },
-        { id: 2, nombre: 'Material B', cantidad: 5, detalle: 'Detalle del Material B' },
-        
-        { id: 3, nombre: 'Material C', cantidad: 8, detalle: 'Detalle del Material C' },
-        { id: 4, nombre: 'Material D', cantidad: 2, detalle: 'Detalle del Material D' },
-        { id: 5, nombre: 'Material E', cantidad: 12, detalle: 'Detalle del Material E' }
-      ];
-      
-      // Agregamos el valor total a cada material basado en la cantidad
-      const materialsWithTotal = associatedMaterials.map(material => ({
-        ...material,
-        total: material.cantidad * 100 // Precio fijo de 100 como ejemplo
-      }));
+  // Estado para los detalles del material
+  const [materialDetails, setMaterialDetails] = useState(material);
+  const [newPrice, setNewPrice] = useState(material?.precio || 0);
+  const [discount, setDiscount] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(material?.precio || 0);
 
-      setMaterialDetails(materialsWithTotal); // Establecemos los materiales relacionados
-      setLoading(false); // Cambiamos el estado a no cargando
-    };
+  useEffect(() => {
+    // Actualizar el precio final cuando cambie el precio o descuento
+    const discountedPrice = newPrice - (newPrice * (discount / 100));
+    setFinalPrice(discountedPrice);
+  }, [newPrice, discount]);
 
-    fetchMaterialDetails(); // Llamamos a la función para obtener los detalles
+  // Función para manejar el cambio de precio
+  const handlePriceChange = (event) => {
+    setNewPrice(event.target.value);
+  };
 
-  }, [material]); // Cada vez que cambie el material seleccionado, se ejecutará esta función
- 
+  // Función para manejar el cambio de descuento
+  const handleDiscountChange = (event) => {
+    setDiscount(event.target.value);
+  };
 
-  return(
+  const handleSaveChanges = () => {
+    const updatedMaterial = { ...material, precio: finalPrice };
+
+    console.log("Material actualizado:", updatedMaterial);
+
+    // Pasa el material actualizado al componente padre
+    onSaveChanges(updatedMaterial);
+
+    onClose(); // Cierra el modal
+  };
+
+  if (!material) {
+    return null; // No mostrar nada si material es null
+  }
+
+  return (
     <Box sx={style}>
-            <div
-                style={{
-                    position: 'relative',
-                    textAlign: 'center', // Centrar contenido dentro del contenedor
-                    marginBottom: '1rem', // Espaciado entre título y raya
-                    
-                }}
-                >
-                <h2
-                    id="parent-modal-title"
-                    style={{
-                    margin: 0, // Eliminar márgenes del título
-                    color: 'black',
-                    fontSize: '1.5rem',
-                    zIndex: 1, // Garantiza que el título esté visible
-                    wordWrap: 'break-word', // Permite que el texto se ajuste en varias líneas si es largo
-                    }}
-                >
-                    {material.nombre}
-                </h2>
-                    <div
-                    className="Raya"
-                    style={{
-                    height: '2px', // Espesor de la línea
-                    backgroundColor: 'black', // Color de la "raya"
-                    width: '100%', // Ajuste al ancho del contenedor
-                    marginTop: '0.5rem', // Espaciado entre el título y la línea
-                    }}>   
-                    </div>
-            </div>
+      <div
+        style={{
+          position: 'relative',
+          textAlign: 'center',
+          marginBottom: '1rem',
+        }}
+      >
+        <h2
+          id="parent-modal-title"
+          style={{
+            margin: 0,
+            color: 'black',
+            fontSize: '1.5rem',
+            zIndex: 1,
+            wordWrap: 'break-word',
+          }}
+        >
+          {material.nombre}
+        </h2>
+        <div
+          className="Raya"
+          style={{
+            height: '2px',
+            backgroundColor: 'black',
+            width: '100%',
+            marginTop: '0.5rem',
+          }}
+        ></div>
+      </div>
 
-        <h2 >Precio: {material.precio} </h2>
-        
-        <Grid2 container rowSpacing={2}  style={{ display: 'flex', alignItems: 'center'}}>
-            <Grid2 size={2}>
-            <item>
-                hola
-            </item>
-            </Grid2>
-            <Grid2 size={2}>
-            <item>
-                hola
-            </item>
-            </Grid2>
-            <Grid2 size={2}>
-            <item>
-                hola
-            </item>
-            </Grid2>
-            <Grid2 size={2}>
-            <item>
-                hola
-            </item>
-            </Grid2>
+      <Typography variant="h6" gutterBottom>
+        Precio Actual: ${material.precio}
+      </Typography>
 
-    
-        </Grid2>
+      <TextField
+        label="Nuevo Precio"
+        value={newPrice}
+        onChange={handlePriceChange}
+        fullWidth
+        variant="outlined"
+        margin="normal"
+        type="number"
+      />
+
+      <TextField
+        label="Descuento (%)"
+        value={discount}
+        onChange={handleDiscountChange}
+        fullWidth
+        variant="outlined"
+        margin="normal"
+        type="number"
+        InputProps={{
+          endAdornment: <span>%</span>,
+        }}
+      />
+
+      <Typography variant="h6" gutterBottom>
+        Precio Final: ${finalPrice.toFixed(2)}
+      </Typography>
+
+      <Grid2 container rowSpacing={2} style={{ display: 'flex', alignItems: 'center' }} />
+
+      <Button
+        variant="contained"
+        color="amarillo"
+        onClick={handleSaveChanges}
+        fullWidth
+        sx={{ marginTop: '1rem' }}
+      >
+        Guardar Cambios
+      </Button>
     </Box>
-
-    
-  )
-
-};
+  );
+}
 
 export default EditarVenta;

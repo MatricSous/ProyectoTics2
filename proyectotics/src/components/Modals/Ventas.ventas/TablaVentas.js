@@ -29,16 +29,78 @@ function TablaVentas({ filterText }) {
     const [selectedMaterial, setSelectedMaterial] = useState(null);
 
     // Generar datos aleatorios
-    const generateRows = () => {
-        return Array.from({ length: 10 }, (_, index) => ({
-            id: index + 1,
-            nombre: `Cliente ${index + 1}`,
-            precio: Math.floor(Math.random() * 1000) + 100,
-            detalle: `2023-11-10 10:${index}0`,
-        }));
-    };
+    const cotizaciones = [
+        { 
+            id: 1, 
+            nombre: 'Juan Pérez', 
+            precio: 26500, 
+            detalle: '2024-12-06 10:30 AM' 
+        },
+        { 
+            id: 2, 
+            nombre: 'Ana Martínez', 
+            precio: 38000, 
+            detalle: '2024-12-06 11:00 AM' 
+        },
+        { 
+            id: 3, 
+            nombre: 'Carlos García', 
+            precio: 57000, 
+            detalle: '2024-12-06 11:30 AM' 
+        },
+        { 
+            id: 4, 
+            nombre: 'María López', 
+            precio: 22000, 
+            detalle: '2024-12-06 12:00 PM' 
+        },
+        { 
+            id: 5, 
+            nombre: 'Luis Ramírez', 
+            precio: 30000, 
+            detalle: '2024-12-06 12:30 PM' 
+        },
+        { 
+            id: 6, 
+            nombre: 'Pedro González', 
+            precio: 31500, 
+            detalle: '2024-12-06 01:00 PM' 
+        },
+        { 
+            id: 7, 
+            nombre: 'Elena Pérez', 
+            precio: 42000, 
+            detalle: '2024-12-06 01:30 PM' 
+        },
+        { 
+            id: 8, 
+            nombre: 'Jorge Martínez', 
+            precio: 29500, 
+            detalle: '2024-12-06 02:00 PM' 
+        },
+        { 
+            id: 9, 
+            nombre: 'Sofía Herrera', 
+            precio: 25000, 
+            detalle: '2024-12-06 02:30 PM' 
+        },
+        { 
+            id: 10, 
+            nombre: 'Ricardo Sánchez', 
+            precio: 33000, 
+            detalle: '2024-12-06 03:00 PM' 
+        }
+        ,
+        { 
+            id: 11, 
+            nombre: 'Benjamín Cofré', 
+            precio: 61250, 
+            detalle: '2024-12-07 13:04 PM' 
+        }
+    ];
+    
 
-    const [rows, setRows] = useState(generateRows());
+    const [rows, setRows] = useState(cotizaciones);
 
     const handleVerMas = (row) => {
         setSelectedMaterial(row);

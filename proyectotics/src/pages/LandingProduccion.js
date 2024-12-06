@@ -56,16 +56,7 @@ export default function LandingProduccion() {
         </Grid2>
 
       {/* Botón inferior */}
-      <Grid2 item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
-        <Button 
-          variant="contained" 
-          color="azul" 
-          startIcon={
-            <SettingsIcon />}>
-              Ajustes
-        </Button>
-      </Grid2>
-
+     
       {/* Botón izquierdo */}
       <Grid2 item xs={12}  style={{ position: 'absolute', top: '50%', left: '-90%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
         <Button 

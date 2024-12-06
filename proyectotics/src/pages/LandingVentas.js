@@ -16,7 +16,7 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import VentasModal from '../components/Modals/Ventas.ventas/VentasModal';
 import NestedModalClientes from '../components/Modals/Clientes/clientes';
-
+import NestedModalCotizaciones from '../components/Modals/cotizaciones/Cotizaciones';
 export default function LandingProduccion() {
   const style = {
     position: 'absolute',
@@ -40,6 +40,10 @@ export default function LandingProduccion() {
   const handleOpenVentas = () => setOpenVentas(true);
   const handleCloseVentas = () => setOpenVentas(false);
 
+  const [openCotizaciones, setOpenCotizaciones] = useState(false);
+  const handleOpenCotizaciones = () => setOpenCotizaciones(true);
+  const handleCloseCotizaciones = () => setOpenCotizaciones(false);
+
 
     return (
         <div 
@@ -57,12 +61,7 @@ export default function LandingProduccion() {
             
           </Grid>
             
-          {/* Botón inferior */}
-          <Grid item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
-            <Button variant="contained" color="azul" startIcon={<SettingsIcon />} >Ajustes</Button>
-          </Grid>
-  
-  
+          
           {/* Botón izquierdo */}
           <Grid2 item xs={12}  style={{ position: 'absolute', top: '50%', left: '-90%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
             <Button 

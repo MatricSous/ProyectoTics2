@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import axios from 'axios';
 import {
     Grid2, 
@@ -74,13 +74,14 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
     },
 }));
 
+
 export default function AgregarCliente({ 
     open, 
     handleClose, 
+    actualizar,
+    toggleActualizar,
     nombre, 
     handleChangeNombre, 
-    apellido, 
-    handleChangeApellido,
     rut,
     handleChangeRut,
     telefono,
@@ -90,46 +91,59 @@ export default function AgregarCliente({
     direccion,
     handleChangeDireccion
 }) {
+
+    const [showSaveMessage, setShowSaveMessage] = React.useState(false);
+    const [showErrorMessage, setShowErrorMessage] = React.useState(false);
+
+    // Limpiar mensajes de alerta cuando el modal se abre o se cierra
+    useEffect(() => {
+        if (!open) {
+            setShowSaveMessage(false);
+            setShowErrorMessage(false);
+        }
+    }, [open]);
+
     const handleGuardar = async () => {
         const cliente = {
-            "rut_cliente": rut,
-            "nombre_cliente": nombre,
-            "apellido_cliente": apellido,
-            "telefono_cliente": telefono,
-            "correo_cliente": correo,
-            "direccion_cliente": direccion,
+            "RUT": rut,
+            "razon_social": nombre,
+            "telefono": telefono,
+            "correo": correo,
+            "direccion": direccion,
         };
+
+        const token = localStorage.getItem('token');
     
-        console.log("Enviando solicitud POST a /materiales/crearMaterial con los datos:", cliente);
+        console.log("Enviando solicitud POST a /clientes/crearCliente con los datos:", cliente);
     
-    
-/*        try {
-            await axios.post('http://localhost:8081/materiales/crearMaterial', cliente, {
+        try {
+            await axios.post('http://localhost:8081/clientes/crearCliente', cliente, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setShowSaveMessage(true); // Muestra mensaje de guardado exitoso
+            setShowSaveMessage(true);
+            setShowErrorMessage(false);
+            toggleActualizar(); // Muestra mensaje de guardado exitoso
         } catch (error) {
+            setShowSaveMessage(false);
+            setShowErrorMessage(true); // Muestra mensaje de error
             console.error('Error al guardar al cliente:', error);
         }
-*/
     };
-
 
     return (
         <React.Fragment>
             <Modal
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="child-modal-title"
-              aria-describedby="child-modal-description"
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="child-modal-title"
+                aria-describedby="child-modal-description"
             >
-              <Box sx={{ ...style, width: 700,
+                <Box sx={{ 
+                    ...style, 
                     width: { xs: '90%', sm: '68%', md: '58%', lg: '48%' },
-                    maxHeight: '90vh', // Limita la altura
-                    overflowY: 'auto', // Agrega scroll en caso de contenido extenso
-                    displey: 'flex',
-                    overflowX: 'auto'
-               }}>
+                    maxHeight: '90vh',
+                    overflowY: 'auto',
+                }}>
                     <Grid2 container alignItems="center" justifyContent="space-between">
                         <Grid2 item xs={4} style={{ textAlign: 'left' }}>
                             <h2 id="parent-modal-title">Agregar nuevo cliente</h2>
@@ -137,82 +151,87 @@ export default function AgregarCliente({
 
                         <Grid2 item xs={4} style={{ textAlign: 'right' }}>
                             <Button onClick={handleClose}>
-                                <HighlightOffIcon style={{color: '#b71c1c'}}/>
+                                <HighlightOffIcon style={{ color: '#b71c1c' }} />
                             </Button>
                         </Grid2>
                     </Grid2>
 
                     <Box sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 1fr'}, gap: 2, paddingTop: 2 }}>
-                        <Grid2 sx={{display: 'flex', alignItems: 'center'}}>
-                            <Filter1OutlinedIcon color="azul" sx={{fontSize: '30px'}}/> 
-                            <Typography sx={{paddingLeft: 1, fontSize:'20px'}}>Información Personal</Typography>
+                        <Grid2 sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Filter1OutlinedIcon color="azul" sx={{ fontSize: '30px' }} /> 
+                            <Typography sx={{ paddingLeft: 1, fontSize: '20px' }}>Información Personal</Typography>
                         </Grid2>
 
-                        <Grid2 sx={{display: 'flex', alignItems: 'center', paddingLeft: 1}}>
-                            <Filter2OutlinedIcon color="azul" sx={{fontSize: '30px'}}/> 
-                            <Typography sx={{paddingLeft: 1, fontSize: '20px'}}>Información De Contacto</Typography>
+                        <Grid2 sx={{ display: 'flex', alignItems: 'center', paddingLeft: 1 }}>
+                            <Filter2OutlinedIcon color="azul" sx={{ fontSize: '30px' }} /> 
+                            <Typography sx={{ paddingLeft: 1, fontSize: '20px' }}>Información De Contacto</Typography>
                         </Grid2>
                     </Box>
 
                     <Box sx={{ display: 'grid', gridTemplateColumns: { sm: '1fr 5px 1fr'}, gap: 2, paddingTop: 2 }}>
-
                         <Box>
                             <FormControl sx={{ m: 1 }} variant="standard">
-                                <InputLabel shrink htmlFor="bootstrap-input" >
-                                    Nombre/s
+                                <InputLabel shrink htmlFor="nombre">
+                                     Nombre
                                 </InputLabel>
-                                <BootstrapInput id="nombre" sx={{ width: 300}} value={nombre} onChange={handleChangeNombre} />
+                                <BootstrapInput id="nombre" sx={{ width: 300 }} value={nombre} onChange={handleChangeNombre} />
                             </FormControl>
 
                             <FormControl sx={{ m: 1 }} variant="standard">
-                                <InputLabel shrink htmlFor="bootstrap-input">
-                                    Apellido/s
+                                <InputLabel shrink htmlFor="rut">
+                                    Rut
                                 </InputLabel>
-                                <BootstrapInput id="nombre" sx={{ width: 300}} value={apellido} onChange={handleChangeApellido} />
-                            </FormControl> 
-
-
-                            <FormControl sx={{ m: 1 }} variant="standard">
-                                <InputLabel shrink htmlFor="bootstrap-input">
-                                    Rut/Run
-                                </InputLabel>
-                                <BootstrapInput id="nombre" sx={{ width: 300}} value={rut} onChange={handleChangeRut} />
+                                <BootstrapInput id="rut" sx={{ width: 300 }} value={rut} onChange={handleChangeRut} />
                             </FormControl>
                         </Box>
 
-                        <Divider orientation="vertical" flexItem sx={{ mr: 1, borderWidth: 1, bgcolor: '#daa520'}} />
+                        <Divider orientation="vertical" flexItem sx={{ mr: 1, borderWidth: 1, bgcolor: '#daa520' }} />
 
                         <Box>
                             <FormControl sx={{ m: 1 }} variant="standard">
-                                <InputLabel shrink htmlFor="bootstrap-input">
+                                <InputLabel shrink htmlFor="telefono">
                                     Teléfono
                                 </InputLabel>
-                                <BootstrapInput id="nombre" sx={{ width: 300}} value={telefono} onChange={handleChangeTelefono} />
+                                <BootstrapInput id="telefono" sx={{ width: 300 }} value={telefono} onChange={handleChangeTelefono} />
                             </FormControl>
 
                             <FormControl sx={{ m: 1 }} variant="standard">
-                                <InputLabel shrink htmlFor="bootstrap-input">
+                                <InputLabel shrink htmlFor="correo">
                                     Correo
                                 </InputLabel>
-                                <BootstrapInput id="nombre" sx={{ width: 300}} value={correo} onChange={handleChangeCorreo} />
+                                <BootstrapInput id="correo" sx={{ width: 300 }} value={correo} onChange={handleChangeCorreo} />
                             </FormControl>
 
                             <FormControl sx={{ m: 1 }} variant="standard">
-                                <InputLabel shrink htmlFor="bootstrap-input">
+                                <InputLabel shrink htmlFor="direccion">
                                     Dirección de Despacho
                                 </InputLabel>
-                                <BootstrapInput id="nombre" sx={{ width: 300}} value={direccion} onChange={handleChangeDireccion} />
+                                <BootstrapInput id="direccion" sx={{ width: 300 }} value={direccion} onChange={handleChangeDireccion} />
                             </FormControl>
                         </Box>
                     </Box>
+                    
+                    {showSaveMessage && (
+                        <Box mt={2}>
+                            <Typography variant="body1" color="success.main" align="center">
+                                Cliente Ingresado Exitosamente.
+                            </Typography>
+                        </Box>
+                    )}
+                    
+                    {showErrorMessage && (
+                        <Box mt={2}>
+                            <Typography variant="body1" color="error" align="center">
+                                Ocurrió un error al ingresar el cliente. Intente nuevamente.
+                            </Typography>
+                        </Box>
+                    )}
+
                     <Box mt={2} display="flex" justifyContent="space-between">
-                        {/* Botón izquierdo */}
-                        <Button variant="contained" onClick={handleClose} color="rojo">
+                        <Button variant="contained" onClick={handleClose} color="error">
                             Cancelar
                         </Button>
-                        
-                        {/* Botón derecho */}
-                        <Button variant="contained" onClick={handleGuardar} color={"success"}>
+                        <Button variant="contained" onClick={handleGuardar} color="success">
                             Guardar
                         </Button>
                     </Box>
