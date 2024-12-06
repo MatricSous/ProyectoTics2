@@ -16,7 +16,8 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import VentasModal from '../components/Modals/Ventas.ventas/VentasModal';
 import NestedModalClientes from '../components/Modals/Clientes/clientes';
-import NestedModalCotizaciones from '../components/Modals/cotizaciones/Cotizaciones';
+import NestedModalCotizaciones from '../components/Modals/Cotizaciones/cotizaciones';
+
 export default function LandingProduccion() {
   const style = {
     position: 'absolute',
@@ -46,8 +47,20 @@ export default function LandingProduccion() {
 
 
     return (
-        <div 
-        style={{backgroundColor: '#e5e5e5' , }}>
+      <div
+      style={{
+          backgroundImage: `
+              linear-gradient(rgba(229, 229, 229, 0.8), rgba(229, 229, 229, 0.8)),
+              url(${require('../images/bg.jpg')})
+          `,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          height: '100vh',
+          width: '100vw',
+      }}
+  >
         
         <Container bmaxWidth="sm" style={{ height: '100vh',paddingTop:'120px' ,display: 'flex', alignItems: 'center', justifyContent: 'center',}}>
         <Grid container style={{ position: 'relative', height: '400px', width: '300px' }}>
@@ -87,6 +100,7 @@ export default function LandingProduccion() {
           {/* Botón derecho */}
           <Grid item xs={12} style={{ position: 'absolute', top: '50%', right: '-90%', transform: 'translateY(-50%)' }}>
             <Button variant="contained" color="amarillohoverblanco" startIcon={<RequestQuoteIcon style={{ fontSize: '35px' }}/>} sx={{ width: '300px', height: '75px', fontSize:'30px'  }}>Cotización</Button>
+            <NestedModalCotizaciones open={openCotizaciones} handleClose={handleCloseCotizaciones} handleOpen={handleOpenCotizaciones} />
           </Grid>
           
         </Grid>

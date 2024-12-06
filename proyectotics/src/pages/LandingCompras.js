@@ -22,8 +22,20 @@ export default function LandingProduccion() {
 
 
     return (
-        <div 
-        style={{backgroundColor: '#e5e5e5' , }}>
+      <div
+      style={{
+          backgroundImage: `
+              linear-gradient(rgba(229, 229, 229, 0.8), rgba(229, 229, 229, 0.8)),
+              url(${require('../images/bg.jpg')})
+          `,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          height: '100vh',
+          width: '100vw',
+      }}
+  >
         
         <Container bmaxWidth="sm" style={{ height: '100vh' ,display: 'flex', alignItems: 'center', justifyContent: 'center',}}>
         <Grid container style={{ position: 'relative', height: '400px', width: '300px' }}>
