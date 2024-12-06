@@ -36,10 +36,10 @@ import {
     Style
 } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import RemoveIconIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search'
 import TablaBodegas from './TablaBodegas';
-
+import RemoveIcon from '@mui/icons-material/Remove';
 import axios from 'axios';
 
 const style = {

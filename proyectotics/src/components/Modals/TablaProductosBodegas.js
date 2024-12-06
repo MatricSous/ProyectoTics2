@@ -804,6 +804,7 @@ const fetchOrderDetails = async (orderNumber) => {
   );
 }
 
+
 export default TablaProductosBodegas;
 
 

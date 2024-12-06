@@ -5,6 +5,8 @@ import TablaRecipes from './TablaRecipes';
 import AnadirReceta from './AnadirReceta';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
+import axios from 'axios';
+import ModalVermas from './ModalVermas';
 
 const style = {
   position: 'absolute',
@@ -34,26 +36,77 @@ const rows = [
 ];
 
 const RecipeModal = ({ open, handleClose }) => {
-  const [openModal, setOpenModal] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem('token')); // Estado para el token
+  const [recipes, setRecipes] = useState([]); // Estado para las recetas
+  const [openModal, setOpenModal] = useState(false); // Estado para controlar la apertura del modal de detalles
   const [searchText, setSearchText] = useState(''); // Estado para el texto de búsqueda
-  const [filteredRows, setFilteredRows] = useState(rows); // Estado para las filas filtradas
+  const [filteredRows, setFilteredRows] = useState([]); // Estado para las filas filtradas
   const [selectedMaterials, setSelectedMaterials] = useState([]); // Estado para los materiales seleccionados
+  const [selectedMaterial, setSelectedMaterial] = useState(null); // Estado para el material seleccionado
+  const [selectedMaterialDetails, setSelectedMaterialDetails] = useState(null); // Estado para los detalles del material seleccionado
+  
+  const handleOpenModal = async (recipe) => {
+    try {
+      const materialDetailsPromises = recipe.materiales.map(async (material) => {
+        const response = await axios.get(`http://localhost:8081/materiales/${material.codigo_material}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        return { ...response.data, cantidad: material.cantidad };
+      });
 
-  const HandleModalOpen= () => {
+      const materialDetails = await Promise.all(materialDetailsPromises);
+      setSelectedMaterialDetails({ nombre_receta: recipe.nombre, materiales: materialDetails });
+      setOpenModal(true);
+    } catch (error) {
+      console.error('Error al obtener detalles del material:', error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedMaterialDetails(null);
+  };
+
+  // Removed duplicate handleAddMaterialToRecipe function
+
+  const HandleModalOpen = () => {
     setOpenModal(true);
   };
-  
-  const handleCloseModal= () => {
-    setOpenModal(false);
-  };
+  // Función para obtener las recetas
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      if (token) {
+        try {
+          console.log('Obteniendo Recetas...');
+          const response = await axios.get('http://localhost:8081/recetas', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          console.log('Recetas Obtenidas:', response.data.recetas);
+          const mappedData = response.data.recetas.map(recipe => ({
+            id: recipe.id_recetas,
+            materiales: recipe.materiales,
+            nombre: recipe.nombre_receta,
+            cantidad: '1',
+            detalle: recipe.notas_recetas
+          }));
+          setRecipes(mappedData); // Actualiza las recetas
+          setFilteredRows(mappedData); // Inicializa las filas filtradas con todas las recetas
+        } catch (error) {
+          console.error('Error al obtener Recetas:', error);
+        }
+      }
+    };
+
+    fetchRecipes();
+  }, [token]);
 
   // Filtrar las filas cada vez que cambia el texto de búsqueda
   useEffect(() => {
-    const filtered = rows.filter((row) =>
-      row.nombre.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = recipes.filter((recipe) =>
+      recipe.nombre.toLowerCase().includes(searchText.toLowerCase())
     );
     setFilteredRows(filtered); // Actualiza las filas filtradas
-  }, [searchText]);
+  }, [searchText, recipes]);
 
   const handleSearchChange = (event) => {
     setSearchText(event.target.value); // Actualiza el texto de búsqueda
@@ -66,7 +119,6 @@ const RecipeModal = ({ open, handleClose }) => {
       return [...prevMaterials, material];
     });
   };
-
   return (
     <Modal aria-labelledby="parent-modal-title" aria-describedby="parent-modal-description" open={open} onClose={handleClose}>
       <Box sx={style}>

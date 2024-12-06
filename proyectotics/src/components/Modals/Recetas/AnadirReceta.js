@@ -4,11 +4,15 @@ import { DataGrid } from '@mui/x-data-grid';
 import { esES } from '@mui/x-data-grid/locales';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import SearchIcon from '@mui/icons-material/Search';
-function AnadirReceta({ rows, onClose }) {
+import axios from 'axios';
+
+function AnadirReceta({ rows, onClose, material }) {
   const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [openQuantityModal, setOpenQuantityModal] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [materialToAdd, setMaterialToAdd] = useState(null);
+  const [materialDetails, setMaterialDetails] = useState([]);
+  const [loading, setLoading] = useState(false); // Definir setLoading
 
   const handleSelectMaterial = (selectedMaterial) => {
     setMaterialToAdd(selectedMaterial);
@@ -57,11 +61,13 @@ function AnadirReceta({ rows, onClose }) {
     textAlign: 'center',
   };
 
+  
+
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'nombre', headerName: 'Nombre del Material', width: 200 },
-    { field: 'cantidad', headerName: 'Cantidad', type: 'number', width: 100 },
-    { field: 'detalle', headerName: 'Detalle del Material', width: 300 },
+    { field: 'id_materiales', headerName: 'ID', width: 70 },
+    { field: 'nombre_material', headerName: 'Nombre del Material', width: 200 },
+    { field: 'cantidad_material', headerName: 'Cantidad', type: 'number', width: 100 },
+    { field: 'descripcion_material', headerName: 'Detalle del Material', width: 300 },
     {
       field: 'select',
       headerName: '',
@@ -80,15 +86,41 @@ function AnadirReceta({ rows, onClose }) {
     },
   ];
 
+  useEffect(() => {
+    const fetchMaterialDetails = async () => {
+      setLoading(true); // Iniciar carga
+      try {
+        const response = await axios.get('http://localhost:8081/materiales');
+        const data = response.data.map((item) => ({
+          id_materiales: item.id_materiales,
+          nombre_material: item.nombre_material,
+          codigo_material: item.codigo_material,
+          cantidad_material: item.cantidad_material,
+          descripcion_material: item.descripcion_material,
+          tipo_material: item.tipo_material,
+          precio_material: item.precio_material
+        }));
+        setMaterialDetails(data);
+      } catch (error) {
+        console.error(`Error al obtener los materiales:`, error);
+        setMaterialDetails([]);
+      } finally {
+        setLoading(false); // Finalizar carga
+      }
+    };
+
+    fetchMaterialDetails();
+  }, []);
+                                                              
   const handleRemoveMaterial = (materialToRemove) => {
     setSelectedMaterials((prev) => prev.filter((material) => material.id !== materialToRemove.id));
   };
 
   const columns2 = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'nombre', headerName: 'Nombre del Material', width: 200 },
-    { field: 'cantidad', headerName: 'Cantidad', type: 'number', width: 100 },
-    { field: 'detalle', headerName: 'Detalle del Material', width: 300 },
+    { field: 'id_materiales', headerName: 'ID', width: 70 },
+    { field: 'nombre_material', headerName: 'Nombre del Material', width: 200 },
+    { field: 'cantidad_material', headerName: 'Cantidad', type: 'number', width: 100 },
+    { field: 'descripcion_material', headerName: 'Detalle del Material', width: 300 },
     {
       field: 'select',
       headerName: '',
@@ -147,7 +179,7 @@ function AnadirReceta({ rows, onClose }) {
       onClose(); // Cerrar el modal después de crear la receta
     };
 
-  return (
+  return ( 
     <Box sx={style}>
       <Button onClick={onClose} style={{ position: 'absolute', top: 10, right: 10 }}>
         <HighlightOffIcon style={{ color: '#b71c1c' }} />

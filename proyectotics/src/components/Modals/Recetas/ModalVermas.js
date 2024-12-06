@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Modal, Box } from '@mui/material';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import axios from 'axios';
 
 function ModalVermas({ material, onClose }) {
   const style = {
@@ -45,18 +46,42 @@ function ModalVermas({ material, onClose }) {
   }, [material]); // Cada vez que cambie el material seleccionado, se ejecutará esta función
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'nombre', headerName: 'Nombre del Material', width: 200 },
-    { field: 'cantidad', headerName: 'Cantidad', type: 'number', width: 100 },
-    {
-      field: 'detalle',
-      headerName: 'Detalle',
-      width: 300,
-    },
+    
+    { field: 'codigo_material', headerName: 'Código', width: 200 },
+    { field: 'nombre_material', headerName: 'Nombre del Material', width: 200 },
+    { field: 'cantidad_material', headerName: 'Cantidad', type: 'number', width: 100 },
   ];
 
-  if (loading) return <div>Cargando...</div>;
+  useEffect(() => {
+    
+    const fetchMaterialDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8081/recetas/${material.id}/materiales`);
+        const data = response.data.map((item, index) => ({
+          id: item.id_materiales,
+          nombre_material: item.nombre_material,
+          codigo_material: item.codigo_material,
+          id_materiales: item.id_materiales,
+          cantidad_material: item.cantidad_material,
+          detalle: item.descripcion_material
+        }));
+        return data;
+      } catch (error) {
+        console.error(`Error al obtener los materiales:`, error);
+        return [];
+      }
+    };
 
+    const fetchAndSetMaterialDetails = async () => {
+      const associatedMaterials = await fetchMaterialDetails();
+      setMaterialDetails(associatedMaterials); // Establecemos los materiales relacionados
+      setLoading(false); // Cambiamos el estado a no cargando
+    };
+
+    fetchAndSetMaterialDetails(); // Llamamos a la función para obtener los detalles
+  }, [material?.id]); // Cada vez que cambie el material seleccionado, se ejecuta
+
+  if (loading) return <div>Cargando...</div>;
   return (
     <Box style={{ padding: 20, position: 'relative'}}>
       {/* Botón de cierre en la esquina superior derecha */}

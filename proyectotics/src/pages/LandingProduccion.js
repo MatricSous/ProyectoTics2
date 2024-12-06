@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import Axios from 'axios';
+import Axios from 'axios';
 
 import { Container, Grid, Grid2, Button } from '@mui/material';
 import RecipeModal from '../components/Modals/Recetas/RecipeModal'; // Ajusta la ruta según sea necesario
@@ -7,7 +8,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CategoryIcon from '@mui/icons-material/Category';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import NestedModal from '../components/Modals/productos';
 import NestedModalProductos from '../components/Modals/productos';
 import NestedModalBodega from '../components/Modals/bodega';
 import NestedModalRecetas from '../components/Modals/recetas';

@@ -30,6 +30,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import SearchIcon from '@mui/icons-material/Search';
 import { imageDb} from '../../firebase';
 import {uploadBytes, getDownloadURL, ref} from 'firebase/storage'
 import * as xlsx from "xlsx";

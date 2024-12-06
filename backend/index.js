@@ -1203,10 +1203,30 @@ app.get('/recetas/:id', (req, res) => {
     const recetaId = req.params.id;
     const q = "SELECT * FROM recetas WHERE id_recetas = ?";
 
-    db.query(q, [recetaId], (err, data) => {
+    db.query(q, [recetaId], async (err, data) => {
         if (err) return res.status(500).json({ message: 'Error al obtener la receta', error: err });
         if (data.length === 0) return res.status(404).json({ message: 'Receta no encontrada' });
-        res.json({ receta: data[0] });
+
+        const receta = data[0];
+        const materiales = JSON.parse(receta.materiales);
+
+        try {
+            const materialDetailsPromises = materiales.map(async (material) => {
+                const materialData = await new Promise((resolve, reject) => {
+                    const q2 = "SELECT * FROM materiales WHERE codigo_material = ?";
+                    db.query(q2, [material.codigo], (err, data) => {
+                        if (err) reject(err);
+                        resolve(data[0]);
+                    });
+                });
+                return { ...materialData, cantidad: material.cantidad };
+            });
+
+            const materialDetails = await Promise.all(materialDetailsPromises);
+            res.json({ nombre_receta: receta.nombre_receta, materiales: materialDetails });
+        } catch (error) {
+            res.status(500).json({ message: 'Error al obtener detalles de los materiales', error });
+        }
     });
 });
   
@@ -1551,6 +1571,106 @@ app.post('/ordenes/actualizarOC', verifyToken, (req, res) => {
 });
 
 
+
+// Endpoint para obtener los detalles del material por codigo_material
+app.get('/materiales/:codigo_material', verifyToken, (req, res) => {
+    const codigo_material = req.params.codigo_material;
+    console.log(codigo_material)
+    console.log("aloo")
+
+    // Consulta SQL para obtener los detalles del material por codigo_material
+    const q = `
+      SELECT 
+        m.id_materiales, 
+        m.codigo_material, 
+        m.nombre_material, 
+        m.descripcion_material, 
+        m.tipo_material, 
+        m.precio_material, 
+        m.foto_material, 
+        m.modificar_precio, 
+        m.valor_iva, 
+        m.descuento_maximo
+      FROM materiales m
+      WHERE m.codigo_material = ?
+    `;
+
+    db.query(q, [codigo_material], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar el material en la base de datos', error: err });
+        }
+
+        // Verificar si el material existe
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Material no encontrado' });
+        }
+
+        // Devolver los detalles del material
+        const material = data[0];
+        res.json(material);
+    });
+});
+
+// Endpoint para obtener todos los materiales en base al id de una receta
+app.get('/recetas/:id_recetas/materiales', (req, res) => {
+    const id_recetas = req.params.id_recetas;
+console.log(id_recetas)
+    // Consulta SQL para obtener todos los materiales asociados con el id_recetas
+    const q = `
+      SELECT 
+        m.id_materiales,
+        rm.codigo_material, 
+        m.nombre_material, 
+        m.descripcion_material, 
+        rm.cantidad_material, 
+        m.unidad_medida
+      FROM materiales m
+      JOIN recetas_materiales rm ON m.codigo_material = rm.codigo_material
+      WHERE rm.id_receta = ?
+    `;
+
+    db.query(q, [id_recetas], (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al buscar los materiales en la base de datos', error: err });
+        }
+
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Materiales no encontrados para la receta proporcionada' });
+        }
+
+        // Devolver los detalles de los materiales
+        res.json(data);
+    });
+});
+
+// Endpoint para obtener todos los materiales con todos sus detalles
+app.get('/materiales', verifyToken, async (req, res) => {
+    try {
+        // Consulta SQL para obtener todos los materiales con todos sus detalles
+        const q = `
+            SELECT 
+                m.id_materiales, 
+                m.codigo_material, 
+                m.nombre_material, 
+                m.descripcion_material, 
+                m.tipo_material, 
+                m.precio_material
+            FROM materiales m
+        `;
+
+        // Ejecutar la consulta
+        db.query(q, (err, data) => {
+            if (err) {
+                console.error('Error al obtener los materiales:', err);
+                return res.status(500).json({ message: 'Error al obtener los materiales', error: err });
+            }
+            res.json(data);
+        });
+    } catch (error) {
+        console.error('Error al procesar la solicitud:', error);
+        res.status(500).json({ message: 'Error al procesar la solicitud', error });
+    }
+});
 
 app.listen(8081, () => {
     console.log("listening");
