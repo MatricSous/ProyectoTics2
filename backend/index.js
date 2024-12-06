@@ -1088,7 +1088,7 @@ app.put('/bodegas/:id_bodega', verifyToken, (req, res) => {
 
 //Recetas
 
-// Materiales
+// Endpoint para crear una receta con materiales
 app.post('/recetas/crearReceta', verifyToken, (req, res) => {
     // Extraer el correo del token decodificado
     const correo = req.user.correo;
@@ -1117,12 +1117,6 @@ app.post('/recetas/crearReceta', verifyToken, (req, res) => {
         const codigos = materiales.map(material => material.codigo_material);
         const cantidades = materiales.map(material => material.cantidad);
 
-        // Crear un array de objetos con pares {codigo_material, cantidad}
-        const materialesJson = materiales.map(material => ({
-            codigo: material.codigo_material,
-            cantidad: material.cantidad
-        }));
-
         // Verificar si todos los códigos de materiales existen en la base de datos
         const q2 = "SELECT codigo_material FROM materiales WHERE codigo_material IN (?)";
 
@@ -1143,23 +1137,48 @@ app.post('/recetas/crearReceta', verifyToken, (req, res) => {
 
             // Si todos los materiales existen, proceder a insertar la receta
             const q3 = `INSERT INTO recetas 
-                (nombre_receta, materiales, precio_producto_unitario, foto_producto, notas_recetas, id_bodega) 
-                VALUES (?, ?, ?, ?, ?, ?)`;
+                (nombre_receta, precio_producto_unitario, foto_producto, notas_recetas, id_bodega) 
+                VALUES (?, ?, ?, ?, ?)`;
 
-            // Convertir `materialesJson` a una cadena JSON para la inserción
-            db.query(q3, [nombre_receta, JSON.stringify(materialesJson), precio_producto_unitario, foto_producto, notas_recetas, id_bodega], (err, recetaData) => {
+            // Insertar receta y obtener el id_receta generado
+            db.query(q3, [nombre_receta, precio_producto_unitario, foto_producto, notas_recetas, id_bodega], (err, recetaData) => {
                 if (err) {
                     return res.status(500).json({ message: 'Error al crear la receta', error: err });
                 }
 
-                return res.json({
-                    message: 'Receta creada exitosamente',
-                    recetaId: recetaData.insertId
+                // Obtener el id de la receta recién insertada
+                const idReceta = recetaData.insertId;
+
+                // Insertar los materiales en la tabla recetas_materiales
+                const materialesInsert = materiales.map(material => {
+                    return new Promise((resolve, reject) => {
+                        const q4 = "INSERT INTO recetas_materiales (id_receta, codigo_material, cantidad_material) VALUES (?, ?, ?)";
+                        db.query(q4, [idReceta, material.codigo_material, material.cantidad], (err, result) => {
+                            if (err) {
+                                reject({ message: 'Error al agregar material a la receta', error: err });
+                            } else {
+                                resolve(result);
+                            }
+                        });
+                    });
                 });
+
+                // Ejecutar todas las inserciones de materiales
+                Promise.all(materialesInsert)
+                    .then(() => {
+                        return res.json({
+                            message: 'Receta creada exitosamente',
+                            recetaId: idReceta
+                        });
+                    })
+                    .catch((error) => {
+                        return res.status(500).json(error);
+                    });
             });
         });
     });
 });
+
 
 // Eliminar una receta por ID con verificación de rol
 app.delete('/recetas/:id', verifyToken, (req, res) => {

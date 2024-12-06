@@ -45,7 +45,7 @@ function TablaRecipes({ rows }) {
     { field: 'cantidad', headerName: 'Cantidad', type: 'number', width: 100, headerAlign: 'left', align: 'left' },
     {
       field: 'detalle',
-      headerName: 'Detalle del Material',
+      headerName: 'Descrición',
       width: 450, 
       headerAlign: 'left', 
       align: 'left', 

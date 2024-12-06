@@ -1,5 +1,5 @@
 import React, { useState ,useEffect } from 'react';
-import { Box, Button, Modal, TextField, Typography } from '@mui/material';
+import { Box, Button, Modal, TextField, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { esES } from '@mui/x-data-grid/locales';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -12,11 +12,21 @@ function AnadirReceta({ rows, onClose, material }) {
   const [quantity, setQuantity] = useState(1);
   const [materialToAdd, setMaterialToAdd] = useState(null);
   const [materialDetails, setMaterialDetails] = useState([]);
+  const [selectedBodega, setSelectedBodega] = useState('');
   const [loading, setLoading] = useState(false); // Definir setLoading
+  const bodegas = [
+    { id: 1, nombre: 'Bodega Central' },
+    { id: 2, nombre: 'Bodega Norte' },
+    { id: 3, nombre: 'Bodega Sur' },
+  ];
 
   const handleSelectMaterial = (selectedMaterial) => {
     setMaterialToAdd(selectedMaterial);
     setOpenQuantityModal(true);
+  };
+
+  const handleBodegaChange = (e) => {
+    setSelectedBodega(e.target.value);
   };
 
   const handleAddMaterialWithQuantity = () => {
@@ -25,6 +35,7 @@ function AnadirReceta({ rows, onClose, material }) {
         ...prev,
         { ...materialToAdd, cantidad: quantity },
       ]);
+      console.log(materialToAdd, quantity)
       setOpenQuantityModal(false);
       setQuantity(1); // Resetea la cantidad para la próxima selección
     }
@@ -66,7 +77,7 @@ function AnadirReceta({ rows, onClose, material }) {
   const columns = [
     { field: 'id_materiales', headerName: 'ID', width: 70 },
     { field: 'nombre_material', headerName: 'Nombre del Material', width: 200 },
-    { field: 'cantidad_material', headerName: 'Cantidad', type: 'number', width: 100 },
+    { field: 'cantidad', headerName: 'Cantidad', type: 'number', width: 100 },
     { field: 'descripcion_material', headerName: 'Detalle del Material', width: 300 },
     {
       field: 'select',
@@ -86,32 +97,44 @@ function AnadirReceta({ rows, onClose, material }) {
     },
   ];
 
+  const fetchMaterialDetails = async () => {
+    setLoading(true); // Iniciar carga
+    try {
+      const token = localStorage.getItem('token'); // Obtener el token de almacenamiento local
+      const response = await axios.get('http://localhost:8081/materiales', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Adjuntar el token en el header
+        },
+      });
+      
+      console.log(response)
+
+      const data = response.data.map((item) => ({
+        id: item.id_materiales,
+        id_materiales: item.id_materiales,
+        nombre_material: item.nombre_material,
+        codigo_material: item.codigo_material,
+        descripcion_material: item.descripcion_material,
+        tipo_material: item.tipo_material,
+        precio_material: item.precio_material,
+      }));
+
+      console.log(data);
+      setMaterialDetails(data);
+    } catch (error) {
+      console.error(`Error al obtener los materiales:`, error);
+      setMaterialDetails([]);
+    } finally {
+      setLoading(false); // Finalizar carga
+    }
+  };
+
+
   useEffect(() => {
-    const fetchMaterialDetails = async () => {
-      setLoading(true); // Iniciar carga
-      try {
-        const response = await axios.get('http://localhost:8081/materiales');
-        const data = response.data.map((item) => ({
-          id_materiales: item.id_materiales,
-          nombre_material: item.nombre_material,
-          codigo_material: item.codigo_material,
-          cantidad_material: item.cantidad_material,
-          descripcion_material: item.descripcion_material,
-          tipo_material: item.tipo_material,
-          precio_material: item.precio_material
-        }));
-        setMaterialDetails(data);
-      } catch (error) {
-        console.error(`Error al obtener los materiales:`, error);
-        setMaterialDetails([]);
-      } finally {
-        setLoading(false); // Finalizar carga
-      }
-    };
 
     fetchMaterialDetails();
-  }, []);
-                                                              
+  }, []);                  
+
   const handleRemoveMaterial = (materialToRemove) => {
     setSelectedMaterials((prev) => prev.filter((material) => material.id !== materialToRemove.id));
   };
@@ -119,7 +142,7 @@ function AnadirReceta({ rows, onClose, material }) {
   const columns2 = [
     { field: 'id_materiales', headerName: 'ID', width: 70 },
     { field: 'nombre_material', headerName: 'Nombre del Material', width: 200 },
-    { field: 'cantidad_material', headerName: 'Cantidad', type: 'number', width: 100 },
+    { field: 'cantidad', headerName: 'Cantidad', type: 'number', width: 100 },
     { field: 'descripcion_material', headerName: 'Detalle del Material', width: 300 },
     {
       field: 'select',
@@ -141,12 +164,13 @@ function AnadirReceta({ rows, onClose, material }) {
 
   const [searchText, setSearchText] = useState(''); // Estado para el texto de búsqueda
   const [filteredRows, setFilteredRows] = useState(rows); // Estado para las filas filtradas
+  // Filtra las filas basadas en searchText
   useEffect(() => {
-    const filtered = rows.filter((row) =>
-      row.nombre.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = materialDetails.filter((material) =>
+      material.nombre_material.toLowerCase().includes(searchText.toLowerCase())
     );
     setFilteredRows(filtered); // Actualiza las filas filtradas
-  }, [searchText]);
+  }, [searchText, materialDetails]); // Dependencias: texto de búsqueda y materialDetails
 
   const handleSearchChange = (event) => {
     setSearchText(event.target.value); // Actualiza el texto de búsqueda
@@ -154,6 +178,7 @@ function AnadirReceta({ rows, onClose, material }) {
 
 
   const [recetaNombre, setRecetaNombre] = useState(''); // Estado para el nombre de la receta
+  const [recetaDescripcion, setRecetaDescripcion] = useState('');
   const [isNombreValido, setIsNombreValido] = useState(true); // Estado para validar el nombre
   const [isRecetaCreada, setIsRecetaCreada] = useState(false); // Estado para habilitar el botón de crear receta
 
@@ -167,18 +192,54 @@ function AnadirReceta({ rows, onClose, material }) {
       const isNombreDuplicado = rows.some((row) => row.nombre.toLowerCase() === nombre.toLowerCase());
       setIsNombreValido(nombre && !isNombreDuplicado);
     };
+
+    // Validación de nombre (no repetir en la base de datos)
+    const handleDescripcionChange = (event) => {
+      const nombre = event.target.value;
+      setRecetaDescripcion(nombre);
+  
+      // Verifica si el nombre ya existe en la base de datos (rows)
+      const isNombreDuplicado = rows.some((row) => row.nombre.toLowerCase() === nombre.toLowerCase());
+      setIsNombreValido(nombre && !isNombreDuplicado);
+    };
   
     // Lógica para habilitar el botón "Crear Receta"
     useEffect(() => {
       setIsRecetaCreada(isNombreValido && recetaNombre !== ''); // El botón solo se habilita si el nombre es válido
     }, [recetaNombre, isNombreValido]);
-    
-    const handleCrearReceta = () => {
-      // Aquí se pueden agregar las acciones para crear la receta
-      console.log(`Creando receta: ${recetaNombre}`);
-      onClose(); // Cerrar el modal después de crear la receta
-    };
 
+    const handleCrearReceta = async () => {
+      try {
+        // Preparar los datos para el envío
+        const materiales = selectedMaterials.map((material) => ({
+          codigo_material: material.codigo_material,
+          cantidad: material.cantidad,
+        }));
+  
+        const recetaData = {
+          nombre_receta: recetaNombre,
+          materiales: materiales,
+          precio_producto_unitario: 150.0, // Esto debería ser dinámico según la receta, aquí solo es un ejemplo
+          foto_producto: "https://example.com/images/receta.jpg", // Foto de ejemplo
+          notas_recetas: recetaDescripcion,
+          id_bodega: selectedBodega,
+        };
+  
+        // Enviar la solicitud POST con los datos
+        const token = localStorage.getItem('token'); // Obtener token desde localStorage
+        const response = await axios.post('http://localhost:8081/recetas/crearReceta', recetaData, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Enviar el token de autenticación
+          },
+        });
+  
+        console.log('Receta creada:', response.data);
+        onClose(); // Cerrar el modal después de crear la receta
+      } catch (error) {
+        console.error('Error al crear receta:', error);
+      }
+    };
+    
   return ( 
     <Box sx={style}>
       <Button onClick={onClose} style={{ position: 'absolute', top: 10, right: 10 }}>
@@ -189,41 +250,73 @@ function AnadirReceta({ rows, onClose, material }) {
       </h2>
       <div style={{ marginTop: -15 }} className="Raya"></div>
 
-      {/* Lista de materiales */}
-      <Box>
+      <Box sx={{ marginTop: 3 }}>
+      {/* Campo de nombre de la receta */}
       <TextField
-          label="Nombre de la Receta"
-          variant="outlined"
-          value={recetaNombre}
-          onChange={handleNombreChange}
-          error={!isNombreValido}
-          helperText={!isNombreValido && 'El nombre ya está en uso o es inválido'}
-          sx={{ width: '300px', paddingBottom:'40px' }}
-        />
-      
+        label="Nombre de la Receta"
+        variant="outlined"
+        value={recetaNombre}
+        onChange={handleNombreChange}
+        error={!isNombreValido}
+        helperText={!isNombreValido && 'El nombre ya está en uso o es inválido'}
+        sx={{ width: '300px', paddingBottom: '40px' }}
+      />
 
       <h2 style={{ textAlign: 'center', marginTop: -80 }}>Lista De Materiales</h2>
-      {/* Nueva sección para seleccionar el nombre de la receta */}
-      
-        <Box  sx={{ marginTop: 3, display: 'flex', justifyContent: 'space-between' }}>
+
+      {/* Nueva sección para la búsqueda, descripción y selector de bodega */}
+      <Box sx={{ marginTop: 3, display: 'flex', justifyContent: 'space-between' }}>
+        {/* Campo de búsqueda */}
         <TextField
-            label="Buscar por nombre"
-            variant="outlined"
-            value={searchText}
-            onChange={handleSearchChange}
-            sx={{ marginBottom: 1, width: '300px' }}
+          label="Buscar por nombre"
+          variant="outlined"
+          value={searchText}
+          onChange={handleSearchChange}
+          sx={{ marginBottom: 1, width: '300px' }}
         />
+
+        {/* Campo de descripción */}
+        <TextField
+          label="Descripción"
+          variant="outlined"
+          value={recetaDescripcion}
+          onChange={handleDescripcionChange}
+          sx={{ marginBottom: 1, width: '300px' }}
+        />
+
+        {/* Selector de bodega */}
+        <FormControl sx={{ marginBottom: 1, width: '300px' }}>
+          <InputLabel id="select-bodega-label">Bodega</InputLabel>
+          <Select
+            labelId="select-bodega-label"
+            value={selectedBodega}
+            onChange={handleBodegaChange}
+            label="Bodega"
+          >
+            <MenuItem value="">
+              <em>Seleccionar Bodega</em>
+            </MenuItem>
+            {bodegas.map((bodega) => (
+              <MenuItem key={bodega.id} value={bodega.id}>
+                {bodega.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Botón para crear la receta */}
         <Button
           variant="contained"
           color="amarillo"
           disabled={!isRecetaCreada}
           onClick={handleCrearReceta}
-          sx={{ height: 55,  textAlign: 'center'}}
+          sx={{ height: 55, textAlign: 'center' }}
         >
           Crear Receta
         </Button>
       </Box>
-      </Box>
+    </Box>
+
       <Box style={{ flexGrow: 1, height: 200, overflow: 'auto' }}>
       <DataGrid
         localeText={esES.components.MuiDataGrid.defaultProps.localeText}
