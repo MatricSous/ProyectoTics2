@@ -6,8 +6,9 @@ import { esES } from '@mui/x-data-grid/locales';
 import ModalVermas from './ModalVermas'; // Asegúrate de que la ruta sea correcta
 import EditIcon from '@mui/icons-material/Edit';
 import EditarVenta from './EditarVenta';
+import CloseIcon from '@mui/icons-material/Close';
 
-function TablaAnadir({ rows }) {
+function TablaAnadir({ rows, setRows, onSaveChanges }) {
   const style = {
     position: 'absolute',
     top: '50%',
@@ -42,6 +43,9 @@ function TablaAnadir({ rows }) {
     setOpenModal(false); // Cierra el modal
   };
 
+  const handleRemoveMaterial = (id) => {
+    setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+  };
   
   
     
@@ -83,6 +87,13 @@ function TablaAnadir({ rows }) {
             >
             </EditIcon>
             </Tooltip>
+            {/* Botón para eliminar material */}
+            <Tooltip title="Eliminar">
+              <CloseIcon
+                onClick={() => handleRemoveMaterial(params.row.id)}
+                sx={{ cursor: 'pointer', color: 'red' }}
+              />
+            </Tooltip>
             </div>
           ), 
       },
@@ -94,7 +105,7 @@ function TablaAnadir({ rows }) {
     <div style={{ height: 200, width: '100%' }}>
       <DataGrid
        headerHeight={50}
-       rowHeight={25}
+       rowHeight={30}
        rows={rows}
        columns={columns}
        checkboxSelection={false}
@@ -157,7 +168,7 @@ function TablaAnadir({ rows }) {
       {/* Modal de "Ver más" */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box>
-          <EditarVenta material={selectedMaterial} onClose={handleCloseModal} />
+          <EditarVenta material={selectedMaterial} onClose={handleCloseModal} onSaveChanges={onSaveChanges}  />
         </Box>
       </Modal>           
     </div>
