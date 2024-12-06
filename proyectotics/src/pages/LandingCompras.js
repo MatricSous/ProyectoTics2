@@ -31,10 +31,7 @@ export default function LandingProduccion() {
           {/* Botón superior */}
           
             
-          {/* Botón inferior */}
-          <Grid item xs={12} style={{ position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)' }}>
-            <Button variant="contained" color="azul" startIcon={<SettingsIcon />} >Ajustes</Button>
-          </Grid>
+         
   
           {/* Botón izquierdo */}
           <Grid item xs={12}  style={{ position: 'absolute', top: '50%', left: '-70%', transform: 'translateY(-50%)', paddingRight: '16px' }}>
