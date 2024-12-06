@@ -34,7 +34,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { imageDb} from '../../firebase';
 import {uploadBytes, getDownloadURL, ref} from 'firebase/storage'
 import * as xlsx from "xlsx";
-import SearchIcon from '@mui/icons-material/Search';
+
 import logo from '../../images/LOGOrial.png'; // Ajusta la ruta de tu logo
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import { DataGrid } from '@mui/x-data-grid';

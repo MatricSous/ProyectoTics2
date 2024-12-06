@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import Axios from 'axios';
-import Axios from 'axios';
+
 
 import { Container, Grid, Grid2, Button } from '@mui/material';
 import RecipeModal from '../components/Modals/Recetas/RecipeModal'; // Ajusta la ruta según sea necesario
@@ -90,8 +90,9 @@ export default function LandingProduccion() {
         onClick={handleOpenRecetas}>
           Recetas
         </Button>
-        <NestedModalRecetas open={openRecetas} handleClose={handleCloseRecetas} handleOpen={handleOpenRecetas} />
+        <RecipeModal open={openRecetas} handleClose={handleCloseRecetas} handleOpen={handleOpenRecetas} />
       </Grid2>
+      
       
     </Grid2>
   </Container>

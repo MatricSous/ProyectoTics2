@@ -62,7 +62,7 @@ function TablaRecipes({ rows }) {
           color="negro"
           onClick={() => handleVerMas(params.row)} // Acción al hacer clic
         >
-          <MoreHorizIcon /> Ver más
+          <MoreHorizIcon />  Ver más
         </Button>
       ),
     },
